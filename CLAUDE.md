@@ -31,7 +31,7 @@ Useful CMake options:
 
 On Linux, missing headers usually mean missing dev packages — see the "Linux build dependencies" wiki page linked from README.md. CI installs: `libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libwebkit2gtk-4.1-dev libglu1-mesa-dev xvfb libjack-dev libsndfile-dev`.
 
-There is no test suite in this repository — changes are validated by building and loading the plugin/standalone in a DAW or host.
+There is a small headless regression test suite (`Source/Tests/`, built as the `DexedTests` CMake target, runnable via `ctest` or the binary directly) covering plumbing-level regressions like parameter registration — it does not cover DSP correctness, UI behavior, or host automation. For everything else, changes are validated by building and loading the plugin/standalone in a DAW or host.
 
 CI (`.github/workflows/project-pipeline.yml`) builds Linux/Windows/macOS in parallel and publishes to a rolling "Nightly" GitHub release on branch pushes, or to a tagged release when a tag is pushed.
 
