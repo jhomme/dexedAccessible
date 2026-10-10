@@ -25,63 +25,6 @@
 #include <stdint.h>
 
 //==============================================================================
-// THIS IS A TEMPORY FIX FOR COMBOBOX ACCESSIBILITY
-// SEE: https://forum.juce.com/t/bug-combo-box-accessibility-bug/62501/2
-// WILL BE REMOVED ONCE WE UPDATE TO JUCE 8
-class ComboBoxAccessibilityHandlerFix final : public AccessibilityHandler
-{
-public:
-    explicit ComboBoxAccessibilityHandlerFix (ComboBox& comboBoxToWrap)
-        : AccessibilityHandler (comboBoxToWrap,
-                                AccessibilityRole::comboBox,
-                                getAccessibilityActions (comboBoxToWrap),
-                                { std::make_unique<ComboBoxValueInterface> (comboBoxToWrap) }),
-          comboBox (comboBoxToWrap)
-    {
-    }
-
-    AccessibleState getCurrentState() const override
-    {
-        auto state = AccessibilityHandler::getCurrentState().withExpandable();
-
-        return comboBox.isPopupActive() ? state.withExpanded() : state.withCollapsed();
-    }
-
-    String getTitle() const override  { return comboBox.getTitle(); }  // THE FIX IS RIGHT HERE
-    String getHelp() const override   { return comboBox.getTooltip(); }
-
-private:
-    class ComboBoxValueInterface final : public AccessibilityTextValueInterface
-    {
-    public:
-        explicit ComboBoxValueInterface (ComboBox& comboBoxToWrap)
-            : comboBox (comboBoxToWrap)
-        {
-        }
-
-        bool isReadOnly() const override                 { return true; }
-        String getCurrentValueAsString() const override  { return comboBox.getText(); }
-        void setValueAsString (const String&) override   {}
-
-    private:
-        ComboBox& comboBox;
-
-        //==============================================================================
-        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ComboBoxValueInterface)
-    };
-
-    static AccessibilityActions getAccessibilityActions (ComboBox& comboBox)
-    {
-        return AccessibilityActions().addAction (AccessibilityActionType::press,    [&comboBox] { comboBox.showPopup(); })
-                                     .addAction (AccessibilityActionType::showMenu, [&comboBox] { comboBox.showPopup(); });
-    }
-
-    ComboBox& comboBox;
-
-    //==============================================================================
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ComboBoxAccessibilityHandlerFix)
-};
-//==============================================================================
 
 class EnvDisplay : public Component {
 public:
@@ -120,11 +63,6 @@ public:
     virtual void showPopup() override;
     void setImage(Image image);
     void setImage(Image image, int pos[]);
-
-    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
-        return std::make_unique<ComboBoxAccessibilityHandlerFix> (*this);
-    }
-
 };
 
 class ProgramSelector : public ComboBox {
@@ -138,10 +76,6 @@ public:
     virtual void mouseEnter(const MouseEvent &event) override { accum_wheel = 0; }
     virtual void mouseWheelMove(const MouseEvent &event, const MouseWheelDetails &wheel) override;
     virtual void paint(Graphics &g) override;
-
-    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
-        return std::make_unique<ComboBoxAccessibilityHandlerFix> (*this);
-    }
 };
 
 // Simple Slider to make 10 % jumps when shift is pressed on keypress, but more precise with mouse wheel.
