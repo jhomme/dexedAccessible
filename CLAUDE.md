@@ -56,3 +56,11 @@ CI (`.github/workflows/project-pipeline.yml`) builds Linux/Windows/macOS in para
 
 ### Build graph
 Top-level `CMakeLists.txt` pulls in JUCE and `clap-juce-extensions`, then `add_subdirectory(libs)`, `add_subdirectory(assets)`, `add_subdirectory(Source)`. `assets/` builds `DexedResources` (binary data: UI images, fonts, the built-in program zip) via `juce_add_binary_data`. `Source/CMakeLists.txt` defines the `Dexed` plugin target via `juce_add_plugin`, lists all sources (including `msfa/*`), and links JUCE modules, `tuning-library`, `surgesynthteam_tuningui`, and `DexedResources`.
+
+
+## Build targets
+
+- This Mac is Apple silicon. Every macOS build must include arm64. Never produce an x86_64-only binary.
+- Before the first build, read the CMake files. Tell me which architectures the project builds for and where it installs the app and plugins.
+- After every build, run the file command on each built binary and show me the output. Stop if any binary lacks arm64.
+- Before installing a build, list every existing Dexed copy in /Applications, /Library/Audio/Plug-Ins, and ~/Library/Audio/Plug-Ins with its architecture. Ask me before overwriting or deleting any of them.
