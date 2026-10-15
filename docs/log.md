@@ -48,5 +48,18 @@ during playback. The announcements only fire where a slider value actually chang
 Built the standalone target and confirmed the binary is arm64. Ran DexedTests, still passing.
 
 Jim tested the EnvDisplay, PitchEnvDisplay, and LcdDisplay changes with VoiceOver, in the
-standalone app. Passed. Marked that task done in Plan.md and acceptance.md. Not yet committed
-or pushed, and not yet tested in VST3 or AU inside Logic.
+standalone app. Passed. Marked that task done in Plan.md and acceptance.md. Committed and
+pushed, `f15bc98`. Still not tested in VST3 or AU inside Logic.
+
+Looked through the upstream repo, asb2m10/dexed, for accessibility related pull requests and
+issues, at Jim's request. Found that pull request 449, "238 accessibility," is already merged
+and already part of our codebase, since it's the origin of the ProgramLabelAH pattern we've
+been following. Found three things upstream hasn't built yet: issue 515, about a cartridge
+load button that's hard for a screen reader user to find, and two open, unmerged pull
+requests, 181, keeping keyboard focus on the on-screen keyboard while browsing patches, and
+409, octave shift buttons. Added these three as a new Future enhancements section in
+docs/prd.md, not on Plan.md yet since they're ideas, not committed tasks.
+
+At Jim's request, posted a comment on each of the three upstream items, issue 515 and pull
+requests 181 and 409, saying he maintains this fork and intends to fold each one in as he's
+able.

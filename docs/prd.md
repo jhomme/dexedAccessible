@@ -33,3 +33,21 @@ current value, and to announce changes as they happen rather than only once.
 - Windows accessibility, NVDA, or JAWS support. This fork's accessibility work targets Mac and
   VoiceOver, since that's the platform jhomme uses. The user's general working rules call for
   NVDA and JAWS support on Windows projects, but this particular project is Mac only.
+
+## Future enhancements
+Ideas found while looking at open accessibility work in the upstream repo, asb2m10/dexed. Not
+committed to Plan.md yet. Worth revisiting once the current plan's work is done.
+
+- Fix the discoverability problem described in upstream issue 515, "accessibility: Loading DX7
+  patches." A screen reader user couldn't find the cartridge load button, since it's labeled
+  just "Cart" and sits far from the patch selector in keyboard tab order. The fix would be a
+  clearer label and moving it closer to the patch selector.
+  https://github.com/asb2m10/dexed/issues/515
+- Consider porting upstream pull request 181, "Add option to keep keyboard focussed on the MIDI
+  keyboard." Lets you browse patches with the arrow keys while the computer keyboard stays
+  mapped to play notes, so you can hear each patch as you move through the list. Not merged
+  upstream. https://github.com/asb2m10/dexed/pull/181
+- Consider porting upstream pull request 409, "added octave up and down buttons." Adds buttons
+  to shift the on-screen keyboard up or down an octave, reachable from a plain computer
+  keyboard. Not merged upstream, and the author notes a known bug where shifting octaves while
+  holding notes can leave notes stuck. https://github.com/asb2m10/dexed/pull/409
