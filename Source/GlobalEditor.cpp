@@ -572,48 +572,56 @@ void GlobalEditor::sliderValueChanged (juce::Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_pitchRate2] -- add your slider handling code here..
         pitchEnvDisplay->repaint();
+        pitchEnvDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_pitchRate2]
     }
     else if (sliderThatWasMoved == pitchRate3.get())
     {
         //[UserSliderCode_pitchRate3] -- add your slider handling code here..
         pitchEnvDisplay->repaint();
+        pitchEnvDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_pitchRate3]
     }
     else if (sliderThatWasMoved == pitchRate4.get())
     {
         //[UserSliderCode_pitchRate4] -- add your slider handling code here..
         pitchEnvDisplay->repaint();
+        pitchEnvDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_pitchRate4]
     }
     else if (sliderThatWasMoved == pitchRate1.get())
     {
         //[UserSliderCode_pitchRate1] -- add your slider handling code here..
         pitchEnvDisplay->repaint();
+        pitchEnvDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_pitchRate1]
     }
     else if (sliderThatWasMoved == pitchLevel2.get())
     {
         //[UserSliderCode_pitchLevel2] -- add your slider handling code here..
         pitchEnvDisplay->repaint();
+        pitchEnvDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_pitchLevel2]
     }
     else if (sliderThatWasMoved == pitchLevel3.get())
     {
         //[UserSliderCode_pitchLevel3] -- add your slider handling code here..
         pitchEnvDisplay->repaint();
+        pitchEnvDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_pitchLevel3]
     }
     else if (sliderThatWasMoved == pitchLevel4.get())
     {
         //[UserSliderCode_pitchLevel4] -- add your slider handling code here..
         pitchEnvDisplay->repaint();
+        pitchEnvDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_pitchLevel4]
     }
     else if (sliderThatWasMoved == pitchLevel1.get())
     {
         //[UserSliderCode_pitchLevel1] -- add your slider handling code here..
         pitchEnvDisplay->repaint();
+        pitchEnvDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_pitchLevel1]
     }
     else if (sliderThatWasMoved == transpose.get())
@@ -764,7 +772,7 @@ void GlobalEditor::setSystemMessage(String msg) {
 }
 
 void GlobalEditor::setParamMessage(String msg) {
-    lcdDisplay->paramMsg = msg;
+    lcdDisplay->setSystemMsg(msg);
     lcdDisplay->repaint();
 }
 

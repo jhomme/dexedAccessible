@@ -340,6 +340,7 @@ LcdDisplay::LcdDisplay() {
 
 void LcdDisplay::setSystemMsg(String msg) {
     paramMsg = msg;
+    notifyAccessibleValueChanged();
 }
 
 void LcdDisplay::paint(Graphics &g) {

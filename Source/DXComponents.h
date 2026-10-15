@@ -30,8 +30,34 @@ class EnvDisplay : public Component {
 public:
     EnvDisplay();
     uint8_t *pvalues;
-    char vPos;    
+    char vPos;
     void paint(Graphics &g);
+
+    void notifyAccessibleValueChanged() {
+        if (auto *handler = getAccessibilityHandler())
+            handler->notifyAccessibilityEvent(AccessibilityEvent::valueChanged);
+    }
+
+    struct EnvDisplayAH : public juce::AccessibilityHandler {
+        explicit EnvDisplayAH(EnvDisplay *s): display(s), juce::AccessibilityHandler(*s, juce::AccessibilityRole::label) {
+        }
+
+        virtual String getTitle() const override {
+            uint8_t *rates = display->pvalues;
+            uint8_t *levels = display->pvalues + 4;
+            String title("Envelope");
+            for (int i = 0; i < 4; i++)
+                title << ", rate " << (i + 1) << " " << (int) rates[i] << ", level " << (i + 1) << " " << (int) levels[i];
+            return title;
+        }
+
+        EnvDisplay *display;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(EnvDisplayAH);
+    };
+
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<EnvDisplayAH>(this);
+    }
 };
 
 class PitchEnvDisplay : public Component {
@@ -41,6 +67,32 @@ public:
     uint8_t *pvalues;
     char vPos;
     void paint(Graphics &g);
+
+    void notifyAccessibleValueChanged() {
+        if (auto *handler = getAccessibilityHandler())
+            handler->notifyAccessibilityEvent(AccessibilityEvent::valueChanged);
+    }
+
+    struct PitchEnvDisplayAH : public juce::AccessibilityHandler {
+        explicit PitchEnvDisplayAH(PitchEnvDisplay *s): display(s), juce::AccessibilityHandler(*s, juce::AccessibilityRole::label) {
+        }
+
+        virtual String getTitle() const override {
+            uint8_t *rates = display->pvalues;
+            uint8_t *levels = display->pvalues + 4;
+            String title("Pitch envelope");
+            for (int i = 0; i < 4; i++)
+                title << ", rate " << (i + 1) << " " << (int) rates[i] << ", level " << (i + 1) << " " << (int) levels[i];
+            return title;
+        }
+
+        PitchEnvDisplay *display;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(PitchEnvDisplayAH);
+    };
+
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<PitchEnvDisplayAH>(this);
+    }
 };
 
 class LcdDisplay : public Component {
@@ -48,7 +100,28 @@ public:
     LcdDisplay();
     void setSystemMsg(String msg);
     String paramMsg;
-    void paint(Graphics &g);    
+    void paint(Graphics &g);
+
+    void notifyAccessibleValueChanged() {
+        if (auto *handler = getAccessibilityHandler())
+            handler->notifyAccessibilityEvent(AccessibilityEvent::valueChanged);
+    }
+
+    struct LcdDisplayAH : public juce::AccessibilityHandler {
+        explicit LcdDisplayAH(LcdDisplay *s): display(s), juce::AccessibilityHandler(*s, juce::AccessibilityRole::label) {
+        }
+
+        virtual String getTitle() const override {
+            return display->paramMsg;
+        }
+
+        LcdDisplay *display;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(LcdDisplayAH);
+    };
+
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<LcdDisplayAH>(this);
+    }
 };
 
 class ComboBoxImage : public ComboBox {
