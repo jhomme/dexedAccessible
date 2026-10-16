@@ -47,3 +47,9 @@ Done when VoiceOver announces "Portamento Time" landing on that dial in the para
 dialog, instead of reporting it as unlabeled.
 - Jim tests: with VoiceOver on, tab to the portamento time dial in the parameter dialog and
   confirm it announces a name. Confirmed working, 2026-10-15.
+
+## Algorithm dial title
+Done when VoiceOver announces "Algorithm" landing on the algorithm number dial in the main
+window, instead of reporting it as unlabeled.
+- Jim tests: with VoiceOver on, tab to the algorithm dial and confirm it announces a name.
+  Confirmed working, 2026-10-15.

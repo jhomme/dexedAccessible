@@ -462,6 +462,7 @@ GlobalEditor::GlobalEditor ()
     setFocusContainerType(FocusContainerType::focusContainer);
     setWantsKeyboardFocus(true);
     aboutButton->setTitle("About DEXED");
+    algo->setTitle("Algorithm");
     //[/Constructor]
 }
 

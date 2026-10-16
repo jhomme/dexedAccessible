@@ -46,8 +46,13 @@
 - Committed and pushed the docs updates. `d94b568`. `accessibility` and
   `origin/accessibility` are in sync.
 
+- Found and fixed another unlabeled control: the algorithm number dial itself had no spoken
+  name, so VoiceOver reported it as unlabeled. Added a title, "Algorithm", in
+  `Source/GlobalEditor.cpp`. Built, confirmed arm64, and Jim confirmed with VoiceOver in the
+  standalone app. Not committed or pushed yet.
+
 ## What's next
-- Commit and push this AlgoDisplay work once Jim says to.
+- Commit and push the AlgoDisplay work and the algorithm dial title fix once Jim says to.
 - Optional: test the VST3 and AU builds in Logic too, the way the earlier crash fix was
   tested, though the standalone test already covers the behavior itself.
 

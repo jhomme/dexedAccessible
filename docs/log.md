@@ -111,3 +111,10 @@ Jim also pointed out VoiceOver Utility has its own setting to always speak help 
 automatically. Since this plugin only ever sets the tooltip text and never speaks it itself,
 that setting already gives automatic announcement for anyone who wants it, with no code on
 our side. Dropped the optional toggle idea from the plan since it's redundant with that.
+
+After that, Jim found the algorithm dial itself had no spoken name, so VoiceOver reported it
+as unlabeled. Earlier planning had assumed this dial already announced "algorithm," based on
+Jim's recollection, but checking the code in GlobalEditor.cpp showed no setTitle call was ever
+added for it, unlike its neighboring controls. Added `algo->setTitle("Algorithm")` next to the
+file's other accessibility titles. Built, confirmed arm64, and Jim confirmed with VoiceOver
+that it now announces a name.
