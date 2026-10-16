@@ -69,13 +69,20 @@
   on `midiKeyboard` in `Source/PluginEditor.cpp` instead, and added a plain description,
   "Shows which notes are playing. Play notes with a MIDI keyboard or the mouse." Built,
   confirmed arm64, ran DexedTests, still passing. Jim confirmed with VoiceOver that
-  interacting with the keyboard area now lists its two scroll buttons by name. Not committed
-  or pushed yet.
+  interacting with the keyboard area now lists its two scroll buttons by name. Committed and
+  pushed, `e4a3be0`.
+- Jim then tested today's whole batch of fixes in Logic. He first tried old VST3 and AU
+  builds that hadn't been rebuilt since before today's work, so none of it was there yet,
+  which was a good reminder that building the standalone app doesn't rebuild the other
+  formats. Built and installed fresh VST3 and AU, both confirmed arm64. Worth flagging: both
+  of those build targets install themselves straight into `~/Library/Audio/Plug-Ins`
+  automatically, overwriting what was there, before there's a chance to list existing copies
+  and ask first the way this project's rules normally call for. With the fresh builds in
+  place, Jim confirmed everything works the same in Logic as in the standalone app.
 
 ## What's next
-- Commit and push the keyboard keys group content fix once Jim says to.
-- Optional: test the VST3 and AU builds in Logic too, the way the earlier crash fix was
-  tested, though the standalone test already covers the behavior itself.
+- No specific task queued. Could resume looking for more unlabeled or misbehaving controls,
+  or pick something else from docs/Plan.md or docs/prd.md's future enhancements section.
 
 ## Open questions
 - None right now.

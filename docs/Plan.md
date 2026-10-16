@@ -38,3 +38,6 @@ Tasks in order. Checked items are done.
   see its two scroll buttons were really there. Marked it one in `Source/PluginEditor.cpp` and
   added a plain description of what the keyboard is for. Jim confirmed with VoiceOver,
   2026-10-15.
+- [x] Test today's batch of fixes, the algorithm dial, the mono mode switch, the keyboard
+  scroll buttons, and the keyboard keys group content, in Logic, in both the VST3 and AU
+  builds. Passed, 2026-10-15.

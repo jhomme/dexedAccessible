@@ -75,3 +75,7 @@ the group from sounding broken when there is real content inside it.
 - Jim tests: with VoiceOver on, land on the "Keyboard keys" group and use the interact
   command. Confirm it lists the two scroll buttons by name instead of saying the content is
   empty. Confirmed working, 2026-10-15.
+
+Jim also tested this whole batch of fixes, the algorithm dial, the mono mode switch, the
+keyboard scroll buttons, and the keyboard keys group content, in Logic, in both the VST3 and
+AU builds, not just the standalone app. Confirmed working, 2026-10-15.

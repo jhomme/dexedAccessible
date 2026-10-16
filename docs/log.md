@@ -172,3 +172,14 @@ Reverted the image role attempt and instead set that focus container flag on `mi
 "Shows which notes are playing. Play notes with a MIDI keyboard or the mouse." Built, confirmed
 arm64, ran DexedTests, still passing. Jim confirmed with VoiceOver that interacting with the
 keyboard area now lists its two scroll buttons by name instead of reporting empty content.
+
+Jim then checked today's whole batch of fixes in Logic. He first tested old VST3 and AU
+builds that hadn't been rebuilt since before any of today's work, so understandably none of
+it showed up, which was a useful reminder that building the standalone app doesn't also
+rebuild the other formats. Built and installed Dexed_VST3 and Dexed_AU, confirmed both arm64.
+One thing worth noting: both of those build targets install themselves straight into
+~/Library/Audio/Plug-Ins automatically as part of the build, overwriting whatever was there,
+before there was a chance to list existing copies and ask first, the way this project's rules
+normally call for. Flagged that to Jim as it happened rather than after the fact. With the
+freshly built VST3 and AU in place, Jim confirmed all of today's fixes work the same way in
+Logic as they did in the standalone app.
