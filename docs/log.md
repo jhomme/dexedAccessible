@@ -117,4 +117,34 @@ as unlabeled. Earlier planning had assumed this dial already announced "algorith
 Jim's recollection, but checking the code in GlobalEditor.cpp showed no setTitle call was ever
 added for it, unlike its neighboring controls. Added `algo->setTitle("Algorithm")` next to the
 file's other accessibility titles. Built, confirmed arm64, and Jim confirmed with VoiceOver
-that it now announces a name.
+that it now announces a name. Committed and pushed, `9c0e188`.
+
+Started a walkthrough where Jim tabs through the whole plugin with VoiceOver and calls out
+each control that announces no name, one at a time, so we can fix them as we go.
+
+Found the mono or poly switch, `monoMode` in GlobalEditor.cpp, had empty button text and no
+title, so VoiceOver just said "button" with nothing else. Added
+`monoMode->setTitle("Mono Mode")`. Jim confirmed with VoiceOver.
+
+The next unlabeled button was harder to place. Jim described it as sitting in VoiceOver's
+order between the "Global Parameters" group and the "Keyboard keys" group, and said pressing
+it seemed to move something to the right of the keyboard, then pressing it again moved it
+back, with nothing new appearing on screen. Reading the source code wasn't enough to identify
+it, so we used two system tools instead of guessing further: a screenshot of the running app,
+which needed Screen Recording permission for the terminal, and a direct query of the
+currently focused accessibility element, using the system's own tool for talking to other
+apps' interfaces, which needed Accessibility permission too. Jim turned both on. With Jim
+parked on the control in VoiceOver, the query reported a plain button with no title, 12 points
+wide and 90 points tall, sitting at the right edge of where the on-screen keyboard is drawn.
+
+That size and position matched the on-screen keyboard's own built-in scroll button, which
+JUCE, the framework this plugin is built on, adds automatically at each end of the keyboard to
+shift the visible range of notes by an octave. JUCE never gives these two buttons a name. They
+also show or hide themselves depending on whether there's anything left to scroll to, which
+explains why the control seemed to shift position or vanish when pressed. This is in vendored
+JUCE code, not something built for this project, so rather than edit the library itself, named
+both buttons from our own code in PluginEditor.cpp, right after the keyboard component is set
+up: they're always the keyboard's first two child components, in a fixed order, scroll down
+first and scroll up second, so they can be reached and named safely from outside. Built,
+confirmed arm64, and Jim confirmed with VoiceOver that both ends of the keyboard now announce
+a name, "Scroll Keyboard Down an Octave" and "Scroll Keyboard Up an Octave."

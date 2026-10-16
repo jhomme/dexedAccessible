@@ -82,6 +82,15 @@ DexedAudioProcessorEditor::DexedAudioProcessorEditor (DexedAudioProcessor* owner
     midiKeyboard.setBounds(4, 581, getWidth() - 8, 90);
     midiKeyboard.setTitle("Keyboard keys");
 
+    // JUCE's keyboard component adds two scroll buttons, one at each end, to shift the
+    // visible octave range. They are its only two child components, always in this order,
+    // and JUCE never gives them a name, so VoiceOver reports them as unlabeled. Name them
+    // here instead of patching vendored JUCE code.
+    if (auto *scrollDown = midiKeyboard.getChildComponent(0))
+        scrollDown->setTitle("Scroll Keyboard Down an Octave");
+    if (auto *scrollUp = midiKeyboard.getChildComponent(1))
+        scrollUp->setTitle("Scroll Keyboard Up an Octave");
+
     frameComponent.addAndMakeVisible(&global);
     global.setBounds(2,436,864,144);
     global.bind(this);

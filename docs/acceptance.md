@@ -53,3 +53,16 @@ Done when VoiceOver announces "Algorithm" landing on the algorithm number dial i
 window, instead of reporting it as unlabeled.
 - Jim tests: with VoiceOver on, tab to the algorithm dial and confirm it announces a name.
   Confirmed working, 2026-10-15.
+
+## Mono mode switch title
+Done when VoiceOver announces "Mono Mode" landing on the mono or poly switch in the main
+window, instead of reporting it as an unnamed button.
+- Jim tests: with VoiceOver on, tab to the mono mode switch and confirm it announces a name.
+  Confirmed working, 2026-10-15.
+
+## Keyboard scroll button titles
+Done when VoiceOver announces "Scroll Keyboard Down an Octave" and "Scroll Keyboard Up an
+Octave" on the two small scroll buttons at each end of the on-screen keyboard, instead of
+reporting them as unnamed buttons.
+- Jim tests: with VoiceOver on, tab to each end of the on-screen keyboard and confirm each
+  scroll button announces a name. Confirmed working, 2026-10-15.

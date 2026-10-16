@@ -463,6 +463,7 @@ GlobalEditor::GlobalEditor ()
     setWantsKeyboardFocus(true);
     aboutButton->setTitle("About DEXED");
     algo->setTitle("Algorithm");
+    monoMode->setTitle("Mono Mode");
     //[/Constructor]
 }
 
