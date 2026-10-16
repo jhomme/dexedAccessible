@@ -643,6 +643,7 @@ void GlobalEditor::sliderValueChanged (juce::Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_algo] -- add your slider handling code here..
         algoDisplay->repaint();
+        algo->setTooltip (AlgoDisplay::describeAlgorithm (*algoDisplay->algo, algoDisplay->opStatus));
         //[/UserSliderCode_algo]
     }
     else if (sliderThatWasMoved == output.get())
@@ -777,6 +778,7 @@ void GlobalEditor::setParamMessage(String msg) {
 }
 
 void GlobalEditor::updateDisplay() {
+    algo->setTooltip (AlgoDisplay::describeAlgorithm (*algoDisplay->algo, algoDisplay->opStatus));
     repaint();
 }
 

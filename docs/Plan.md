@@ -24,7 +24,8 @@ Tasks in order. Checked items are done.
   envelope values, and announce live updates when a value changes, not just the first time
   VoiceOver lands on the display. `LcdDisplay` gets the same treatment in the same change.
   Jim confirmed with VoiceOver in the standalone app, 2026-10-14.
-- [ ] Add accessibility support for `AlgoDisplay`, the algorithm routing diagram, in
-  `Source/AlgoDisplay.h` and `.cpp`. This is harder: describing six operators, feedback loops,
-  and which operators carry the sound versus which shape it, in words, is its own design
-  problem. It gets its own pass once the simpler displays prove the pattern out.
+- [x] Add accessibility support for `AlgoDisplay`, the algorithm routing diagram, in
+  `Source/AlgoDisplay.h` and `.cpp`. The ALGO dial already announced its own number, so the
+  missing piece was the full operator breakdown, built from the DX7 engine's own routing
+  table and made available on demand through the dial's help text, rather than spoken
+  automatically. Jim confirmed with VoiceOver, 2026-10-15.

@@ -30,6 +30,13 @@ public:
     AlgoDisplay();
     char *algo;
     void paint(Graphics &g);
+
+    // Describes the routing of the given algorithm (0-31) and operator on/off flags
+    // (opStatus, index 0 = operator 6 through index 5 = operator 1, same ordering as this
+    // class's own opStatus member) in words, for VoiceOver. Built from the DX7 engine's own
+    // routing table in Source/msfa/fm_core.h, so the words can't drift out of sync with the
+    // actual sound.
+    static String describeAlgorithm (int algo, const char *opStatus);
 };
 
 #endif  // ALGODISPLAY_H_INCLUDED

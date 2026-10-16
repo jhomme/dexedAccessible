@@ -21,6 +21,16 @@
 #include "AlgoDisplay.h"
 #include "DXLookNFeel.h"
 #include "Dexed.h"
+#include "msfa/fm_core.h"
+
+namespace {
+    // FmCore::algorithms is protected, so this empty subclass, never instantiated, borrows
+    // access to it for read only lookups. Source/msfa stays untouched.
+    class FmCoreAccess : public FmCore {
+    public:
+        static const FmAlgorithm &algorithmFor (int algo) { return algorithms[algo]; }
+    };
+}
 
 AlgoDisplay::AlgoDisplay() {
     static char tmpAlgo = 0;
@@ -383,5 +393,64 @@ void AlgoDisplay::paint(Graphics &g) {
         default:
             break;
     }
+}
+
+String AlgoDisplay::describeAlgorithm (int algo, const char *opStatus) {
+    const FmAlgorithm &alg = FmCoreAccess::algorithmFor (algo);
+
+    // Index i here is operator (6 - i), matching this engine's own convention: array index 0
+    // is operator 6, index 5 is operator 1. Confirmed against algorithm 1's known routing,
+    // operator 6 with feedback down to operator 3, operator 2 down to operator 1, and against
+    // how opStatus is already indexed elsewhere in this class.
+    int lastWriter[3] = { -1, -1, -1 };
+    int parentIndex[6];
+
+    for (int i = 0; i < 6; ++i) {
+        parentIndex[i] = -1;
+        int flags = alg.ops[i];
+        int inBus = (flags >> 4) & 3;
+        int outBus = flags & 3;
+
+        if (inBus != 0 && lastWriter[inBus] != -1)
+            parentIndex[i] = lastWriter[inBus];
+
+        if (outBus != 0)
+            lastWriter[outBus] = i;
+    }
+
+    String text;
+    text << "Algorithm " << (algo + 1) << " of 32. ";
+
+    for (int i = 0; i < 6; ++i) {
+        int opNumber = 6 - i;
+        text << "Operator " << opNumber;
+
+        if (opStatus[i] == '0')
+            text << ", muted,";
+
+        bool hasFeedback = (alg.ops[i] & (FB_IN | FB_OUT)) == (FB_IN | FB_OUT);
+        if (hasFeedback)
+            text << " has feedback and";
+
+        StringArray children;
+        for (int j = 0; j < 6; ++j)
+            if (parentIndex[j] == i)
+                children.add (String (6 - j));
+
+        bool carrier = FmCore::isCarrier (algo, i);
+
+        if (children.size() > 0 && carrier)
+            text << " modulates operator " << children.joinIntoString (" and ") << " and is a carrier.";
+        else if (children.size() > 0)
+            text << " modulates operator " << children.joinIntoString (" and ") << ".";
+        else if (carrier)
+            text << " is a carrier.";
+        else
+            text << " produces no direct output.";
+
+        text << " ";
+    }
+
+    return text.trimEnd();
 }
 

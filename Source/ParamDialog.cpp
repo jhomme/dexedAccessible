@@ -432,6 +432,7 @@ ParamDialog::ParamDialog ()
     mpeEnabled->setTitle("MPE Enabled");
     transposeHelp->setTitle("Transpose Help");
     scalingFactor->setTitle("Scaling Factor");
+    portamentoTm->setTitle("Portamento Time");
 
     pitchRangeUp->setWantsKeyboardFocus(true);
     pitchRangeDn->setWantsKeyboardFocus(true);

@@ -30,5 +30,20 @@ announcement right away, without needing to move away and back.
   Confirmed working in the standalone app, 2026-10-14.
 
 ## AlgoDisplay accessibility
-Acceptance criteria to be written once we reach this task and decide how to describe the
-routing in words.
+Done when the ALGO dial keeps announcing just its number automatically, with no extra
+chatter when changing algorithms, and when VoiceOver's help command, VoiceOver plus shift
+plus H, speaks a full description of the current algorithm on demand: which operators
+modulate which, which are carriers, where the feedback loop is, and which operators are
+muted. Also done when that description stays correct after muting or unmuting an operator,
+without needing to leave and return to the dial.
+- Jim tests: with VoiceOver on, in the standalone app, confirm the dial only announces its
+  number while changing algorithms. Set algorithm 1, press the help command, and confirm it
+  describes operator 6 with feedback down through operator 5, 4, and 3, a carrier, and
+  operator 2 down to operator 1, a carrier. Mute an operator, return to the dial, and confirm
+  the description reflects the mute. Confirmed working, 2026-10-15.
+
+## Portamento time dial title
+Done when VoiceOver announces "Portamento Time" landing on that dial in the parameter
+dialog, instead of reporting it as unlabeled.
+- Jim tests: with VoiceOver on, tab to the portamento time dial in the parameter dialog and
+  confirm it announces a name. Confirmed working, 2026-10-15.

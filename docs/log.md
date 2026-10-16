@@ -63,3 +63,51 @@ docs/prd.md, not on Plan.md yet since they're ideas, not committed tasks.
 At Jim's request, posted a comment on each of the three upstream items, issue 515 and pull
 requests 181 and 409, saying he maintains this fork and intends to fold each one in as he's
 able.
+
+## 2026-10-15
+Started accessibility work on AlgoDisplay, the algorithm routing diagram in
+Source/AlgoDisplay.h and .cpp. Planned the approach with Jim: since the ALGO dial already
+announces its own number on focus and on change, the missing piece is the full six operator
+breakdown, available on demand rather than spoken automatically, using the help text VoiceOver
+reads with VoiceOver plus shift plus H. Confirmed with Jim, using VoiceOver on the portamento
+time dial in the parameter dialog, that this plugin's existing tooltip text already reaches
+that command correctly.
+
+Before writing the real description, built a small prototype in the ALGO dial's existing value
+changed handler in GlobalEditor.cpp, setting its tooltip to a simple "Algorithm n of 32"
+string, to test whether the help command reads fresh text each time or only grabs it once.
+Jim confirmed with VoiceOver that it updates live, matching whatever number he'd just set, so
+the approach is sound. Next: write the real description, using the DX7 engine's own
+FmCore::algorithms routing table in Source/msfa/fm_core.h and .cc, so the words can't drift out
+of sync with the actual sound.
+
+One surprise along the way: found that portamentoTm, the portamento time dial just mentioned,
+has a tooltip but no spoken title, so VoiceOver reports it as unlabeled. Unrelated to this
+task, noted as a small separate fix in the plan. Fixed it by adding a setTitle call,
+"Portamento Time", alongside this dialog's other accessibility titles in ParamDialog.cpp.
+
+Wrote the real description, AlgoDisplay::describeAlgorithm in AlgoDisplay.cpp, from the DX7
+engine's own FmCore::algorithms routing table in Source/msfa/fm_core.h. One wrinkle: that
+table is protected, not public, and Source/msfa isn't ours to modify, so added a small,
+never instantiated subclass local to AlgoDisplay.cpp that borrows read access to it, rather
+than touching the engine file itself. Also found, while working this out, that the table's
+array index 0 is operator 6, not operator 1, counting down to index 5 for operator 1, the
+reverse of what seemed obvious at first glance. Confirmed this against algorithm 1's known
+structure, feedback on operator 6 down to operator 3, operator 2 down to operator 1, before
+trusting it for all 32.
+
+Wired the description into the ALGO dial's tooltip, both when the dial itself changes and
+whenever OperatorEditor's operator switches change, which already funnels through
+GlobalEditor::updateDisplay(). Also added the fix for portamentoTm's missing title, found
+earlier.
+
+Built, ran DexedTests, still passing, and confirmed arm64. Jim tested algorithm 1 with
+VoiceOver and confirmed the spoken description against the structure worked out ahead of
+time: operator 6 has feedback and modulates operator 5, operator 5 modulates operator 4,
+operator 4 modulates operator 3, operator 3 is a carrier, operator 2 modulates operator 1,
+operator 1 is a carrier. Matched.
+
+Jim also pointed out VoiceOver Utility has its own setting to always speak help tags
+automatically. Since this plugin only ever sets the tooltip text and never speaks it itself,
+that setting already gives automatic announcement for anyone who wants it, with no code on
+our side. Dropped the optional toggle idea from the plan since it's redundant with that.
