@@ -66,3 +66,12 @@ Octave" on the two small scroll buttons at each end of the on-screen keyboard, i
 reporting them as unnamed buttons.
 - Jim tests: with VoiceOver on, tab to each end of the on-screen keyboard and confirm each
   scroll button announces a name. Confirmed working, 2026-10-15.
+
+## Keyboard keys group content
+Done when VoiceOver's interact command on the "Keyboard keys" area announces its two scroll
+buttons by name, instead of reporting the group as empty. The on-screen piano keys themselves
+stay mouse or MIDI keyboard only, since they aren't separate objects; this is about stopping
+the group from sounding broken when there is real content inside it.
+- Jim tests: with VoiceOver on, land on the "Keyboard keys" group and use the interact
+  command. Confirm it lists the two scroll buttons by name instead of saying the content is
+  empty. Confirmed working, 2026-10-15.

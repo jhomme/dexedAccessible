@@ -81,6 +81,13 @@ DexedAudioProcessorEditor::DexedAudioProcessorEditor (DexedAudioProcessor* owner
     midiKeyboard.setLowestVisibleKey(24);
     midiKeyboard.setBounds(4, 581, getWidth() - 8, 90);
     midiKeyboard.setTitle("Keyboard keys");
+    midiKeyboard.setDescription("Shows which notes are playing. Play notes with a MIDI keyboard or the mouse.");
+
+    // Without this, VoiceOver's interact command reports the keyboard as an empty group,
+    // because JUCE only exposes a component's children to that command if the component is
+    // marked as a focus container. Marking it one lets interact reach the two scroll buttons
+    // below instead of reporting nothing there.
+    midiKeyboard.setFocusContainerType(Component::FocusContainerType::focusContainer);
 
     // JUCE's keyboard component adds two scroll buttons, one at each end, to shift the
     // visible octave range. They are its only two child components, always in this order,

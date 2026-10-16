@@ -148,3 +148,27 @@ up: they're always the keyboard's first two child components, in a fixed order, 
 first and scroll up second, so they can be reached and named safely from outside. Built,
 confirmed arm64, and Jim confirmed with VoiceOver that both ends of the keyboard now announce
 a name, "Scroll Keyboard Down an Octave" and "Scroll Keyboard Up an Octave."
+
+Right after that, Jim raised a new finding: using VoiceOver's interact command on the
+"Keyboard keys" area itself said "content is empty," which reads like a bug even though the
+individual piano keys genuinely have no separate accessible objects behind them, they're only
+painted, not real components, and there's no way to play a note from the computer keyboard
+either, only mouse, touch, or a real MIDI keyboard. Jim uses a real MIDI keyboard day to day,
+so the goal wasn't to make each key its own accessible object, just to stop the group from
+sounding broken.
+
+First tried giving the keyboard area an image role instead of a group role, on the idea that
+images don't usually offer an interact command. That changed what VoiceOver called it, "image"
+instead of implied group, but Jim correctly pushed back that calling a playable keyboard an
+image is its own kind of wrong, and it didn't fix the "content is empty" message anyway, which
+kept appearing exactly the same. Reading JUCE's own source for how the interact command decides
+what a component contains showed why: it only looks inside a component if that component is
+explicitly marked as a focus container, the same flag `Source/GlobalEditor.cpp` and
+`Source/OperatorEditor.cpp` already set on themselves. The keyboard never had that flag set, so
+it reported empty regardless of role or of what children it actually had.
+
+Reverted the image role attempt and instead set that focus container flag on `midiKeyboard` in
+`Source/PluginEditor.cpp`, keeping its default group-like role and adding a plain description,
+"Shows which notes are playing. Play notes with a MIDI keyboard or the mouse." Built, confirmed
+arm64, ran DexedTests, still passing. Jim confirmed with VoiceOver that interacting with the
+keyboard area now lists its two scroll buttons by name instead of reporting empty content.

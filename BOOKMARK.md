@@ -37,33 +37,43 @@
   while browsing patches (upstream pull request 181), and octave shift buttons (upstream pull
   request 409). Posted a comment on each saying Jim intends to fold them into this fork as
   he's able. Committed and pushed, `d94b568`.
-- Started a fresh pass where Jim walks through the plugin with VoiceOver, tab stop by tab
-  stop, calling out each control that announces no name, and we fix them one at a time. Three
-  found and fixed so far, all confirmed with VoiceOver in the standalone app, none committed
-  or pushed yet except the first:
+- Did a fresh pass where Jim walked through the plugin with VoiceOver, tab stop by tab stop,
+  calling out each control that announced no name. Found and fixed three, all confirmed with
+  VoiceOver, committed and pushed together with the docs, `9c0e188` and `eedfb6b`:
   - The algorithm number dial itself had no spoken name. Added a title, "Algorithm", in
-    `Source/GlobalEditor.cpp`. Committed and pushed, `9c0e188`.
+    `Source/GlobalEditor.cpp`.
   - The mono or poly switch, `monoMode` in `Source/GlobalEditor.cpp`, had no button text and
     no title, so VoiceOver just called it "button" with no name. Added a title, "Mono Mode".
-  - A trickier one: a button sitting, in VoiceOver's order, between the "Global Parameters"
-    group and the "Keyboard keys" group. Couldn't identify it from source code alone, so set
-    up two system tools to find it directly: a screenshot of the running app, and a query of
-    whatever control VoiceOver currently has focused, using the system's own tool for
-    inspecting other apps. Both needed a privacy permission turned on for the terminal
-    running Claude Code, Screen Recording for the first and Accessibility for the second.
-    Jim granted both. With Jim parked on the control, the query showed a small, 12 by 90
-    point button at the right edge of where the on-screen keyboard sits. That matches one of
-    two scroll buttons JUCE, the framework this plugin is built on, adds automatically to
-    each end of the keyboard, to shift the visible range of notes by an octave. JUCE never
-    names these two buttons, and this is vendored library code, not something built for this
+  - A small button at the right edge of the on-screen keyboard, one of two scroll buttons
+    JUCE, the framework this plugin is built on, adds automatically to each end of the
+    keyboard to shift the visible range of notes by an octave. Took some digging to find
+    since it couldn't be identified from source code alone: used a screenshot of the running
+    app and a direct query of whatever VoiceOver currently has focused, both needing a
+    privacy permission turned on for the terminal running Claude Code, Screen Recording and
+    Accessibility. Jim granted both. This is vendored JUCE code, not something built for this
     project, so rather than edit the library, named both buttons from our own code in
-    `Source/PluginEditor.cpp`, right after the keyboard is set up. They're always the
-    keyboard's first two children, in a fixed order, so they can be reached safely from
-    outside. Now announce "Scroll Keyboard Down an Octave" and "Scroll Keyboard Up an Octave".
+    `Source/PluginEditor.cpp`, right after the keyboard is set up, since they're always its
+    first two children, in a fixed order. Now announce "Scroll Keyboard Down an Octave" and
+    "Scroll Keyboard Up an Octave".
+  - Jim confirmed there were no more unlabeled controls left to find.
+- Right after that, Jim found a related but different problem: using VoiceOver's interact
+  command on the "Keyboard keys" area itself said "content is empty," which sounds like a
+  bug. The piano keys really don't have separate accessible objects behind them, they're only
+  painted, and there's no way to play a note from the computer keyboard at all, only mouse,
+  touch, or a real MIDI keyboard, which is what Jim actually uses. First tried giving the
+  keyboard area an image role, which Jim correctly pointed out was its own kind of wrong for
+  something you can play, and it didn't even fix the empty message. The real cause, found by
+  reading JUCE's source, was that the keyboard was never marked as a focus container, the
+  same flag `GlobalEditor` and `OperatorEditor` already set on themselves, so VoiceOver's
+  interact command always treated it as having nothing inside, no matter what. Set that flag
+  on `midiKeyboard` in `Source/PluginEditor.cpp` instead, and added a plain description,
+  "Shows which notes are playing. Play notes with a MIDI keyboard or the mouse." Built,
+  confirmed arm64, ran DexedTests, still passing. Jim confirmed with VoiceOver that
+  interacting with the keyboard area now lists its two scroll buttons by name. Not committed
+  or pushed yet.
 
 ## What's next
-- Commit and push the mono mode title and the keyboard scroll button titles.
-- Continue the walkthrough for any further unlabeled controls Jim finds.
+- Commit and push the keyboard keys group content fix once Jim says to.
 - Optional: test the VST3 and AU builds in Logic too, the way the earlier crash fix was
   tested, though the standalone test already covers the behavior itself.
 

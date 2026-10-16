@@ -29,3 +29,12 @@ Tasks in order. Checked items are done.
   missing piece was the full operator breakdown, built from the DX7 engine's own routing
   table and made available on demand through the dial's help text, rather than spoken
   automatically. Jim confirmed with VoiceOver, 2026-10-15.
+- [x] Walk through the whole plugin with VoiceOver, tab stop by tab stop, and name every
+  control that announced no name. Found and fixed three: the algorithm dial, `9c0e188`, the
+  mono or poly switch and the on-screen keyboard's two octave scroll buttons, `eedfb6b`. Jim
+  confirmed each with VoiceOver and found no more, 2026-10-15.
+- [x] Fix VoiceOver's interact command reporting the "Keyboard keys" area as having empty
+  content. The on-screen keyboard was never marked as a focus container, so VoiceOver couldn't
+  see its two scroll buttons were really there. Marked it one in `Source/PluginEditor.cpp` and
+  added a plain description of what the keyboard is for. Jim confirmed with VoiceOver,
+  2026-10-15.
