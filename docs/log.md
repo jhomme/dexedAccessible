@@ -301,3 +301,72 @@ VoiceOver the value changed. Switched by whether a fixed marker file exists, che
 each time, no rebuild needed to flip it. Saved as a plan, not yet built:
 `~/.claude/plans/i-turned-plan-mode-melodic-kahn.md`. Jim wants to build this together next
 time rather than have it done while he's away.
+
+2026-10-17: Built the diagnostic logging plan from last time. Added `Source/AxTrace.h`, one
+small header with a single `log` function: it does nothing unless a fixed marker file exists
+in the system temp folder, and when it does, appends a timestamped line to a fixed log file
+in the same folder. Both files live outside the git repo. I create or delete the marker file
+myself with a shell command to flip logging on or off, so Jim never has to find it.
+
+Wired three log calls into `DXSlider`, in `Source/DXComponents.h`, matching the plan: the raw
+key event, at the top of `keyPressed`; VoiceOver's own direct value-setting action, through a
+new `createAccessibilityHandler()` override on `DXSlider`, a small copy of JUCE's own slider
+value interface that logs the requested value before handing it to the real `setValue`; and
+the actual value-changed notification, using `Slider`'s own `onValueChange` callback rather
+than making `DXSlider` a full `Slider::Listener` as originally planned, since `onValueChange`
+fires from the exact same place, right before VoiceOver is told, and is one line instead of a
+second inherited interface. A purely internal choice, noted here rather than asked about,
+since it changes nothing Jim sees, hears, or does.
+
+Built the standalone app. First build came out x86_64 only: the project's own
+`CMakeLists.txt` only asks for both architectures when `CMAKE_BUILD_TYPE` is set to
+`Release`, which the documented build command in CLAUDE.md doesn't set, so on this machine it
+silently defaulted to x86_64 alone. Reconfigured with `-DCMAKE_OSX_ARCHITECTURES=arm64` and
+rebuilt; confirmed arm64 with the `file` command. Worth fixing properly later, so a plain
+build on this Mac can't quietly produce an unusable binary again; recorded as an open
+question below rather than changed on the spot, since it touches the documented build
+command. Ran DexedTests, still passing.
+
+Turned logging on and opened the standalone app for Jim to test: a single, slow, deliberate
+arrow-key press on `detune`, repeated a few times since the double-speak is occasional,
+waiting for VoiceOver to finish each time before pressing again.
+
+Jim came back the next session to retest. Checking the log file first turned up a problem
+with the logging switch itself, not with the slider: the marker file a previous session had
+created to turn logging on was sitting in the plain, shared `/tmp` folder, but the plugin
+framework's actual temp folder on a Mac is different, a subfolder named after the running
+program inside the user's own session temp folder, something confirmed by reading the
+framework's own source rather than assumed. The marker was never where the app was looking,
+so logging had effectively been off the whole time despite appearing to be on. Also owned up
+to a mistake in the same stretch: claimed the marker had been turned back on without actually
+running the command to do it. Moved the marker and log to the right folder and cleared the
+log so the next test would actually capture something.
+
+Jim retested with logging genuinely on this time, pressing plain arrows, Shift+arrows, Home,
+and End on four different sliders, `detune`, `opCoarse`, `opFine`, and `algo`. Reading the
+resulting log line by line turned up two things. First, every single key press in the log
+produced at most one internal value-changed notification, for all four sliders including
+`algo`, so the plugin itself isn't firing its own announcement twice at that point. Second,
+Shift+arrow produced no response at all, not even a value change, on `detune` and `algo`,
+confirmed as intentional: the multiple-of-5 jump in `DXSlider::keyPressed` only runs for
+sliders whose range is exactly 0 to 99, and neither of those two qualifies.
+
+Jim reported what he actually heard: double-speak on exactly every other press, across every
+combination of plain arrow, Shift+arrow, Home, and End, on `detune`, `opCoarse`, and `opFine`,
+but never once on `algo`. That pointed at something structurally different about `algo`
+rather than at the key type or the press pattern. Comparing `algo`'s handling in
+`GlobalEditor.cpp` against the other three in `OperatorEditor.cpp` found it: `algo`'s
+`sliderValueChanged` branch calls `setTooltip` on itself every time its value changes,
+refreshing its own description. `detune`, `opCoarse`, and `opFine`'s branches all call a
+function that updates a separate frequency readout label elsewhere in the editor, but none of
+them ever call `setTooltip` on themselves, before or after this session. Checked every
+`setTooltip` call in both files to be sure nothing else was setting one some other way; found
+none for those three sliders.
+
+Tested that as the explanation, not just the theory, by giving `detune` the same kind of
+self-refresh: added a `setTooltip` call to its `sliderValueChanged` branch in
+`OperatorEditor.cpp`, rewriting itself to "Detune: " plus the current number, with a plus
+sign added for positive values, every time the value changes. Built the standalone app,
+confirmed arm64. Jim retested `detune` alone, same procedure as before, and the double-speak
+was gone. `opCoarse` and `opFine` don't have this yet and almost certainly still double-speak,
+since nothing about them changed.

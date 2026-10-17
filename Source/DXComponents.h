@@ -22,6 +22,7 @@
 #define DXCOMPONENTS_H_INCLUDED
 
 #include "../JuceLibraryCode/JuceHeader.h"
+#include "AxTrace.h"
 #include <stdint.h>
 
 //==============================================================================
@@ -157,9 +158,24 @@ class DXSlider : public Slider {
 public:
     DXSlider(const String& componentName) : Slider(componentName) {
         setWantsKeyboardFocus(true);
+
+        // "The result": fires once, from inside JUCE's own code, at the exact point where it
+        // also tells VoiceOver the value changed, whatever caused the change. Comparing how
+        // many of these lines show up for one single key press or VoiceOver gesture tells us
+        // whether this plugin is announcing a value twice, or whether that's happening
+        // somewhere outside it.
+        onValueChange = [this] {
+            AxTrace::log(getName() + ": value changed to " + String(getValue()));
+        };
     }
 
     bool keyPressed(const KeyPress &key) override {
+        // "The action", for an ordinary physical key press, Shift held or not. A VoiceOver
+        // gesture mostly does not arrive here at all; see DXSliderAH below for that path.
+        AxTrace::log(getName() + ": key pressed, code " + String(key.getKeyCode())
+                     + ", shift " + String((int) key.getModifiers().isShiftDown())
+                     + ", value before " + String(getValue()));
+
         // Home and End jump straight to the lowest and highest value, on every slider.
         if (key.getKeyCode() == key.homeKey) {
             setValue(getRange().getStart());
@@ -208,6 +224,55 @@ public:
         const auto speed = event.mods.isShiftDown() ? 0.05 : 1.0;
         newWheel.deltaY *= speed;
         Slider::mouseWheelMove(event, newWheel);
+    }
+
+    // A VoiceOver gesture on a slider, like VO+Right or VO+Shift+Down, mostly skips
+    // keyPressed entirely: VoiceOver asks the accessibility handler to set a new value
+    // directly instead. JUCE's own handler for that, inside Slider.cpp, isn't ours to log
+    // from, so this is our own copy of it, logging "the action" for a VoiceOver gesture
+    // specifically, the moment before the new value reaches the slider.
+    struct DXSliderAH : public juce::AccessibilityHandler {
+        explicit DXSliderAH(DXSlider *s)
+            : slider(s),
+              juce::AccessibilityHandler(*s, juce::AccessibilityRole::slider,
+                                          juce::AccessibilityActions{},
+                                          juce::AccessibilityHandler::Interfaces { std::make_unique<ValueInterface>(s) }) {
+        }
+
+        String getHelp() const override { return slider->getTooltip(); }
+
+        class ValueInterface : public juce::AccessibilityRangedNumericValueInterface {
+        public:
+            explicit ValueInterface(DXSlider *s) : slider(s) {}
+
+            bool isReadOnly() const override { return false; }
+            double getCurrentValue() const override { return slider->getValue(); }
+
+            void setValue(double newValue) override {
+                AxTrace::log(slider->getName() + ": VoiceOver action requests value " + String(newValue)
+                             + ", value before " + String(slider->getValue()));
+                Slider::ScopedDragNotification drag(*slider);
+                slider->setValue(newValue, sendNotificationSync);
+            }
+
+            juce::AccessibilityValueInterface::AccessibleValueRange getRange() const override {
+                auto range = slider->getRange();
+                auto interval = slider->getInterval();
+                return { { range.getStart(), range.getEnd() },
+                         interval > 0.0 ? interval : range.getLength() * 0.01 };
+            }
+
+        private:
+            DXSlider *slider;
+            JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ValueInterface);
+        };
+
+        DXSlider *slider;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DXSliderAH);
+    };
+
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<DXSliderAH>(this);
     }
 };
 

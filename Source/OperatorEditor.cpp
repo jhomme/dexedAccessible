@@ -475,6 +475,8 @@ void OperatorEditor::sliderValueChanged (juce::Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_detune] -- add your slider handling code here..
         updateDisplay();
+        int det = (int) detune->getValue();
+        detune->setTooltip(det > 0 ? "Detune: +" + String(det) : "Detune: " + String(det));
         //[/UserSliderCode_detune]
     }
     else if (sliderThatWasMoved == sclLeftLevel.get())

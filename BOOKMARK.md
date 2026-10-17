@@ -132,20 +132,57 @@
   question below too, since that's also a question of whether an announcement fired. Plan is
   saved at `~/.claude/plans/i-turned-plan-mode-melodic-kahn.md`. Not built yet; Jim wants to
   pick this up together next time, rather than have it built while he's away.
+- Built that logging plan. Added `Source/AxTrace.h`, a small switchable logger, and wired it
+  into `DXSlider` in `Source/DXComponents.h` at the three points the plan called for: the raw
+  key press, VoiceOver's own direct value-setting action, and the actual value-changed
+  notification JUCE sends right before telling VoiceOver. Built the standalone app, confirmed
+  arm64 after a build-setup surprise, see below, and ran DexedTests, still passing. Turned the
+  log on and opened the standalone app. Waiting on Jim to reproduce the `detune` double-speak
+  with logging on.
+- Build surprise along the way: the very first build came out x86_64 only, not arm64, on this
+  Apple silicon Mac. The project only asks for both architectures when a setting called
+  `CMAKE_BUILD_TYPE` is set to `Release`, which the build steps written down in CLAUDE.md
+  don't set, so a build done exactly that documented way quietly produces a binary that won't
+  even run here. Worked around it this time by adding `-DCMAKE_OSX_ARCHITECTURES=arm64` to
+  the configure step. Left the documented build command alone and flagged this as an open
+  question instead of changing it, since fixing it for good means deciding what every build on
+  this Mac should default to.
+- Next session, found the logging switch itself wasn't working: the marker file turning it on
+  had been created in the plain, shared `/tmp` folder, but the plugin framework actually looks
+  in a different spot, a subfolder named after the running program inside the user's own
+  session temp folder. Confirmed this by reading the framework's own source, not by guessing.
+  Logging had looked on but never actually was. Moved the marker and log to the right place.
+- With logging genuinely on, Jim tested `detune`, `opCoarse`, `opFine`, and `algo` with plain
+  arrows, Shift+arrows, Home, and End. The log showed exactly one internal value-changed
+  notification per key press, on every slider including `algo`, so the plugin isn't firing its
+  own announcement twice. Shift+arrow does nothing at all, by design, on `detune` and `algo`,
+  since the multiple-of-5 jump only applies to sliders ranging 0 to 99.
+- Jim reported the real pattern: double-speak on exactly every other press, with any
+  combination of arrow, Shift+arrow, Home, or End, on `detune`, `opCoarse`, and `opFine`, but
+  never on `algo`. Comparing `algo`'s code in `GlobalEditor.cpp` against the other three in
+  `OperatorEditor.cpp` found the one real difference: `algo` refreshes its own tooltip, its
+  spoken help text, every time its value changes. The other three never touch their own
+  tooltip at all, even though they do update a separate frequency readout label elsewhere.
+- Tested that theory directly rather than trusting it on paper: added a matching tooltip
+  refresh to `detune` in `OperatorEditor.cpp`, now reading "Detune: " plus the current number.
+  Built, confirmed arm64. Jim retested `detune` alone and the double-speak was gone.
+  `opCoarse` and `opFine` still lack this and almost certainly still double-speak.
+- Jim asked for a pause partway through this to just talk things through, without any more
+  changes happening in the background. Saved that as a standing preference: wait for an
+  explicit go-ahead before editing, building, or running anything, rather than moving straight
+  from a finding into an action.
 
 ## What's next
-- Put the logging plan above into code, build, and have Jim reproduce the `detune` double-
-  speak with it on, slowly, waiting for VoiceOver between presses, repeating a few times
-  since it's occasional. Read the resulting log to see whether the plugin itself is firing
-  the announcement twice, or whether it only shows once, which would point outside the
-  plugin entirely, to VoiceOver itself. Clear the log file before each new attempt.
-- Separately, fix the deterministic double announcement on the envelope and pitch envelope
-  sliders, once the `detune` mystery is far enough along not to lose track of this one.
-- Once the double-speak picture is clearer, come back to the still-open Logic question
-  below, using the same logging if it helps: with VoiceOver on, in Logic, check whether
-  `LcdDisplay` or an envelope display still speaks a live update there, the way they did when
-  confirmed earlier. That tells us whether the Logic silence is specific to sliders or wider
-  than that.
+- Decide whether to give `opCoarse` and `opFine` the same tooltip-refresh fix as `detune`, or
+  look for a more general fix that doesn't depend on every slider having its own tooltip text,
+  since several plain parameter sliders, detune included until now, never had one before this.
+- Once all four sliders are settled, fix the separate, already-understood double announcement
+  on the envelope and pitch envelope sliders, where the envelope diagram next to them
+  announces on top of the slider's own normal one, every single time, not just every other.
+- After that, come back to the still-open Logic question: with VoiceOver on, in Logic, check
+  whether `LcdDisplay` or an envelope display still speaks a live update there, the way they
+  did when confirmed earlier. That tells us whether the Logic silence is specific to sliders
+  or wider than that.
 - After any fix is built: standalone, VST3, and AU, arm64 confirmed, existing copies in
   `~/Library/Audio/Plug-Ins` listed before any overwrite, Logic track recreated so it picks up
   the fresh build.
@@ -154,9 +191,14 @@
   will raise then.
 
 ## Open questions
-- Why does `detune`, and presumably other plain sliders, occasionally speak its value twice
-  for one single key press, with no second announcement anywhere in the code? Needs the
-  logging plan above to find out.
+- Should every plain parameter slider get a self-refreshing tooltip as the fix for the
+  every-other-press double-speak, the way `detune` now does, or is there a cleaner fix that
+  doesn't mean writing tooltip text for dozens of sliders that never needed one before?
 - Why does a keyboard-driven slider value change speak the new value live in the standalone
   app, but stay silent in Logic, even for the algorithm dial, which does have a spoken name?
   Needs the `LcdDisplay`/`EnvDisplay` diagnostic above before guessing at a cause.
+- The documented build command in CLAUDE.md, without a `CMAKE_BUILD_TYPE`, produces an
+  x86_64-only binary on this Apple silicon Mac, since the project only turns on arm64 for a
+  `Release` build type. Worked around for today's build with an extra flag. Needs a decision
+  on what a plain local build should default to, then CLAUDE.md's build steps updated to
+  match, so this can't happen again by accident.
