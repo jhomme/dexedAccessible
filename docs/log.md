@@ -183,3 +183,121 @@ before there was a chance to list existing copies and ask first, the way this pr
 normally call for. Flagged that to Jim as it happened rather than after the fact. With the
 freshly built VST3 and AU in place, Jim confirmed all of today's fixes work the same way in
 Logic as they did in the standalone app.
+
+Started a new usability task: how VoiceOver's arrow keys step through the DX7's many 0-to-99
+parameters, envelope levels and rates, operator output level and fine frequency, keyboard
+scaling, LFO settings, and pitch envelope. Before this, every dial moved by 1 per arrow press
+no matter the range, so crossing a 0-to-99 dial took up to 99 presses.
+
+Worked out the real mechanics through testing, not just reading code. VoiceOver's own
+increase/decrease signal for a focused, interacted-with slider carries no information about
+whether Shift is held, confirmed in both JUCE's and Apple's own accessibility code and by web
+search; there's no OS-level spec for a Shift-modified step, so any such behavior is something
+each app has to build itself. Jim then confirmed by testing that Shift+Up and Shift+Down
+already reached the plugin as ordinary key presses, not through that signal, producing
+`DXSlider`'s pre-existing ~10% jump, which proved the mechanism needed for a Shift-aware fine
+or coarse step already worked in this plugin. Jim also tested Home and End directly: at first
+they did nothing. Apple's own VoiceOver documentation says Home and End, with or without the
+VoiceOver modifier, are already claimed by VoiceOver itself to move its own cursor to the top
+or bottom of the current area, which looked like a hard wall. Added the Home/End handling in
+code anyway rather than taking that as final, and Jim confirmed the plain Home and End keys,
+without the VoiceOver modifier, do reach the plugin and jump to the minimum and maximum, so
+that assumption turned out to be wrong, or at least incomplete, for this situation.
+
+Final behavior, all in `DXSlider::keyPressed` in `Source/DXComponents.h`, no accessibility
+handler changes needed since none of this goes through JUCE's accessibility
+increment/decrement action, only ordinary key presses:
+- Home jumps to the lowest value, End to the highest, on every slider.
+- On 0-to-99 sliders only, detected by range rather than by name since a few existing
+  variable names are misleading (`s_egv1..4` hold the envelope rate sliders despite the "v"):
+  Shift+Right or Shift+Down jump up to the next multiple of 5, clamped at 99; Shift+Left or
+  Shift+Up jump down to the previous multiple of 5, clamped at 0.
+- Down now acts like Right (value up) and Up acts like Left (value down), on every slider,
+  the opposite of JUCE's default pairing. This was a deliberate choice Jim made after testing,
+  not a bug fix, so it's called out here in case it looks backwards later.
+- Plain Right/Left are unchanged, they already moved by 1.
+
+Went through several rounds of build, test, and adjust with Jim along the way, including one
+false alarm where a value jump looked like a logic bug but turned out to be the keyboard's own
+repeat rate firing the same key many times while held. Built, confirmed arm64, ran DexedTests,
+still passing. Jim confirmed the full final behavior with VoiceOver in the standalone app.
+
+Jim tested the same build in Logic, recreating the Dexed track so it picked up the fresh VST3
+and AU. Arrow-key stepping itself works correctly there, same as standalone. But VoiceOver
+does not speak a slider's new value after an arrow-key move, in Logic, where it does in the
+standalone app. That ended the session with this unresolved, so the arrow-key-stepping code
+and its doc updates went into a git stash rather than being committed.
+
+Next session, read through `DXSlider`, the algorithm dial, and JUCE's own `Slider`
+accessibility handler to look for a difference, since the algorithm dial already announces
+its own value changes in Logic. Found none: both use the exact same `DXSlider` class and the
+same built-in JUCE notification path, with no code difference at all. The one real
+difference between the algorithm dial and the plain parameter sliders was a spoken name,
+`setTitle("Algorithm")`, which the plain sliders don't have. Drafted a plan to give every
+plain parameter slider a title as the fix.
+
+Jim corrected that before any code changed: in Logic, the algorithm dial doesn't speak its
+value change either, only its name. So the missing-title theory is wrong, and that draft fix
+is set aside. Lesson worth keeping: a "same code, different outcome" comparison between two
+controls isn't enough on its own if the actual symptom wasn't double-checked on both of them
+first. Re-opened `BOOKMARK.md`'s open question rather than guessing at a new cause right
+away.
+
+Jim separately asked for the sliders' spoken names to be made clearer and more consistent,
+even where that means renaming ones that already have a name. That's useful, but unrelated to
+this bug, so it's deferred until after both the keyboard stepping and the Logic speaking
+problem are settled.
+
+Brought the stashed arrow-key-stepping code back into the working tree with `git stash pop`,
+resuming where the paused session left off. The stash's own draft of `BOOKMARK.md` conflicted
+with a later, more complete draft already sitting uncommitted in the working tree, since both
+had edited the same section independently. Backed up the working tree's version to the
+scratchpad directory first, reverted `BOOKMARK.md` to the last commit so the pop could apply
+cleanly, then hand-merged the two drafts plus today's new findings into the current
+`BOOKMARK.md` rather than losing either one.
+
+Next step, still not done: with VoiceOver on, in Logic, check whether `LcdDisplay` or an
+envelope display still speaks a live update, the way they were confirmed to earlier. That
+tells us whether the silence is specific to sliders or affects the whole plugin's live
+announcements in that host right now, before digging into JUCE or plugin code any further.
+
+Jim tested the arrow-key stepping work in Logic, in VST3 and AU: it moves sliders correctly
+there, same as standalone. Checked that off in docs/Plan.md.
+
+While testing, Jim found a new, separate problem: a slider occasionally speaks its value
+twice for one single action. Confirmed with physical arrow and Shift+arrow keys, not the
+VoiceOver modifier keys, pressed slowly, one at a time, always waiting for VoiceOver to
+finish first. Not every press. Always the exact same number both times.
+
+Read code looking for a cause. Found a real, deterministic one, but only for some sliders:
+`OperatorEditor.cpp`'s and `GlobalEditor.cpp`'s `sliderValueChanged` handlers for the
+envelope level and rate sliders, and the global pitch envelope sliders, each call
+`envDisplay->notifyAccessibleValueChanged()` or `pitchEnvDisplay->notifyAccessibleValueChanged()`
+every time the slider moves, on top of the slider's own normal built-in announcement. Two
+separate things tell VoiceOver something changed: the slider itself, and the diagram next to
+it describing the whole curve. That's a real, fixable bug, worth its own fix later, but it
+doesn't explain `detune`, which Jim confirmed also double-speaks, and which has no second
+announcement wired to anything in the code.
+
+Checked other possible causes for `detune` and ruled each out by reading code: the
+parameter-to-slider sync in `PluginParam.cpp` always uses `dontSendNotification` when writing
+a value back to a slider, so it can't be silently re-firing a second announcement; there's
+only one registered global keyboard shortcut handler, in `PluginEditor.cpp`, and it only
+reacts to Ctrl-held shortcuts and Escape, never plain or Shift-held arrow keys, so it can't
+be double-handling the same key press. Found no code path left to blame.
+
+Since nothing in the code visibly fires twice, but the behavior still happens sometimes,
+reading more code without being able to watch it happen has little left to offer. Worked out
+a plan instead: a small, switchable log, written to a file, of every keyboard and VoiceOver
+action `DXSlider` receives and what happened as a result, so the actual sequence of events can
+be read back after Jim reproduces the problem. Three things to log, all additions to
+`DXSlider` in `Source/DXComponents.h`, none touching vendored JUCE: the raw key event in
+`keyPressed`; VoiceOver's own direct value-setting action, by giving `DXSlider` its own
+`createAccessibilityHandler()` override, the same pattern already used for `EnvDisplay`,
+`PitchEnvDisplay`, and `LcdDisplay`, with a thin copy of JUCE's own value interface that logs
+before handing off to the real one; and the actual value-changed notification, by making
+`DXSlider` its own `Slider::Listener`, which fires at the exact point JUCE also tells
+VoiceOver the value changed. Switched by whether a fixed marker file exists, checked fresh
+each time, no rebuild needed to flip it. Saved as a plan, not yet built:
+`~/.claude/plans/i-turned-plan-mode-melodic-kahn.md`. Jim wants to build this together next
+time rather than have it done while he's away.

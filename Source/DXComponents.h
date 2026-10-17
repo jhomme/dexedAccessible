@@ -151,7 +151,8 @@ public:
     virtual void paint(Graphics &g) override;
 };
 
-// Simple Slider to make 10 % jumps when shift is pressed on keypress, but more precise with mouse wheel.
+// Slider that jumps to the next or previous multiple of 5 on Shift+Right/Left, for 0-99
+// parameters only, and is more precise with the mouse wheel when Shift is held.
 class DXSlider : public Slider {
 public:
     DXSlider(const String& componentName) : Slider(componentName) {
@@ -159,17 +160,44 @@ public:
     }
 
     bool keyPressed(const KeyPress &key) override {
+        // Home and End jump straight to the lowest and highest value, on every slider.
+        if (key.getKeyCode() == key.homeKey) {
+            setValue(getRange().getStart());
+            return true;
+        }
+        if (key.getKeyCode() == key.endKey) {
+            setValue(getRange().getEnd());
+            return true;
+        }
+
         if ( key.getModifiers().isShiftDown() ) {
-            float len = getRange().getLength() * 0.10;
-            if (key.getKeyCode() == key.upKey) {
-                setValue(getValue() + len);
+            auto range = getRange();
+            bool hundredValues = (range.getStart() == 0.0 && range.getEnd() == 99.0);
+
+            // For 0-99 parameters, Shift+Right or Shift+Down jump up to the next multiple
+            // of 5, and Shift+Left or Shift+Up jump down to the previous multiple of 5,
+            // clamped at the real min/max, so VoiceOver users can cross the range in a
+            // handful of presses instead of one value at a time. Down pairs with Right,
+            // and Up pairs with Left, matching the plain-arrow mapping below.
+            if (hundredValues && (key.getKeyCode() == key.rightKey || key.getKeyCode() == key.downKey)) {
+                double v = getValue();
+                setValue(jmin(99.0, std::floor(v / 5.0) * 5.0 + 5.0));
                 return true;
             }
-            if (key.getKeyCode() == key.downKey) {
-                setValue(getValue() - len);
+            if (hundredValues && (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.upKey)) {
+                double v = getValue();
+                setValue(jmax(0.0, std::ceil(v / 5.0) * 5.0 - 5.0));
                 return true;
             }
         } else {
+            // Down moves the value up and Up moves it down, the opposite of JUCE's default
+            // pairing, per Jim's preference. Reuse the default handling by swapping which
+            // key code we hand to it, rather than duplicating its step logic here.
+            if (key.getKeyCode() == key.upKey || key.getKeyCode() == key.downKey) {
+                KeyPress swapped (key.getKeyCode() == key.upKey ? key.downKey : key.upKey,
+                                   key.getModifiers(), key.getTextCharacter());
+                return Slider::keyPressed(swapped);
+            }
             return Slider::keyPressed(key);
         }
         return false;

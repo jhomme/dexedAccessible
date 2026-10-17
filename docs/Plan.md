@@ -41,3 +41,17 @@ Tasks in order. Checked items are done.
 - [x] Test today's batch of fixes, the algorithm dial, the mono mode switch, the keyboard
   scroll buttons, and the keyboard keys group content, in Logic, in both the VST3 and AU
   builds. Passed, 2026-10-15.
+- [x] Give VoiceOver proper arrow-key stepping on the DX7's 0-to-99 parameters, in
+  `DXSlider::keyPressed`, `Source/DXComponents.h`. Home and End jump to the lowest and
+  highest value on every slider. On 0-to-99 sliders, Shift+Right or Shift+Down jump up to
+  the next multiple of 5, Shift+Left or Shift+Up jump down to the previous multiple of 5,
+  both clamped at the real min and max. Down acts like Right and Up acts like Left,
+  everywhere, by Jim's choice. Jim confirmed the full behavior with VoiceOver, 2026-10-15.
+- [x] Test the arrow-key stepping work in Logic, VST3 and AU. The stepping itself works
+  correctly there, same as standalone. Jim confirmed, 2026-10-17.
+- [ ] Find why VoiceOver sometimes speaks a slider's value twice for one single action, and
+  separately, why a slider's value change speaks live in standalone but stays silent in
+  Logic. Building a switchable diagnostic log of keyboard and VoiceOver slider actions in
+  `Source/DXComponents.h` first, to see what's actually happening under the hood, since
+  reading code alone wasn't enough to explain either one. See BOOKMARK.md and the plan at
+  `~/.claude/plans/i-turned-plan-mode-melodic-kahn.md`.
