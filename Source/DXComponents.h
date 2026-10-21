@@ -99,7 +99,7 @@ public:
 class LcdDisplay : public Component {
 public:
     LcdDisplay();
-    void setSystemMsg(String msg);
+    void setSystemMsg(String msg, bool notify = true);
     String paramMsg;
     void paint(Graphics &g);
 

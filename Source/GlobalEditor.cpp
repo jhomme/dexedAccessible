@@ -775,7 +775,7 @@ void GlobalEditor::setSystemMessage(String msg) {
 }
 
 void GlobalEditor::setParamMessage(String msg) {
-    lcdDisplay->setSystemMsg(msg);
+    lcdDisplay->setSystemMsg(msg, false);
     lcdDisplay->repaint();
 }
 

@@ -338,9 +338,16 @@ LcdDisplay::LcdDisplay() {
     paramMsg = "DEXED " DEXED_VERSION;
 }
 
-void LcdDisplay::setSystemMsg(String msg) {
+void LcdDisplay::setSystemMsg(String msg, bool notify) {
     paramMsg = msg;
-    notifyAccessibleValueChanged();
+    AxTrace::log("lcdDisplay: text changed to " + msg + ", notify " + String((int) notify));
+    // A plain parameter edit, from setParamMessage below, passes notify = false: the slider
+    // that caused the edit already tells VoiceOver its own new value, so announcing the LCD's
+    // matching text too just makes VoiceOver say the same thing twice. A real system message,
+    // like a patch loading, has no slider of its own, so it still needs to announce itself.
+    if (notify) {
+        notifyAccessibleValueChanged();
+    }
 }
 
 void LcdDisplay::paint(Graphics &g) {

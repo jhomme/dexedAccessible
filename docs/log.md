@@ -370,3 +370,149 @@ sign added for positive values, every time the value changes. Built the standalo
 confirmed arm64. Jim retested `detune` alone, same procedure as before, and the double-speak
 was gone. `opCoarse` and `opFine` don't have this yet and almost certainly still double-speak,
 since nothing about them changed.
+
+## 2026-10-18
+Built fresh VST3 and AU, confirmed arm64, overwriting the Oct 15 copies in
+`~/Library/Audio/Plug-Ins`, so Jim could test the `detune` fix in Logic. In Logic, VoiceOver
+still doesn't speak slider value changes live when moving a slider with arrow keys, the same
+silence noted on 2026-10-17. Since nothing speaks at all, there's no way to tell from that
+alone whether the every-other-press double-speak is also fixed in Logic.
+
+Jim then tested `LcdDisplay` directly, to see whether the Logic silence is specific to sliders
+or wider than that. Found something that narrows it down: the LCD's text does update when a
+slider moves with arrow keys, confirmed by checking it afterward, but VoiceOver speaks nothing
+in the moment. When Jim instead moves VoiceOver's own cursor with VO+Left or VO+Right onto the
+LCD, after the fact, VoiceOver does speak its text, and the same is true moving onto a slider
+that way. So the content and the accessible description are both correct in Logic; what's
+missing is specifically the live, unprompted announcement that fires on its own when a value
+changes, the kind that already works in the standalone app. Points at the live value-changed
+accessibility event not reaching VoiceOver in Logic, not at anything wrong with the displays.
+
+Settled a plan with Jim for the every-other-press double-speak: give every slider except
+`algo` a tooltip that rebuilds to its name and current value on every change, the same pattern
+now used for `detune`. Before writing that fix everywhere, ran a free test using tooltips that
+already exist and never update: `sclLeftLevel`, `sclRightLevel`, `sclLvlBrkPt`, and
+`sclRateScaling` in `Source/OperatorEditor.cpp`. Jim tested all four with VoiceOver. Three
+double-speak, `sclLeftLevel`, `sclLvlBrkPt`, and `sclRateScaling`; one does not,
+`sclRightLevel`. `sclLeftLevel` and `sclRightLevel` are set up identically in code, same range,
+same dial style, same kind of fixed tooltip, same empty value-changed handler, differing only
+in tooltip wording, screen position, and which operator parameter each is wired to, so nothing
+in the code explains the difference. This weakens the idea that tooltip content alone is what
+matters, and the broad name-and-value tooltip fix was set aside rather than written across all
+~36 sliders until the diagnostic log can point at a real cause. Decided, going forward, to
+always build with the diagnostic log turned on, so a test like this one isn't done blind.
+
+## 2026-10-19
+Rebuilt standalone, VST3, AU, and CLAP, all confirmed arm64. Checked existing copies in
+`~/Library/Audio/Plug-Ins` and `/Applications` first and got Jim's go-ahead before the build
+could overwrite anything, per this project's rules, though it turned out nothing had actually
+changed since the Oct 18 build, so none of the four were overwritten with new content. Missed
+checking the CLAP folder beforehand, flagged that to Jim after the fact rather than before.
+Ran DexedTests, still passing.
+
+Turned the diagnostic log on for both hosts Jim will test next: the standalone app, using the
+same marker location confirmed working before, `$TMPDIR/Dexed/dexed-ax-trace.on`; and Logic,
+a location not tried before, `$TMPDIR/Logic Pro/dexed-ax-trace.on`, named after Logic's own
+executable since the plugin runs inside Logic's process rather than its own. Worked out the
+Logic path by reading JUCE's `File::getSpecialLocation` source for macOS rather than guessing:
+it's always `$TMPDIR/<executable name>`. Jim will test both later; still need to check whether
+Logic actually wrote to its log file afterward; that confirms or rules out the guess about its
+temp folder name.
+
+Jim also asked why BOOKMARK.md had grown so large. Found the cause: its "Where we are"
+section was never pruned after a task finished, so every session's detail kept accumulating
+on top of the last, duplicating a lot of what already lives here in docs/log.md. Jim asked to
+prune it, keeping this log as the full record and BOOKMARK.md as a short, current-state
+recap.
+
+## 2026-10-21
+Found the standalone app's diagnostic marker and log files gone, the `$TMPDIR/Dexed` folder
+was empty, no `.on` file and no `.log` file, even though both were working as of the last
+session. Most likely cause: macOS clears that per-user temp folder between runs or reboots.
+Recreated the marker file and confirmed logging worked again by having Jim reproduce the
+double-speak and reading the fresh log afterward.
+
+That first fresh log, covering `detune`, `opCoarse`, and `opFine`, both by arrow key and by
+VoiceOver's own VO+Left/Right gesture, showed exactly one "value changed" line per action,
+every time. That's the one line in JUCE's own `Slider.cpp` that tells VoiceOver about a
+slider's new value, so this ruled out the plugin firing that notification twice for a single
+press.
+
+Jim pointed out VO+Left/Right never double-speaks, only plain arrow keys do, and asked what
+else could be competing. Added the same diagnostic logging to `LcdDisplay::setSystemMsg`,
+`Source/DXComponents.cpp`, and rebuilt standalone. The next log showed the LCD firing its own
+live announcement at the same moment as the slider's, for every single parameter edit, arrow
+key or VoiceOver gesture alike. The small LCD text at the bottom of the window updates on
+practically every parameter change, and had been separately telling VoiceOver about its own
+change this whole time, competing with the slider's own announcement.
+
+Jim separately tested and found the very first arrow-key press on a freshly focused slider
+sounds like one voice, and every press after that sounds like two, with the second cutting
+off the first. Traced JUCE's `Slider.cpp` to check whether the two input paths, a plain arrow
+key and a VoiceOver gesture, differ in our own code. They don't: both end up at the exact
+same line, `handleAsyncUpdate()`, which fires the slider's notification exactly once either
+way. So the difference in what gets heard isn't in the plugin's code, it has to be in how
+VoiceOver itself treats a notification that results from its own gesture versus one from a
+plain keystroke. Best guess, not provable from inside the plugin: VoiceOver quiets other
+competing announcements while it's in the middle of its own adjust gesture, since it already
+plans to speak the result itself, but doesn't do that for an ordinary key press. Parked as a
+side issue for later, out of curiosity, not blocking the fix below.
+
+Fixed the LCD/slider double announcement: `GlobalEditor::setParamMessage`, the path called on
+every ordinary parameter edit, now passes `notify = false` into `LcdDisplay::setSystemMsg`,
+so the LCD updates its visible text without telling VoiceOver about it, since the slider
+already does that. `GlobalEditor::setSystemMessage`, a path reserved for real system messages
+like a patch loading, with no slider of its own, keeps announcing live; it isn't called from
+anywhere yet, but is there for when that need comes up. Rebuilt standalone, confirmed arm64.
+
+Jim tested and reported it wasn't solved, but noticed `opFine` specifically had stopped
+double-speaking. Turned out the diagnostic log couldn't tell the difference: the log line in
+`LcdDisplay::setSystemMsg` printed "value changed" unconditionally, whether or not the real
+VoiceOver notification fired, so the log looked identical whether the fix was active or not.
+Also worth checking in hindsight: a running standalone instance keeps the old code in memory
+until it's quit and relaunched, not just rebuilt on disk. Changed the log line to print
+`notify 0` or `notify 1` so it actually shows what happened, rebuilt, and had Jim fully quit
+and reopen the app before retesting. The fresh log showed `notify 0` on every parameter edit
+for `detune`, `opCoarse`, and `opFine`, confirming the fix was active, and Jim confirmed with
+VoiceOver that all three spoke only once now, including `opFine`.
+
+Rebuilt VST3, AU, and CLAP with the same fix. First listed every existing Dexed copy in
+`/Applications`, `~/Library/Audio/Plug-Ins`, and `/Library/Audio/Plug-Ins`, per this project's
+rules: only the three user-level copies, VST3, AU, and CLAP, all already arm64, were ours and
+would be overwritten; the root-owned copies in `/Library/Audio/Plug-Ins` are a separate, older
+install this build never touches. Built, confirmed all three installed copies arm64.
+
+Turning the diagnostic log on for Logic took an extra step this time. Jim loaded the AU in
+Logic; its temp folder, where the log and its on/off marker file live, didn't exist yet,
+since nothing had called into the plugin's code there yet. Had Jim press one throwaway key to
+trigger it. Still nothing appeared at the location used last time, `$TMPDIR/Logic Pro`.
+Checked `~/Library/Containers` for a sandbox container for Logic's own bundle ID,
+`com.apple.logic10`; none existed, meaning Logic itself isn't sandboxed. Found the real folder
+by listing everything under the shared per-user temp root and spotting `AUHostingService`,
+Apple's own out-of-process host for Audio Unit plugins; Logic runs the AU in that separate
+helper process rather than its own, so the plugin's code sees that helper's executable name,
+not Logic's, and its own temp folder landed at `$TMPDIR/AUHostingService/Dexed`. Created the
+marker file there.
+
+Jim's first retest produced a confusing result: VoiceOver's own gesture, VO+Left/Right,
+changed `detune`'s value and logged normally, but plain arrow keys did nothing, no log line of
+any kind, not even the raw key-press line that should fire regardless of whether a value
+actually changes. Guessed this might be a systemic difference between standalone and an
+out-of-process AU host, keyboard focus not following VoiceOver's cursor across the process
+boundary the way it does in-process. That guess didn't hold up: `docs/Plan.md` and this log
+both already recorded arrow-key stepping working fine in Logic's AU on 2026-10-17, so this
+wasn't a standing bug.
+
+Had Jim retest more carefully, confirming he wasn't "interacting" with the slider through
+VoiceOver, VO+Shift+Up to back out first, and confirming VoiceOver's Quick Nav, which can
+claim plain arrow keys system-wide, was off. Neither changed anything, arrow keys still did
+nothing, confirmed by Jim directly: the value itself wasn't moving, not just failing to
+announce. Then, on a later retest, arrow keys suddenly started working normally, logging and
+changing values correctly, LCD still correctly quiet per the fix. Jim separately realized his
+usual way of reaching the very first control, VO+Right from the window's close button, assumes
+a close button that standalone has and Logic's plugin window doesn't, so his early attempts in
+Logic may not have landed real keyboard focus on `detune` the way he intended. That's the most
+likely explanation for the whole episode, a one-time navigation mix-up right when the plugin
+window first opened, not a defect in the plugin, though it couldn't be reproduced again to
+confirm for certain. Jim confirmed with VoiceOver, once arrow keys were working, that `detune`
+spoke only once per press in Logic too.
