@@ -587,3 +587,15 @@ pattern, since it happened again and we still haven't looked into why.
 `ax-watch` is meant to be reusable beyond this project, any Mac app where we're checking
 VoiceOver support could use the same check. Plan is to turn it into a general skill once it's
 proven itself further, rather than packaging it prematurely.
+
+Separately, Jim raised a theory: expected VoiceOver behavior for a blind Logic user is
+VO+Right/Left stepping by 5, VO+Shift+Right/Left stepping by 1, and VO+End/Home jumping to the
+max or min, but Dexed and Musio, another JUCE app, always step by 1 on VO+Right/Left. Checked
+JUCE's own macOS code, `accessibilityPerformIncrement` and `accessibilityPerformDecrement` in
+`juce_AccessibilitySharedCode_mac.mm`: JUCE always steps by the slider's own defined interval,
+1 for Dexed's DX7 parameters, with no separate coarse and fine step and no check for a Shift
+key at all. Not yet confirmed whether VO+Shift+Right/Left or VO+End/Home even reach JUCE in
+some other form, since that one function has no way to know a modifier was held. Worked out a
+test plan for next session rather than guessing further; see docs/Plan.md for the full
+breakdown, across several sliders, several apps, and both VoiceOver gestures and real
+keystrokes, paired with `AxTrace` for Dexed specifically.

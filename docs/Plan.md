@@ -93,3 +93,27 @@ Tasks in order. Checked items are done.
 - [ ] Second unexplained occurrence, not yet investigated: arrow keys briefly doing nothing at
   all in Logic before starting to work, same symptom as the one-time episode on 2026-10-21.
   Happened again on 2026-10-22. See docs/log.md for both occurrences.
+- [ ] Jim's theory, from 2026-10-22, not yet tested: expected VoiceOver behavior for a blind
+  Logic user is VO+Right/Left steps by 5, VO+Shift+Right/Left steps by 1, VO+End goes to the
+  maximum, VO+Home goes to the minimum. In Dexed and in Musio, another JUCE app, VO+Right/Left
+  always steps by 1 instead. Confirmed in JUCE's own macOS code,
+  `juce_AccessibilitySharedCode_mac.mm`, `accessibilityPerformIncrement` and
+  `accessibilityPerformDecrement`: JUCE always steps by the slider's own defined interval, 1
+  for Dexed's DX7 parameters, with no separate coarse and fine step and no check for Shift at
+  all. Not yet confirmed whether VO+Shift+Right/Left and VO+Home/End even reach JUCE in some
+  other form, such as falling through as a real keystroke, since JUCE's increment and
+  decrement code has no way to tell a modifier was held.
+  Test plan for next session, don't assume the step size is always 5 and 1 for every slider,
+  observe and compare instead:
+  - Run every one of these on each control: VO+Right, VO+Left, VO+Shift+Right,
+    VO+Shift+Left, VO+End, VO+Home, and the same six as real keystrokes, not VoiceOver
+    gestures. Repeat each a few times per control, since clamping near the top or bottom of a
+    range can look like a different step size even when it isn't.
+  - Try this on several different sliders in Dexed, a native Logic instrument with several
+    sliders, and a non-Logic, non-JUCE app, such as a System Settings slider, Sound or
+    Trackpad or Accessibility Zoom, to separate generic macOS slider behavior from anything
+    specific to Logic itself.
+  - For Dexed specifically, run `tools/ax-watch` and Dexed's own `AxTrace` log at the same
+    time. The watcher alone only shows that a value changed, not how; `AxTrace` already tells
+    apart a real keystroke, including whether Shift was held, from VoiceOver's own action,
+    which the watcher can't do on its own.

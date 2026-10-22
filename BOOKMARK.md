@@ -27,10 +27,16 @@
   VoiceOver support. Plan is to turn it into a general skill once it's proven itself further.
 
 ## What's next
-- Jim has some thoughts to share before deciding the next concrete step.
-- Possible next check: read which process VoiceOver currently treats as frontmost while
-  sitting in the Dexed window inside Logic, a one-time lookup, not another live test, to
-  confirm or rule out the frontmost-process theory directly.
+- Jim's theory: VoiceOver should step by 5 on VO+Right/Left and by 1 on VO+Shift+Right/Left,
+  and VO+End/Home should jump to max/min, but Dexed and Musio, both JUCE apps, always step by
+  1 on VO+Right/Left. Confirmed in JUCE's own code that it only ever uses one fixed step, with
+  no Shift handling. Next session, test this properly across several sliders in Dexed, a
+  native Logic instrument, and a non-Logic app like System Settings, with both VoiceOver
+  gestures and real keystrokes, using `tools/ax-watch` together with Dexed's own `AxTrace` log.
+  Full test plan in docs/Plan.md.
+- Possible next check on the separate Logic-silence question: read which process VoiceOver
+  currently treats as frontmost while sitting in the Dexed window inside Logic, a one-time
+  lookup, not another live test, to confirm or rule out the frontmost-process theory directly.
 - After the Logic-silence question: fix the already-understood double announcement on
   envelope and pitch envelope sliders, where the envelope diagram next to them also announces,
   every time, not just every other time, the same kind of fix as the LCD case.
