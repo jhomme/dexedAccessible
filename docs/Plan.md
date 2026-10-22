@@ -69,9 +69,27 @@ Tasks in order. Checked items are done.
   out to be a one-time focus mix-up right after first opening the plugin window, not a real
   bug, since it resolved on its own and could not be reproduced afterward. See docs/log.md,
   2026-10-21.
-- [ ] Separately, why a slider's value change speaks live in standalone but stays silent in
-  Logic.
-- [ ] Side issue, parked for later, for curiosity and education, not blocking anything: why
-  VoiceOver stays quiet about the LCD's competing announcement during its own VO+Left/Right
-  adjust gesture, but not during a plain arrow-key press, even though the plugin sends the
-  identical pair of notifications either way. See docs/log.md, 2026-10-21.
+- [x] Side issue, parked on 2026-10-21 for curiosity and education: why VoiceOver stays quiet
+  about a competing announcement during its own VO+Left/Right gesture, but not during a plain
+  arrow-key press. Built a small diagnostic tool, `tools/ax-watch`, that watches a process's
+  real macOS accessibility notifications from outside the app, the same way Apple's
+  Accessibility Inspector does, read-only, no ability to act on anything. Confirmed in
+  standalone that a plain arrow key and VoiceOver's own gesture send the identical notification
+  either way, one `AXValueChanged` per step, same shape. The two input methods are
+  indistinguishable at this level, so whatever VoiceOver does differently is internal to
+  VoiceOver, past what we can observe from outside. 2026-10-22, see docs/log.md.
+- [x] Dug into why a slider's value change speaks live in standalone but stays silent in
+  Logic. Using the same `ax-watch` tool against Logic's `AUHostingServiceXPC_arrow` helper
+  process, confirmed the system-level notifications are correct and complete either way, not
+  the cause. Comparing a plain arrow key, silent, against VoiceOver's own gesture, which spoke
+  correctly, on the same instance, points to VoiceOver only live-announcing notifications from
+  whichever process the system treats as frontmost, which is Logic itself, not the helper
+  process actually running Dexed's UI. If right, this isn't fixable from inside Dexed; it comes
+  from how Logic hosts the plugin in a separate process. Not fully proven yet. 2026-10-22, see
+  docs/log.md.
+- [ ] Confirm the Logic-silence theory by checking which process VoiceOver currently treats as
+  frontmost while sitting in the Dexed window inside Logic, a one-time lookup with `ax-watch`
+  or similar, not another live test.
+- [ ] Second unexplained occurrence, not yet investigated: arrow keys briefly doing nothing at
+  all in Logic before starting to work, same symptom as the one-time episode on 2026-10-21.
+  Happened again on 2026-10-22. See docs/log.md for both occurrences.

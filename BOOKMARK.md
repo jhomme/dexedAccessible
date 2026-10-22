@@ -1,46 +1,49 @@
 # Bookmark
 
 ## Where we are
-- Found and fixed the cause of the arrow-key double-speak: the small LCD display was
-  separately announcing its own text change to VoiceOver on practically every parameter edit,
-  at the same moment the slider announced its own change, two competing voices for one
-  keypress. Fixed by making `GlobalEditor::setParamMessage` stop announcing the LCD's change
-  live, since the slider already does. `Source/DXComponents.h`, `Source/DXComponents.cpp`,
-  `Source/GlobalEditor.cpp`, 2026-10-21.
-- Confirmed in standalone with VoiceOver: `detune`, `opCoarse`, and `opFine` all speak only
-  once per arrow-key press now. Rebuilt standalone twice along the way, confirmed arm64 both
-  times.
-- Rebuilt VST3, AU, and CLAP with the same fix, confirmed arm64, and confirmed with VoiceOver
-  in Logic's AU that `detune` also speaks only once now. Logic's AU runs the plugin in a
-  separate helper process, `AUHostingService`, so its diagnostic log lives at
-  `$TMPDIR/AUHostingService/Dexed`, not `$TMPDIR/Dexed` like standalone or `$TMPDIR/Logic Pro`
-  as guessed before.
-- Logic still doesn't speak a slider's or display's value live after an arrow-key move, even
-  though the content and description are both correct; only the standalone app announces live.
-  Untouched by today's fix.
-- Hit a one-time scare while testing in Logic: arrow keys briefly did nothing at all, not even
-  logging, while VoiceOver's own gesture still worked. Turned out to most likely be a
-  navigation mix-up right after first opening the plugin window, not a real bug; it resolved
-  on its own and couldn't be reproduced again. See docs/log.md, 2026-10-21, for the full story
-  if it happens again.
-- Side issue, parked for later out of curiosity, not blocking: why VoiceOver stays quiet about
-  a competing announcement during its own VO+Left/Right adjust gesture, but not during a plain
-  arrow-key press, even though the plugin sends the identical pair of notifications either
-  way. See docs/log.md, 2026-10-21, for the reasoning so far.
+- Built a small, reusable diagnostic tool, `tools/ax-watch`, a standalone command line
+  program, not part of the plugin, that watches a chosen process's real macOS accessibility
+  notifications from outside the app, the same way Apple's Accessibility Inspector does. It
+  only reads: no ability to set a value, perform an action, or send a synthetic keystroke or
+  click. Needed a one-time Accessibility permission grant to "The Chat Place," the app hosting
+  this Claude Code session, which Jim approved and can revoke any time.
+- Used it to answer the parked side issue from 2026-10-21: a plain arrow key and VoiceOver's
+  own VO+Left/Right gesture send the identical accessibility notification either way in
+  standalone. The two input methods are indistinguishable at the system level, so whatever
+  makes VoiceOver stay quiet about a competing announcement during its own gesture is internal
+  to VoiceOver, past what we can observe from outside.
+- Used the same tool against Logic's `AUHostingServiceXPC_arrow` helper process, the one
+  actually running Dexed's UI there. Found the system-level notifications are correct and
+  complete during Logic's silent case too, ruling out our own code or the system's delivery of
+  the notification as the cause. Comparing a plain arrow key, silent, against VoiceOver's own
+  gesture, which spoke correctly, on the same loaded instance, points to VoiceOver only
+  live-announcing notifications from whichever process the system treats as frontmost, Logic
+  itself, not the helper process. Not fully proven; if right, this isn't fixable from inside
+  Dexed.
+- Flagged, not yet investigated: arrow keys briefly did nothing in Logic again partway through
+  today's testing, the same symptom as the one-time 2026-10-21 episode, before starting to work
+  on their own. Happened a second time now, still unexplained.
+- `ax-watch` is meant to be reusable beyond this project, any Mac app where we're checking
+  VoiceOver support. Plan is to turn it into a general skill once it's proven itself further.
 
 ## What's next
-- Dig into why Logic never speaks a live value change at all, slider or LCD.
-- After that: fix the already-understood double announcement on envelope and pitch envelope
-  sliders, where the envelope diagram next to them also announces, every time, not just every
-  other time, now that the LCD case shows the same pattern and the same kind of fix.
+- Jim has some thoughts to share before deciding the next concrete step.
+- Possible next check: read which process VoiceOver currently treats as frontmost while
+  sitting in the Dexed window inside Logic, a one-time lookup, not another live test, to
+  confirm or rule out the frontmost-process theory directly.
+- After the Logic-silence question: fix the already-understood double announcement on
+  envelope and pitch envelope sliders, where the envelope diagram next to them also announces,
+  every time, not just every other time, the same kind of fix as the LCD case.
 - Later: revisit slider naming for clarity and consistency.
 - See docs/log.md for the full history and reasoning behind all of the above.
 
 ## Open questions
-- Why does VoiceOver suppress a competing announcement during its own gesture-driven value
-  change but not during a plain key-driven one? Parked for later, educational, not blocking.
-- Why does a slider's or display's live value change speak in the standalone app but stay
-  silent in Logic?
+- Does VoiceOver only live-announce notifications from the system's current frontmost process?
+  That would explain Logic's silence as a side effect of Logic hosting the plugin in a separate
+  helper process, not something fixable in Dexed. Not yet confirmed directly.
+- Why did arrow keys briefly stop responding in Logic a second time, before working again on
+  their own? Possibly related to Logic Magician, Jim's Keyboard Maestro macro set, being left
+  on at the start of testing; not confirmed.
 - The documented build command in CLAUDE.md, without `CMAKE_BUILD_TYPE=Release`, produces an
   x86_64-only binary on this Mac. Worked around with an extra CMake flag each time so far;
   needs a decision on what a plain local build should default to.

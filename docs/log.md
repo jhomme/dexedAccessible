@@ -516,3 +516,74 @@ likely explanation for the whole episode, a one-time navigation mix-up right whe
 window first opened, not a defect in the plugin, though it couldn't be reproduced again to
 confirm for certain. Jim confirmed with VoiceOver, once arrow keys were working, that `detune`
 spoke only once per press in Logic too.
+
+## 2026-10-22
+
+Started digging into why Logic never speaks a live slider change, even though the value and
+its description are both correct. Our own notification call on macOS,
+`NSAccessibilityPostNotificationWithUserInfo`, has no return value and no error; from inside
+the app, successfully sending a notification and successfully being heard by VoiceOver look
+identical. That meant we needed a way to watch, from outside the app, whether the notification
+really reaches the system at all, the same thing Apple's own Accessibility Inspector does.
+
+Built a small standalone command line tool for this, `tools/ax-watch/ax-watch.swift`, not part
+of the Dexed plugin. It subscribes to a chosen process's accessibility notifications using the
+same macOS API Inspector and VoiceOver use, `AXObserverCreate` and
+`AXObserverAddNotification`, and prints each one as a plain text line: `AXValueChanged`,
+`AXFocusedUIElementChanged`, or `AXFocusedWindowChanged` by default, along with the role,
+title, and value of whatever control it fired on. It only reads; nothing in it can set a
+value, perform an action, or send a synthetic keystroke or click. Confirmed this directly by
+rereading the whole file before running it, since it needed a real system permission.
+
+Getting it running needed Accessibility access granted in System Settings to whichever process
+runs it. Discussed two options: grant it to Jim's own Terminal, narrower in scope, or to "The
+Chat Place," the app hosting this Claude Code session, broader in scope but lets the tool run
+directly without involving Jim's Terminal. Jim chose the broader option. Added the standard
+`AXIsProcessTrustedWithOptions` call with the prompt option on, so the tool registers itself
+with the system properly instead of failing silently; Jim granted it, confirmed it can be
+revoked any time.
+
+Ran four comparison tests, each watching for the same three notifications:
+
+1. Standalone, plain arrow keys through `detune`, `F COARSE`, `F FINE`. One `AXValueChanged`
+   per keypress, correct new value each time, `AXFocusedUIElementChanged` correctly on every
+   tab move. VoiceOver speaks correctly here, our known-good case.
+2. Standalone, VoiceOver's own VO+Left/Right gesture only, same sliders. Identical pattern to
+   test 1, same notifications, same shape, nothing extra and nothing missing. This answers the
+   parked side issue from 2026-10-21: whatever makes VoiceOver stay quiet about a second
+   announcement during its own gesture, it isn't a different notification stream. The two
+   input methods are indistinguishable at this level; the difference must be entirely inside
+   VoiceOver itself, past the point we can observe from outside Apple's own code.
+3. Logic's AU, in the `AUHostingServiceXPC_arrow` helper process, plain arrow keys. Same
+   pattern again, correct `AXValueChanged` and `AXFocusedUIElementChanged`, fully matching the
+   standalone case. Jim confirmed VoiceOver said nothing at all during this test.
+4. Logic's AU, same process, VoiceOver's own gesture only, no plain keys. Same notification
+   pattern once more. Jim confirmed VoiceOver spoke every value correctly this time.
+
+Tests 3 and 4 are the key finding. Same plugin instance, same sliders, identical notifications
+reaching the system either way, and the only thing that changed was which method triggered
+them: silence for a plain key, correct speech for VoiceOver's own gesture. That rules out our
+own code and the system-level delivery of the notification as the cause, both are proven
+correct and complete. The most likely explanation left: VoiceOver always narrates the result of
+its own gesture, since it just asked the question and is reporting back, regardless of which
+process answered. For a live, unprompted announcement, it may only speak if that notification
+comes from whichever single process the system currently treats as frontmost, which in Logic
+is Logic's own process, not the separate helper process actually running Dexed's UI,
+`AUHostingServiceXPC_arrow`. VoiceOver can still reach into that helper process's own
+accessibility tree on demand, through Tab or its own cursor, which is a different mechanism
+from a standing live subscription. If this read is right, the gap isn't fixable from inside
+Dexed; it comes from how Logic hosts the plugin in a separate process, which is Apple's and
+Logic's design, not ours. Not fully proven; the next check, not yet done, would be reading
+which process VoiceOver currently treats as frontmost while sitting in the Dexed window inside
+Logic, a one-time lookup rather than another live test.
+
+Also flagging, not yet investigated: partway through today's Logic testing, arrow keys
+briefly did nothing again, the same symptom as the one-time episode on 2026-10-21, before
+starting to work moments later. This time Jim also had Logic Magician, his Keyboard Maestro
+macro set, still on at the very start of testing, normally toggled off inside the Dexed window,
+which may or may not be related. Noting this as a second occurrence of the same unexplained
+pattern, since it happened again and we still haven't looked into why.
+
+`ax-watch` is meant to be reusable beyond this project, any Mac app where we're checking
+VoiceOver support could use the same check. Plan is to turn it into a general skill once it's
+proven itself further, rather than packaging it prematurely.
