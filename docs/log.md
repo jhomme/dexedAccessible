@@ -599,3 +599,84 @@ some other form, since that one function has no way to know a modifier was held.
 test plan for next session rather than guessing further; see docs/Plan.md for the full
 breakdown, across several sliders, several apps, and both VoiceOver gestures and real
 keystrokes, paired with `AxTrace` for Dexed specifically.
+
+## 2026-10-24
+Ran the step-size test plan from 2026-10-22. Along the way, a separate session had given Jim
+a theory to verify: JUCE reports a slider's step size to VoiceOver through its accessibility
+value interface, falling back to 1% of the range if the step is set to 0. Checked this against
+our own vendored JUCE and Dexed's own code: confirmed exactly, in `juce_Slider.cpp`'s
+`getStepSize` and in Dexed's `setRange(..., 1)` calls across `GlobalEditor.cpp` and
+`OperatorEditor.cpp`. That explains why VO+Right always steps by 1 in Dexed: the code tells it
+to. A separate claim from that session, that JUCE's keyboard handler swallows Shift entirely,
+didn't hold up against our own code: `DXSlider::keyPressed` already handles Shift for real
+keystrokes. The real open question stayed the same one from before: does a VoiceOver Shift
+gesture even reach that keyboard code.
+
+Tried to answer that with `tools/ax-watch` first. In Dexed's standalone build, VO+Right moved
+`OP1 F FINE` by 1 each press, 5 presses, matching the code exactly. VO+Shift+Right made
+VoiceOver's own "no action" sound and produced no `AXValueChanged` at all, confirmed with the
+watcher. Jim pushed back on taking that at face value, since he'd seen Shift work before on
+other sliders, so we tested a Control Center brightness slider the same way: VO+Right/Left
+moved it by 10% a press, but VO+Shift+Right/Left changed nothing there either, silently this
+time, no error sound. Then tried a native Logic instrument slider: VO+Right stepped by 5, three
+presses moved it 55, 60, 65; VO+Shift+Right stepped by 1, three presses moved it 66, 67, 68.
+Shift really does work differently there. That ruled brightness and Dexed out as universal
+proof Shift never does anything, and confirmed Jim's original memory was right, at least for
+some native controls.
+
+Tried to find out how the Logic slider does it. Built a second diagnostic tool,
+`tools/event-watch`, read-only like `ax-watch`, but watching real system-wide keyboard and mouse
+events, key down and up, and mouse down, up, and dragged, instead of accessibility
+notifications. Confirmed, twice, that neither VO+Right nor VO+Shift+Right on that Logic slider
+ever produces a real keystroke or a real mouse click or drag anywhere on the system; both stay
+entirely inside the accessibility layer. Also built a small one-shot tool,
+`tools/ax-watch/ax-actions`, to read-only query whatever element currently has focus and list
+its supported accessibility actions. The Logic slider reported only the ordinary `AXIncrement`
+and `AXDecrement`, nothing beyond what any slider has. So the Shift behavior is real, but
+still unexplained: not a real keystroke, not a real mouse event, not an extra action name.
+
+Also tried, early on, to get Dexed's own `AxTrace` diagnostic log working again as a second
+way to watch this from inside Dexed. It would not write at all in standalone, including the
+catch-all `onValueChange` line that already existed from an earlier session and logs on any
+value change regardless of cause. Checked everything that could explain a silent failure: the
+marker file was present at the exact path the app would check, that path matched
+`NSTemporaryDirectory()` exactly, the running process's own `TMPDIR` environment variable
+matched too, the binary was confirmed to contain the compiled-in marker and log file names, and
+the directory had normal permissions. No cause found. Left unresolved; `ax-watch` and
+`event-watch` carried the rest of today's testing instead.
+
+Jim's call at the end of the session: stop chasing the exact mechanism for now, and move
+toward a version of Dexed he considers acceptable to ship, rather than continuing to chase
+full VoiceOver step-size parity with native macOS controls.
+
+Picked up the open question from 2026-10-17 about a plain local build silently coming out
+x86_64 only, since `CMAKE_OSX_ARCHITECTURES` is only forced to include arm64 in
+`CMakeLists.txt` when `CMAKE_BUILD_TYPE` is set to `Release`. Checked the actual build folder
+used day to day: its cached settings already had `CMAKE_OSX_ARCHITECTURES` set to `arm64` with
+no build type set, so the quiet x86_64 default from 2026-10-17 didn't reproduce here. First
+attempt at a fix removed the `Release`-only condition so every build would always include both
+architectures; building confirmed this worked, but also made the regular fast local test build
+slow, a universal binary every time, which undoes the point of keeping daily builds to just
+this Mac's native chip. Reverted that change; `git diff` confirmed `CMakeLists.txt` matches
+the last commit exactly, so no code changed in the end.
+
+Found a side effect of the reverted attempt worth remembering: once CMake writes
+`CMAKE_OSX_ARCHITECTURES` into a build folder's `CMakeCache.txt`, reverting the project file
+doesn't undo it, since CMake's `set(... CACHE ...)` without `FORCE` never overwrites an
+existing cache entry. The existing build folder stayed stuck on the universal setting until
+reset directly with `cmake -DCMAKE_OSX_ARCHITECTURES=arm64 .`. If a build folder ever seems to
+ignore a `CMakeLists.txt` change to an architecture or similar cached setting, that's the
+likely cause: delete the stale entry from `CMakeCache.txt`, pass the value directly on the
+command line, or delete and recreate the build folder.
+
+Confirmed, by building and checking with `file`, not just by reading code: the existing build
+folder produces an arm64-only `DexedTests` binary with the documented plain build command,
+matching what day-to-day testing wants, and a separate, throwaway build folder configured with
+`-DCMAKE_BUILD_TYPE=Release` produces a universal `DexedTests` binary covering both
+architectures, matching what a release build needs. Both already worked correctly before today;
+nothing needed changing in `CMakeLists.txt` itself.
+
+Agreed with Jim on the release process this points to: keep everyday test builds arm64 only,
+this Mac's native chip, and before any release, build with `CMAKE_BUILD_TYPE=Release` and use
+Rosetta, the Mac's built-in translator for Intel-only apps, to run a VoiceOver check of the
+x86_64 half on this Mac before shipping.

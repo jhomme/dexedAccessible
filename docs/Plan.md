@@ -117,3 +117,28 @@ Tasks in order. Checked items are done.
     time. The watcher alone only shows that a value changed, not how; `AxTrace` already tells
     apart a real keystroke, including whether Shift was held, from VoiceOver's own action,
     which the watcher can't do on its own.
+- [x] Ran the test plan above, 2026-10-24. Confirmed in Dexed: VO+Right always steps by 1,
+  matching `setRange(..., 1)` in the code. VO+Shift+Right makes VoiceOver's own "no action"
+  sound and changes nothing, in Dexed and on a Control Center brightness slider alike. On a
+  native Logic instrument slider, VO+Right steps by 5 and VO+Shift+Right steps by 1, a real
+  difference, confirmed by pressing 3 times and seeing exactly 3 steps each way. Tried to find
+  out how: built `tools/event-watch`, a read-only watcher for real system-wide keyboard and
+  mouse events, and confirmed neither VO+Right nor VO+Shift+Right ever produces a real
+  keystroke or a real mouse click or drag, on that Logic slider. Also checked, with a new
+  one-shot tool, `tools/ax-watch/ax-actions`, what actions that slider advertises: just the
+  ordinary `AXIncrement` and `AXDecrement`, nothing extra. So the Shift step-size difference is
+  real, but the mechanism behind it is still unexplained. Separately, Dexed's own `AxTrace` log
+  still would not write at all in today's standalone testing, despite the marker file, the temp
+  folder path, and the compiled-in code all checking out; left unresolved. See docs/log.md.
+- [ ] Parked for now, Jim's call on 2026-10-24: understanding the exact VO+Shift mechanism is
+  not worth more time right now. Priority moves to getting a version of Dexed Jim considers
+  acceptable to ship. Revisit this if it becomes relevant again.
+- [x] Confirmed Shift+arrow in Logic behaves the same as plain arrows: the value changes
+  correctly, but VoiceOver stays silent. Jim tested directly in Logic, 2026-10-24. Extends the
+  Logic-silence finding from 2026-10-22, which had only been confirmed for plain arrows there.
+- [x] Resolved the open question about a plain local build silently coming out x86_64 only.
+  The real build folder already defaults to arm64, confirmed by building and checking with
+  `file`, and a Release build already produces a universal binary covering both architectures,
+  also confirmed by building. No `CMakeLists.txt` change was needed. Agreed process going
+  forward: everyday test builds stay arm64 only, and release builds get a VoiceOver check of
+  the x86_64 half through Rosetta before shipping. 2026-10-24, see docs/log.md.
