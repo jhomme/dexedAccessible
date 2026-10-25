@@ -166,5 +166,11 @@ Tasks in order. Checked items are done.
 - [x] Simplified Shift+arrow "move by 5": it used to only work on sliders whose range is
   exactly 0 to 99, snapping to the nearest multiple of 5. Now it adds or subtracts a plain 5
   from the current value, clamped at that slider's own min and max, on every slider in the
-  app. `Source/DXComponents.h`, 2026-10-25. Built and ran DexedTests, both passing. Still
-  needs Jim's VoiceOver confirmation.
+  app. `Source/DXComponents.h`, 2026-10-25. Built and ran DexedTests, both passing. Jim
+  confirmed with VoiceOver: clean on every slider tested, 2026-10-25.
+- [x] Jim tested the envelope and pitch envelope fix with VoiceOver. Pitch EG Rate 1 now
+  speaks once, confirming the fix. Pitch EG Level 1 still double-speaks, but the code for
+  Rate 1 and Level 1 is now identical, neither calls the diagram's own announcement, so this
+  isn't leftover from today's bug. Matches the same unexplained pattern as sclLeftLevel and
+  sclRightLevel from 2026-10-19: identical code, different behavior. Folded into the same
+  parked bucket as the rest of standalone double-speak; see docs/deviations.md. 2026-10-25.

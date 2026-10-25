@@ -23,3 +23,7 @@ still-unresolved Logic-silence issue, so a double-speak bug that only shows up i
 isn't reaching the people this project is for.
 
 Who decided: Jim, 2026-10-25.
+
+Also folded in: Pitch EG Level 1, found still double-speaking after testing the envelope
+diagram fix, even though its code is now identical to Pitch EG Rate 1, which doesn't. Same
+unexplained pattern as sclLeftLevel and sclRightLevel from 2026-10-19. Jim, 2026-10-25.

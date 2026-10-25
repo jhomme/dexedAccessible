@@ -809,3 +809,12 @@ moving a fixed amount from wherever the value actually was. Changed `DXSlider::k
 that slider's own real min and max, on every slider in the app regardless of its range. Jim's
 choice, simpler and more predictable than the old snap-to-grid behavior. Built standalone,
 confirmed arm64, ran DexedTests, both passing. Not yet tested with VoiceOver.
+
+Jim tested both of today's fixes with VoiceOver. Shift+arrow "move by 5" is clean on every
+slider tested, confirmed. The envelope diagram fix is confirmed for the regular operator
+envelope and partially confirmed for the pitch envelope: Pitch EG Rate 1 now speaks once,
+but Pitch EG Level 1 still double-speaks. Checked the code for both: identical, neither calls
+the diagram's own announcement anymore, so Level 1's double-speak isn't left over from
+today's bug. This is the same unexplained pattern as sclLeftLevel and sclRightLevel from
+2026-10-19, identical code, different behavior. Jim's call: fold this into the same parked
+double-speak bucket rather than chase it further.
