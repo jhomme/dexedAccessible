@@ -1,30 +1,34 @@
 # Bookmark
 
 ## Where we are
-- Went through the parked items one by one with Jim. Kept parked: the Logic-silence
-  frontmost-process theory, the second unexplained arrow-key hiccup, and the envelope and
-  pitch envelope double-announcement fix.
-- Resolved the open question about a plain local build silently coming out x86_64 only. The
-  real build folder already defaults to arm64 for everyday builds, and a Release build already
-  produces a universal binary covering both arm64 and x86_64. No code change was needed;
-  confirmed by building and checking with `file`, not just by reading code. Full detail in
-  docs/log.md.
-- Agreed process for releases: everyday test builds stay arm64 only, this Mac's native chip,
-  and before shipping, build with `CMAKE_BUILD_TYPE=Release` and use Rosetta to run a
-  VoiceOver check of the x86_64 half on this Mac.
-- Jim chose to pick up slider naming cleanup next: making every slider's spoken name clearer
-  and more consistent, including renaming some that already have a name.
+- Simplified Shift+arrow "move by 5": now a plain add-5 or subtract-5 from wherever the
+  value is, clamped at that slider's own min and max, on every slider in the app. It used to
+  only work on 0-to-99 sliders, and snapped to the nearest multiple of 5 instead of moving a
+  fixed amount. Built standalone, confirmed arm64, ran DexedTests, both passing. Still needs
+  Jim's VoiceOver test.
+- Fixed the envelope and pitch envelope diagram double-announcement. `EnvDisplay` and
+  `PitchEnvDisplay` were separately telling VoiceOver about a change every time one of their
+  own sliders moved, racing the slider's own announcement. Removed the diagram's own live
+  announcement, keeping the slider's. Built standalone, confirmed arm64, ran DexedTests, both
+  passing. This fix stays.
+- Jim then found more sliders in Operator 1 that still double-speak in standalone: EG level 1
+  through 3, EG rate 3, AMP MOD SENS, output level, L and R scale depth, and rate scaling.
+  Jim's call: stop chasing standalone double-speak altogether. Most real users will run Dexed
+  with VoiceOver inside Logic, and Logic doesn't speak live value changes at all right now
+  regardless, so a standalone-only double-speak bug isn't reaching them. Recorded in
+  docs/deviations.md.
+- Dropped "acceptable to ship" from open questions; Jim will decide that himself.
+- Still parked, not forgotten: the Logic-silence investigation (VoiceOver stays quiet on a
+  live slider change in Logic), and the second unexplained "arrow keys briefly did nothing"
+  episode. Full detail on both in docs/log.md.
 
 ## What's next
-- Slider naming cleanup: work out which sliders need clearer or more consistent spoken names,
-  across `OperatorEditor.cpp` and `GlobalEditor.cpp`.
-- After that, still open: what "acceptable to ship" means to Jim, which bugs are must-fix
-  versus nice-to-have.
-- Still parked, not forgotten: the Logic-silence frontmost-process theory, the second
-  unexplained "arrow keys briefly did nothing" episode, and the envelope and pitch envelope
-  double-announcement fix.
+- Jim to test the move-by-5 simplification with VoiceOver: Shift+arrow should add or
+  subtract 5 from wherever the value is, on any slider, not just ones that go 0 to 99.
+- After that, slider naming cleanup: work out which sliders need clearer or more consistent
+  spoken names, across `OperatorEditor.cpp` and `GlobalEditor.cpp`.
 
 ## Open questions
-- What does "acceptable to ship" mean to Jim: which bugs are must-fix, which are nice-to-have?
-- The frontmost-process theory and the arrow-key hiccup in Logic, both still open, not yet
-  investigated.
+- Why VoiceOver stays silent on a live slider change in Logic: parked, unresolved, not a
+  priority right now.
+- The arrow-key hiccup in Logic, still open, not yet investigated.

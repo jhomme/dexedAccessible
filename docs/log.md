@@ -680,3 +680,132 @@ Agreed with Jim on the release process this points to: keep everyday test builds
 this Mac's native chip, and before any release, build with `CMAKE_BUILD_TYPE=Release` and use
 Rosetta, the Mac's built-in translator for Intel-only apps, to run a VoiceOver check of the
 x86_64 half on this Mac before shipping.
+
+Jim separately confirmed, testing directly in Logic, that Shift+arrow behaves the same as
+plain arrow keys there: the value changes correctly, but VoiceOver stays silent. Extends the
+2026-10-22 finding, which had only been confirmed for plain arrows in Logic.
+
+Went back to the open question from 2026-10-22 about why Logic never speaks a live slider
+change: the leading theory, not yet proven, was that VoiceOver only announces live changes
+from whichever process the system currently treats as frontmost, which in Logic is Logic's
+own process, not the separate helper process actually running Dexed's UI. The planned next
+check was a one-time look at which process VoiceOver treats as frontmost while sitting in the
+Dexed window inside Logic.
+
+Built that check as a new tool in the existing `event-watch` skill, outside this project at
+`~/.claude/skills/event-watch`, rather than as a one-off script, so it's reusable for other
+apps later. Backed up the whole skill folder first, to `~/.claude/skill-backups`, before
+touching it. The new tool, `front-watch.swift`, watches for changes in which app the system
+treats as frontmost and logs each one with a timestamp; unlike `ax-watch` and `event-watch`, it
+needs no extra system permission. Designed around a real problem Jim raised: a one-time check
+would most likely just catch whichever app hosts this chat session as frontmost, not Logic,
+since that's what's frontmost while typing to Claude. Settled on having it run continuously in
+the background and log every change, the same pattern `ax-watch` already uses, so Jim could
+switch over and test at his own pace with nothing to time. Documented in the skill's
+`SKILL.md` alongside the other three tools.
+
+Ran it live: started `front-watch` in the background, had Jim switch to Logic, get VoiceOver
+onto a slider, and press plain arrow keys a few times, then switch back. The log showed
+frontmost switching from the chat app to Logic Pro, staying Logic Pro for the entire 45-second
+test window, then switching back to the chat app at the end. Nothing else appeared in between.
+This looked like it confirmed the theory directly: while Jim was arrow-keying a slider inside
+Dexed's window, the system never once treated anything but Logic's own process as frontmost,
+never the helper process actually running Dexed's UI.
+
+Jim pushed to check this more precisely before resting on it, pointing out that `front-watch`
+only asks the ordinary, simple version of "which app is frontmost," not the more specific
+thing the accessibility system itself tracks, which can differ from it. Built a second new
+tool for this, `ax-focus-watch`, also added to the `event-watch` skill: given a short list of
+specific apps by pid, it reports which one, if any, the accessibility system currently has
+focus sitting inside.
+
+First attempt had it ask the simpler, system-wide version of this question, the same shape as
+`front-watch`'s question but for accessibility focus instead of ordinary frontmost status.
+That failed outright with a real error, `kAXErrorCannotComplete`, when run through this chat
+session specifically, even though plain Accessibility access was already granted. Rewrote it
+to ask about specific, named apps by pid instead, the same basic method `ax-watch` already
+uses successfully, which did work, confirmed against two ordinary running apps as a sanity
+check before using it for real.
+
+Ran it for the silent test, watching Logic's own process and the `AUHostingServiceXPC_arrow`
+helper process actually running Dexed's UI, while Jim repeated the plain-arrow-key test. Result:
+accessibility focus sat on Logic Pro itself for the whole 13-second window, never the helper
+process, matching `front-watch`'s finding, but notably not pointing at the helper process
+either, the one actually running Dexed's slider.
+
+Tried the same check against the speaking case, VoiceOver's own gesture, VO+Left or VO+Right,
+for comparison. First run came back empty because the tool, run through this chat session,
+hit the same kind of error as the earlier system-wide attempt, a real limit of asking this
+particular question from that execution context rather than a mistake in the test. Worked
+around it by having Jim run the compiled tool directly from Terminal instead, after granting
+Terminal its own Accessibility permission, the same way Jim's own Terminal usage would need to.
+That approach worked for a second silent-test rerun, confirming the Logic Pro result above
+independently.
+
+The actual speaking-case test, run the same way from Terminal, came back with nothing at all:
+neither Logic nor the helper process ever showed up holding accessibility focus, for the whole
+test window, even though Jim confirmed performing the gesture correctly on a real Dexed slider
+and VoiceOver did speak the value. That's a real, clean result, not a technical failure this
+time, but it doesn't fit a tidy story: the silent case pointed at Logic, not the helper; the
+speaking case pointed at neither. Best guess, not confirmed: VoiceOver's own gesture may not
+touch this particular piece of system bookkeeping at all, since it works through a direct
+accessibility action on the control rather than anything resembling normal keyboard focus, so
+this check may simply be the wrong lens for that case, not evidence that nothing is focused.
+
+Jim's call: stop investigating the mechanism further for now. The original, simpler
+`front-watch` finding, frontmost stayed Logic throughout the silent test, stands as the best
+evidence gathered, suggestive but not proof; the more precise follow-up check complicated
+rather than confirmed the theory, and chasing it further didn't look likely to pay off. Both
+`front-watch` and `ax-focus-watch` stay in the `event-watch` skill for reuse if this becomes
+worth revisiting later, or for debugging similar focus questions in other apps.
+
+## 2026-10-25
+
+Fixed the envelope and pitch envelope diagram double-announcement, the last known
+double-speak bug on the parked list. `EnvDisplay` and `PitchEnvDisplay`, in
+`Source/DXComponents.h`, each had a `notifyAccessibleValueChanged()` method called from every
+one of their own rate and level sliders' `sliderValueChanged` handlers, in
+`Source/OperatorEditor.cpp` and `Source/GlobalEditor.cpp`, on top of the slider's own normal
+announcement. Same root shape as the LCD fix from 2026-10-21: two things telling VoiceOver
+about one change.
+
+Walked Jim through two ways to fix it, since it changes what he hears: stop the diagram's live
+announcement during its own sliders and rely on the slider's own announcement, matching the
+LCD fix, or keep the diagram's full-curve announcement live and suppress the slider's own
+built-in one instead. Recommended the first as the simpler, already-proven pattern. Jim chose
+it.
+
+Removed the sixteen `notifyAccessibleValueChanged()` calls, eight each in
+`OperatorEditor.cpp`'s and `GlobalEditor.cpp`'s slider handlers, keeping the `repaint()` calls
+next to them so the diagrams still redraw. Checked both files first and confirmed those were
+the only call sites for either display; the diagrams' other update paths, when switching
+operators or loading a patch, only ever called `repaint()`, never the announcement. With the
+calls gone, the `notifyAccessibleValueChanged()` methods on `EnvDisplay` and `PitchEnvDisplay`
+had no callers left anywhere, so removed those methods too rather than leave dead code behind.
+`LcdDisplay`'s own version of the same method stays, since it's still used by
+`LcdDisplay::setSystemMsg` for real system messages.
+
+Built the standalone app, confirmed arm64, ran `DexedTests`, still passing. Not yet tested
+with VoiceOver; that's next.
+
+Jim tested Operator 1 with VoiceOver and found several more sliders that double-speak in
+standalone, beyond the eight just fixed: EG level 1 through 3, EG rate 3, AMP MOD SENS, output
+level, L and R scale depth, and rate scaling. Before digging in, asked which build Jim tested,
+since a running standalone instance keeps old code in memory until it's quit and relaunched,
+the same mistake that cost a session on 2026-10-21. Didn't get to resolve that, because Jim
+stopped the investigation first.
+
+Jim's call: stop chasing double-speak in standalone entirely. Reason: most real users will run
+Dexed with VoiceOver inside Logic, not standalone, and Logic doesn't speak live value changes
+at all right now regardless, the separate, still-unresolved Logic-silence issue from
+2026-10-22. A double-speak bug that only shows up in standalone isn't reaching the people this
+project is for. Recorded in docs/deviations.md. Today's envelope diagram fix stays, since it's
+a real improvement and carries no cost, but no further double-speak investigation is planned.
+
+Simplified the Shift+arrow "move by 5" step. It used to only apply to sliders whose range is
+exactly 0 to 99, and on those, it snapped to the next or previous multiple of 5 rather than
+moving a fixed amount from wherever the value actually was. Changed `DXSlider::keyPressed`,
+`Source/DXComponents.h`, to a plain add-5 or subtract-5 from the current value, clamped at
+that slider's own real min and max, on every slider in the app regardless of its range. Jim's
+choice, simpler and more predictable than the old snap-to-grid behavior. Built standalone,
+confirmed arm64, ran DexedTests, both passing. Not yet tested with VoiceOver.

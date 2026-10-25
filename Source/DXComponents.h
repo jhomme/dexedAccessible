@@ -34,11 +34,6 @@ public:
     char vPos;
     void paint(Graphics &g);
 
-    void notifyAccessibleValueChanged() {
-        if (auto *handler = getAccessibilityHandler())
-            handler->notifyAccessibilityEvent(AccessibilityEvent::valueChanged);
-    }
-
     struct EnvDisplayAH : public juce::AccessibilityHandler {
         explicit EnvDisplayAH(EnvDisplay *s): display(s), juce::AccessibilityHandler(*s, juce::AccessibilityRole::label) {
         }
@@ -68,11 +63,6 @@ public:
     uint8_t *pvalues;
     char vPos;
     void paint(Graphics &g);
-
-    void notifyAccessibleValueChanged() {
-        if (auto *handler = getAccessibilityHandler())
-            handler->notifyAccessibilityEvent(AccessibilityEvent::valueChanged);
-    }
 
     struct PitchEnvDisplayAH : public juce::AccessibilityHandler {
         explicit PitchEnvDisplayAH(PitchEnvDisplay *s): display(s), juce::AccessibilityHandler(*s, juce::AccessibilityRole::label) {
@@ -188,21 +178,18 @@ public:
 
         if ( key.getModifiers().isShiftDown() ) {
             auto range = getRange();
-            bool hundredValues = (range.getStart() == 0.0 && range.getEnd() == 99.0);
 
-            // For 0-99 parameters, Shift+Right or Shift+Down jump up to the next multiple
-            // of 5, and Shift+Left or Shift+Up jump down to the previous multiple of 5,
-            // clamped at the real min/max, so VoiceOver users can cross the range in a
-            // handful of presses instead of one value at a time. Down pairs with Right,
-            // and Up pairs with Left, matching the plain-arrow mapping below.
-            if (hundredValues && (key.getKeyCode() == key.rightKey || key.getKeyCode() == key.downKey)) {
-                double v = getValue();
-                setValue(jmin(99.0, std::floor(v / 5.0) * 5.0 + 5.0));
+            // Shift+Right or Shift+Down add 5 to the current value, and Shift+Left or
+            // Shift+Up subtract 5, clamped at the slider's own min and max, on every slider
+            // in the app, so VoiceOver users can cross a range in a handful of presses
+            // instead of one value at a time. Down pairs with Right, and Up pairs with Left,
+            // matching the plain-arrow mapping below.
+            if (key.getKeyCode() == key.rightKey || key.getKeyCode() == key.downKey) {
+                setValue(jmin(range.getEnd(), getValue() + 5.0));
                 return true;
             }
-            if (hundredValues && (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.upKey)) {
-                double v = getValue();
-                setValue(jmax(0.0, std::ceil(v / 5.0) * 5.0 - 5.0));
+            if (key.getKeyCode() == key.leftKey || key.getKeyCode() == key.upKey) {
+                setValue(jmax(range.getStart(), getValue() - 5.0));
                 return true;
             }
         } else {

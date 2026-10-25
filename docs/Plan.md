@@ -87,9 +87,18 @@ Tasks in order. Checked items are done.
   process actually running Dexed's UI. If right, this isn't fixable from inside Dexed; it comes
   from how Logic hosts the plugin in a separate process. Not fully proven yet. 2026-10-22, see
   docs/log.md.
-- [ ] Confirm the Logic-silence theory by checking which process VoiceOver currently treats as
-  frontmost while sitting in the Dexed window inside Logic, a one-time lookup with `ax-watch`
-  or similar, not another live test.
+- [ ] Investigated the Logic-silence theory further, 2026-10-24, and parked it unresolved; see
+  docs/log.md for the full detail. Built `front-watch`, a new tool in the reusable `event-watch`
+  skill, that logs every change in which app the system treats as frontmost. Running it while
+  Jim arrow-keyed a Dexed slider inside Logic showed frontmost stayed Logic Pro the entire
+  time, never switching to the helper process actually running Dexed's UI, which looked like
+  it confirmed the theory. A follow-up check, with a second new tool, `ax-focus-watch`, asking
+  a more specific question, which process the accessibility system itself treats as focused,
+  complicated that: the same silent test showed Logic holding accessibility focus, not the
+  helper process either, and a comparison speaking test, using VoiceOver's own gesture instead
+  of a real key, showed neither process holding it at any point. That doesn't fit a clean
+  story, so the theory is neither confirmed nor ruled out. Jim's call: stop investigating the
+  mechanism further for now and move on to other work.
 - [ ] Second unexplained occurrence, not yet investigated: arrow keys briefly doing nothing at
   all in Logic before starting to work, same symptom as the one-time episode on 2026-10-21.
   Happened again on 2026-10-22. See docs/log.md for both occurrences.
@@ -142,3 +151,20 @@ Tasks in order. Checked items are done.
   also confirmed by building. No `CMakeLists.txt` change was needed. Agreed process going
   forward: everyday test builds stay arm64 only, and release builds get a VoiceOver check of
   the x86_64 half through Rosetta before shipping. 2026-10-24, see docs/log.md.
+- [x] Fixed the envelope and pitch envelope diagram double-announcement. `EnvDisplay` and
+  `PitchEnvDisplay` were each telling VoiceOver about their own change on top of the slider's
+  own announcement, every time one of their sliders moved. Removed the diagram's own live
+  announcement on its own sliders, keeping the slider's normal announcement, same pattern as
+  the LCD fix. `Source/DXComponents.h`, `Source/OperatorEditor.cpp`,
+  `Source/GlobalEditor.cpp`, 2026-10-25. Built and ran DexedTests, both passing.
+- [ ] Jim then found more sliders in Operator 1 that still double-speak in standalone: EG
+  level 1 through 3, EG rate 3, AMP MOD SENS, output level, L and R scale depth, and rate
+  scaling. Parked, not investigated further. Jim's call, 2026-10-25: stop chasing standalone
+  double-speak, since most real users will run Dexed with VoiceOver inside Logic, where live
+  announcements don't speak at all right now regardless, the separate Logic-silence issue. See
+  docs/deviations.md.
+- [x] Simplified Shift+arrow "move by 5": it used to only work on sliders whose range is
+  exactly 0 to 99, snapping to the nearest multiple of 5. Now it adds or subtracts a plain 5
+  from the current value, clamped at that slider's own min and max, on every slider in the
+  app. `Source/DXComponents.h`, 2026-10-25. Built and ran DexedTests, both passing. Still
+  needs Jim's VoiceOver confirmation.
