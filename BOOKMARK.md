@@ -18,6 +18,13 @@ every section of the manual into purely hardware, mixed, or fully software-relev
 what to carry into the software documentation and tooltips. Paused here, nothing more to do
 until that conversation.
 
+Also removed `tools/ax-watch` and `tools/event-watch` from the repo entirely. Those were
+Swift diagnostic scripts used across several sessions to debug VoiceOver's accessibility
+notifications, not part of Dexed itself, and they'd gotten swept into an earlier commit
+without Jim intending it. Confirmed first that the reusable `event-watch` Claude Code skill,
+at `~/.claude/skills/event-watch/`, keeps its own independent copies of every script, so
+nothing was lost; the skill remains usable on this or any other project.
+
 ## What's next
 Jim is working through this in stages, directing each step himself. Three items, in order:
 1. Make documentation for the software from `docs/00_DX7E.txt`. In progress; paused for

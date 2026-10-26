@@ -861,3 +861,15 @@ Generation, all of Edit Mode, Key Transpose, Master Tune/Poly-Mono/Pitch Bend/Po
 Recall/Voice Init, and the Voice Parameters and Function Parameters spec tables).
 
 Jim wants to talk over that sorting before deciding what to carry forward, so paused here.
+
+2026-10-26: Talked over what to do with the manual sorting and the project's direction more
+broadly. Jim asked what else got committed alongside the manual docs; checked with `git show
+--stat` and found that commit also touched `tools/ax-watch` and `tools/event-watch`, Swift
+diagnostic scripts built over earlier sessions to debug VoiceOver behavior, which Jim hadn't
+intended to bundle in. Before removing anything, searched the whole system for other copies
+and confirmed the `event-watch` Claude Code skill, at `~/.claude/skills/event-watch/`, keeps
+its own independent copies of all of them (`ax-actions.swift`, `ax-watch.swift`,
+`event-watch.swift`, plus `ax-focus-watch` and `front-watch` from even earlier sessions),
+with compiled binaries, so nothing would be lost. Removed `tools/ax-watch` and
+`tools/event-watch` from the repo with `git rm`, then deleted the leftover untracked
+binaries and old test logs from disk too, per Jim's go-ahead. Not committed yet.

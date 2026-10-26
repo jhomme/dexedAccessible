@@ -46,3 +46,16 @@ press speaks correctly in standalone. Jim decided not to pursue this further.
 Why: Jim's call; no further reason given.
 
 Who decided: Jim, 2026-10-26.
+
+## 2026-10-26: removed the ax-watch and event-watch diagnostic tools from the repo
+What changed: `tools/ax-watch` and `tools/event-watch`, Swift diagnostic scripts used across
+several sessions to debug VoiceOver's accessibility notifications, were removed from the
+repo entirely, along with their untracked compiled binaries and old test logs.
+
+Why: these were debugging instruments for investigating VoiceOver behavior, not part of
+Dexed itself, and don't belong in the plugin's repo. Confirmed before deleting anything that
+the `event-watch` Claude Code skill, at `~/.claude/skills/event-watch/`, keeps its own
+independent copies of every script, so nothing was lost; the skill remains usable on this or
+any other project.
+
+Who decided: Jim, 2026-10-26.
