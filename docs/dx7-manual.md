@@ -33,56 +33,6 @@ scratch."
 Edited or new voices can be stored either in the instrument's internal memory, or in an
 optional external memory cartridge, so sounds you create can be saved for future use.
 
-## Precautions
-
-### Location
-
-Avoid placing your synthesizer in direct sunlight or close to a source of heat. It is also
-important to avoid locations in which the instrument is likely to be subjected to vibration,
-excessive dust, cold or moisture.
-
-### Handling
-
-Avoid applying excessive force to the instrument's knobs and switches.
-
-### Power cord
-
-Always grip the power plug directly when unplugging. Removing the power plug from the wall
-socket by pulling on the power cord can result in damage to or shorting of the power cord. Be
-sure to unplug your synthesizer if you will not be using it for an extended period of time.
-
-### Relocation
-
-When moving the synthesizer once it has been set up, be sure to disconnect all cords that
-connect to other equipment. This will help prevent accidental damage to or shorting of
-interconnection cables.
-
-### Connection
-
-Carefully follow the "CONNECTION" instructions given in this manual when setting up your
-synthesizer. Connection errors can lead to serious damage to the instrument, amplifier, and
-speakers.
-
-### Cleaning
-
-Do not use solvents such as benzine or thinner to clean your synthesizer as these may cause
-discoloration or staining of the instrument's exterior. Use a soft, dry cloth.
-
-### Save this manual
-
-After studying this manual thoroughly, it should be stored in a safe place for future
-reference.
-
-### Lightning
-
-In the event of an electrical storm, the instrument's power cord should be unplugged to
-eliminate the possibility of serious damage.
-
-### Other appliances
-
-Use your synthesizer where its digital circuitry cannot be influenced by electromagnetic
-radiation from appliances such as televisions, radios, etc.
-
 ## DX7 Outline
 
 As stated in the feature summary, the DX7 can be used to play pre-programmed voices,
@@ -104,101 +54,6 @@ creation of entirely new voices.
 
 All functions of the DX7 are performed in one of the above modes. Proper understanding of the
 functions of each mode is the key to successful operation of and performance with the DX7.
-
-*[Figure]*
-
-### 1. Volume
-
-This controls the output level of the DX7 and at the same time controls the volume of the
-headphones.
-
-### 2. Data entry
-
-This combination of keys and linear control is used to enter and modify data.
-
-*[Figure: data entry keys]* These keys are for increasing or decreasing the values by 1, for
-turning a function on or off and for moving the cursor when writing a voice name.
-
-*[Figure: data entry slider]* This control is used for coarse value adjustment. This slide
-controller covers the entire range for each parameter from minimum to maximum.
-
-### 3. Mode select key
-
-Selects the operating mode, "operators" (these will be explained later) and memory protect
-functions.
-
-*[Figure]*
-
-**STORE**: This key is used for copying EG data and for storing your own original voices in
-the internal or external memory system.
-
-**MEMORY PROTECT (INTERNAL, CARTRIDGE)**: This key calls out the MEMORY PROTECT mode.
-
-**OPERATOR SELECT**: This key selects the operator while in the EDIT mode.
-
-**EDIT/COMPARE**: This key sets the EDIT mode.
-
-**MEMORY SELECT (INTERNAL, CARTRIDGE)**: These keys select the memory and activate the PLAY
-mode.
-
-**FUNCTION**: This key sets the FUNCTION mode.
-
-### 4. Display panel
-
-This Liquid Crystal Display panel displays the parameters in each mode and the name of the
-selected pre-programmed voice.
-
-*[Figure: preset voice number display]* Displays the current state of the system.
-
-### 5. Voice/parameter select key
-
-These keys select either the voices in the instrument's internal memory or those in an
-external voice cartridge. The same keys are also used to select parameters in the FUNCTION or
-EDIT modes. One key can have a maximum of four different functions. The function of these keys
-is determined by the MODE SELECT key.
-
-### 6. Voice cartridge
-
-External voice cartridges can be plugged into the receptacle in the DX7 panel. The DX7 is
-supplied with two ROM (pre-programmed) voice cartridges, each containing 64 voices. An
-optional RAM (user-programmable) voice cartridge can contain 32 voices.
-
-### 7. Pitch bend wheel
-
-The pitch bend range is set in the FUNCTION mode. The pitch bend wheel then permits upward and
-downward pitch bend throughout the set range.
-
-### 8. Modulation wheel
-
-The modulation depth range is set in the FUNCTION mode. The modulation wheel then permits
-variation of modulation depth throughout the set range.
-
-### 9. Keyboard
-
-The DX7 has a 61-key keyboard with 16-voice polyphonic capability (a monophonic mode is also
-selectable). Initial/after touch response provided.
-
-## Connections
-
-### Setting up and applying power
-
-The DX7 does not have an internal power amplifier, therefore either headphones or an external
-amplifier/speaker system are required. A high-quality keyboard amplifier system is
-recommended. Hook up your DX7 as shown in the diagram below.
-
-*[Figure]*
-
-### Turn power on
-
-The DX7 power switch is located to the right of the rear panel (viewed from keyboard side).
-Turn the power switch ON only after all connections to other equipment (and to the AC supply)
-have been properly made. The display panel will appear as in the illustration below
-immediately after power is switched on.
-
-After a few seconds, the same mode that was engaged before power was turned off is
-re-engaged. For example, if the PLAY mode was previously engaged, the PLAY mode will be
-re-engaged and the previously selected voice will be ready for performance. The same applies
-to the EDIT and FUNCTION modes.
 
 ## Play Mode
 
@@ -332,24 +187,6 @@ and the display panel will read "VOICE INIT?" Press the [YES] key and the DX7 wi
 with "ARE YOU SURE?" Verify by pressing the [YES] key a second time. This sets up the basic
 voice data and activates the DX7 EDIT mode.
 
-### Cartridge formatting
-
-Since the format of a RAM cartridge used for other purposes such as DX1 performance memories,
-etc., will vary from that of a cartridge used for voice memory, make sure you observe the
-following procedure when storing or saving DX7 internal voices into such a cartridge. Press
-"11" to select this function. The "CARTRIDGE FORM?" display will appear. Press [YES] and the
-instrument will respond with "ARE YOU SURE?" Press [YES] again and all 32 memory banks in the
-RAM cartridge are initialized to the basic voice data.
-
-### Battery check
-
-A backup battery power supply is built into the DX7 so that voice data will be maintained even
-when power to the instrument is off. The state of the backup system can be checked by pressing
-the [BATTERY CHECK] key. The operational battery voltage range is from 2.2 volts to 3 volts. If
-the backup battery voltage drops below 2.2 volts, replacement of the backup system is
-necessary. The backup system consists of special batteries which can be replaced only by a
-Yamaha dealer. Contact your nearest Yamaha dealer when replacement becomes necessary.
-
 ### Cartridge
 
 **SAVE**: 32 voices contained in the internal memory system can be saved on an external
@@ -358,7 +195,8 @@ programmable memory cartridge.
 **LOAD**: 32 of the voices contained in an external voice cartridge can be loaded into the
 internal memory at a time.
 
-Refer to the Store/Save/Load section below for detailed instructions.
+(The manual's Store/Save/Load section, covering cartridge storage procedure, was removed from
+this file as purely about the original hardware.)
 
 ### Modulation wheel / foot controller / breath controller / after touch
 
@@ -742,93 +580,6 @@ Press the KEY TRANSPOSE key, and then the keyboard key corresponding to the desi
 transposition. To transpose up one octave, for example, press the [KEY TRANSPOSE] key and then
 press C4 on the keyboard.
 
-## Store/Save/Load
-
-### Store/save/load: storing the voice data
-
-With the DX7, voices you create can be stored in the internal memory or an external memory
-cartridge. You can also save all the internal voices in a cartridge. In addition, you can load
-all the voices in a cartridge into the internal memory.
-
-### 1. Memory protect: protecting your work
-
-The DX7's internal MEMORY PROTECTION function will prevent any accidental erasure of the
-INTERNAL or CARTRIDGE voice data. In addition, the voice cartridge itself has a protection
-switch so that the data is doubly protected. You will first have to turn the DX7 MEMORY
-PROTECT OFF in order to STORE/SAVE/LOAD the voice data. Also, do not forget to turn the MEMORY
-PROTECT function back ON after the STORE/SAVE/LOAD operation.
-
-### 2. Storing newly created voices
-
-Newly created original sounds can be erased by selecting other preset voices or disconnecting
-the power supply. Please store any voice data that you wish to keep in the internal memory or
-in a voice cartridge.
-
-**The voice cartridge protection switch**: This switch is used for protecting the voice data
-contained in the cartridge, even if the CARTRIDGE PROTECTION function of the DX7 is turned
-off. The only time this protection switch should be turned off is when you wish to store or
-save voices in the cartridge. In all other cases this PROTECTION switch should be turned on.
-
-Note: if you save contents of the DX7's internal memory or newly created sounds in a cartridge
-that is already full, the previous cartridge contents of that particular preset number will be
-erased from the memory and the new voice data will replace it. Be sure to save new voice data
-in preset numbers that are empty or that are no longer needed.
-
-### 3. Saving internal voice data
-
-You can save the entire data contents of the internal memory in a separately available blank
-cartridge. This will open up the internal memory for original voices and will allow you to
-increase the number of voices available. If you should decide that all of the voice data
-contained in the cartridge is unwanted, the entire contents of the internal memory can be
-transferred to the cartridge. You'll then have an entirely new voice cartridge. For this
-procedure, turn the protection switch of the cartridge off.
-
-Asking if you want to SAVE all data (if MEMORY PROTECT is ON at this time, the "MEMORY
-PROTECTED" display appears and SAVE will not function).
-
-*[Figure: press "YES" key and this display appears. "SAVE MEMORY, ARE YOU SURE?"]*
-
-The internal microcomputer asks "SAVE MEMORY, ARE YOU SURE?" to prevent accidental erasure of
-important voice data in the RAM cartridge. Check to see that the RAM cartridge inserted in the
-instrument does not contain important voice data, then press [YES] once more. The "UNDER
-WRITING" display appears and the save operation begins (if the PROTECT switch on the RAM
-cartridge is ON at this time, a "WRITE ERROR" message will be displayed and the save operation
-will be terminated). When the SAVE operation is finished, the "COMPLETED" message will appear.
-MEMORY PROTECT should now be turned ON.
-
-*[Figure: press "YES" key and this display appears indicating that SAVE is in progress. "SAVE
-MEMORY, UNDER WRITING!" This display appears when SAVE is finished. "SAVE MEMORY COMPLETED".]*
-
-Note: if a "FORMAT CONFLICT", "ID CONFLICT", or "READ PROTECT" message is displayed during a
-STORE or SAVE operation using a RAM cartridge, it means the cartridge must be formatted. For
-details, please refer to the Cartridge Formatting section above.
-
-### 4. Loading cartridge data
-
-You can load all the contents of a cartridge into the internal memory of the DX7. First,
-insert the cartridge that contains the voice data that you wish to load. Turn the protection
-switch of the internal memory off.
-
-*[Figure: pressing the key. Set to FUNCTION mode, and press the LOAD key.]*
-
-Asking if you want to LOAD all data (if MEMORY PROTECT is ON at this time, the "MEMORY
-PROTECTED" display appears and LOAD will not function).
-
-*[Figure: press "YES" key and this display appears. "LOAD MEMORY, ARE YOU SURE?"]*
-
-The microcomputer asks "LOAD MEMORY, ARE YOU SURE?" to prevent accidental erasure of important
-voice data in the instrument's internal memory. If it's OK to LOAD, press [YES] a second time
-and wait for the "COMPLETED" display. MEMORY PROTECT should then be turned ON.
-
-*[Figure: press "YES" key and this display appears indicating that LOAD has finished. "LOAD
-MEMORY COMPLETED".]*
-
-Let's keep records of voices for future reference. At the end of this manual you will find a
-voice data list. Use this list to record the values of every parameter used. Make copies of
-this list and use them to record the parameters of any new voices you create yourself. This
-will be useful to restore voices that have been erased, and will serve as an excellent guide
-for creating new voices. (This voice data list was not available for this transcription.)
-
 ## MIDI
 
 MIDI (Musical Instrument Digital Interface): the MIDI terminal is for external control of
@@ -842,15 +593,6 @@ control a second electronic musical instrument via the keyboard of the main inst
 1. Key pitch ON/OFF, etc.
 2. Pitch bend, modulation wheel, sustain switch, etc.
 3. Voice number.
-
-### Connecting the MIDI cable
-
-As can be seen in figure 1, the data output from the sequencer is transmitted via a single
-MIDI cable and input to synthesizer A, where it is sent to the next instrument to be
-controlled via the THRU terminal. In this case, the sequencer is outputting multi-channel
-data. Therefore, the desired channel number on the receiving side must be selected
-accordingly. Both the sending side and the receiving channel numbers will have to be specified
-with the system shown in figure 2.
 
 ### Selecting the receiving channel
 
@@ -934,8 +676,9 @@ the DX7 to revert to the original voice. When you wish to continue your efforts 
 creation, press the EDIT/COMPARE key again. In this manner, you can compare your sound with
 that of the original voice in order to see how your voice is progressing.
 
-4. Store the edited voice in the internal memory. See the Store/Save/Load section above, and
-   carry out the store procedures using it as a reference.
+4. Store the edited voice in the internal memory. (The manual's Store/Save/Load section,
+   covering cartridge storage procedure, was removed from this file as purely about the
+   original hardware.)
 
 ### 2. Creating an original voice
 
@@ -1023,15 +766,12 @@ exemplify this procedure.
     let us call this voice "CLARINET-A". Pressing the [EDIT/COMPARE] key, set the DX7 back to
     the EDIT mode. While pressing the [NAME] key, press the character keys in succession as
     shown in the figure. The cursor will move every time you write in a new character.
-13. Saving your original voice in memory: refer to the Store/Save/Load section above.
-
-## LFO Block Diagram
-
-*[Figure: not available in this transcription.]*
+13. Saving your original voice in memory. (The manual's Store/Save/Load section, covering
+    cartridge storage procedure, was removed from this file as purely about the original
+    hardware.)
 
 ## Specifications
 
-- Keyboard: 61 keys, C1 to C6 (initial and after touch sensitive)
 - Sound source: FM tone generator, 6 operators, 32 algorithms
 - Simultaneous output notes: POLY mode, 16 notes; MONO mode, 1 note
 - Internal RAM memory: 32 bank (32 memory)
@@ -1108,24 +848,10 @@ exemplify this procedure.
   - EG BIAS: ON/OFF
 - EDIT RECALL
 - VOICE INITIALIZE
-- CARTRIDGE FORMATTING
-- BATTERY CHECK
 - CARTRIDGE SAVE/LOAD
 - MIDI CHANNEL: 1 to 16
 - SYSTEM INFORMATION: AVAILABLE/UNAVAILABLE
 - MIDI TRANSMIT
-
-### General
-
-- Connecting terminal: OUTPUT (600 ohm, unbalanced), PHONES (8 to 150 ohm)
-- Control terminal: FOOT SWITCH (sustain, portamento), FOOT CONTROL (volume, modulation),
-  BREATH CONTROL, MIDI (in, out, thru)
-- Others: LCD display, cartridge interface
-- Dimensions/weight: 101.8W x 10.2H x 32.90 cm / 14.2 kg (40" x 4" x 13" / 31.2 lbs)
-- Power consumption: 40W
-- Accessories: ROM cartridge x 2 (64 voices x 2), music stand
-
-Specifications and design are subject to change without notice for improvement.
 
 (The MIDI data format and voice data list from the original manual were not available for
 this transcription.)

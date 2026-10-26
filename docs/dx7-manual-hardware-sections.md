@@ -5,10 +5,12 @@ about the physical DX7 hardware, the synthesis parameters Dexed actually impleme
 of both. This is for Jim to review before deciding what to drop from the software
 documentation and tooltip work.
 
-## Purely about the original hardware
+## Purely about the original hardware (removed from `docs/dx7-manual.md`, 2026-10-26)
 
 These describe the physical instrument: its switches, cartridges, cables, battery, and
-casing. Nothing in them maps to anything Dexed does as software.
+casing. Nothing in them maps to anything Dexed does as software. Jim confirmed these should
+come out, and they've been removed from `docs/dx7-manual.md`. Kept here as a record of what
+was cut and why.
 
 - Precautions (Location, Handling, Power Cord, Relocation, Connection, Cleaning, Save This
   Manual, Lightning, Other Appliances)

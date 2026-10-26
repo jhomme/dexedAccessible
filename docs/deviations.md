@@ -47,6 +47,20 @@ Why: Jim's call; no further reason given.
 
 Who decided: Jim, 2026-10-26.
 
+## 2026-10-26: split the documentation work into two tracks instead of one
+What changed: the plan had been to pull control descriptions from the DX7 manual as source
+material for tooltips only. Jim decided this should become two separate tracks: finish the
+remaining accessibility work on `accessibility`, including tooltips, and open that PR; then,
+afterward, start a new branch off `accessibility` to build a real, standalone Dexed user
+guide for every user, not just accessibility-focused source material.
+
+Why: Jim realized the control descriptions are worth turning into real documentation for all
+Dexed users, sighted or not, not just scratch notes for tooltips. Keeping that as its own
+branch and its own PR, done after the accessibility PR, keeps each PR focused on one concern
+instead of mixing code changes with a large documentation addition.
+
+Who decided: Jim, 2026-10-26.
+
 ## 2026-10-26: removed the ax-watch and event-watch diagnostic tools from the repo
 What changed: `tools/ax-watch` and `tools/event-watch`, Swift diagnostic scripts used across
 several sessions to debug VoiceOver's accessibility notifications, were removed from the

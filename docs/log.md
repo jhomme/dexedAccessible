@@ -862,6 +862,19 @@ Recall/Voice Init, and the Voice Parameters and Function Parameters spec tables)
 
 Jim wants to talk over that sorting before deciding what to carry forward, so paused here.
 
+2026-10-26: Jim asked which whole sections we definitely know are purely about the original
+hardware, like the safety precautions, with nothing mimicked in the software. Answered from
+the "purely hardware" group already sorted out in `docs/dx7-manual-hardware-sections.md`:
+precautions, the physical panel description, connections/power-on, cartridge formatting,
+battery check, all of Store/Save/Load, the MIDI cable section, the LFO block diagram, and
+the general hardware specs (keyboard key count, terminals, dimensions, power consumption).
+Jim then asked to remove exactly that list from `docs/dx7-manual.md`. Removed each section,
+plus two leftover Function Parameters bullets (Cartridge Formatting, Battery Check) whose
+description sections were gone, and fixed three cross-references that had pointed at the
+now-removed Store/Save/Load section. Left the "mixed" and "fully relevant" sections alone;
+those are still open for discussion. Jim said not to do anything further until we talk
+things over, so paused here; not committed yet.
+
 2026-10-26: Talked over what to do with the manual sorting and the project's direction more
 broadly. Jim asked what else got committed alongside the manual docs; checked with `git show
 --stat` and found that commit also touched `tools/ax-watch` and `tools/event-watch`, Swift
@@ -873,3 +886,15 @@ its own independent copies of all of them (`ax-actions.swift`, `ax-watch.swift`,
 with compiled binaries, so nothing would be lost. Removed `tools/ax-watch` and
 `tools/event-watch` from the repo with `git rm`, then deleted the leftover untracked
 binaries and old test logs from disk too, per Jim's go-ahead. Not committed yet.
+
+Jim also raised that he'd actually been thinking bigger than tooltips: he wants a real,
+standalone user guide for Dexed that would help any user, not just scratch notes mined for
+accessibility source material. Talked through sequencing: decided to keep this as two
+separate tracks rather than one job. Track one, on `accessibility`: finish the remaining
+accessibility work, including pulling control descriptions and building tooltips, then open
+the PR. Track two, afterward, on a new branch off `accessibility`: build the real user
+guide, using the "mixed" and "fully relevant" sections already sorted out in
+`docs/dx7-manual-hardware-sections.md`. No separate branch needed for the sorting and
+cleanup already done tonight, since it's all plain documentation files with no code
+changes. Recorded the two-track decision in docs/deviations.md and updated Plan.md and
+BOOKMARK.md to reflect it.

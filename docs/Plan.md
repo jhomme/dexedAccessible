@@ -191,7 +191,22 @@ Tasks in order. Checked items are done.
   purely hardware, mixed, or fully software-relevant, at
   `docs/dx7-manual-hardware-sections.md`, for Jim to review before deciding what to drop.
   Jim wants to talk over the results before continuing.
-- [ ] Pull a one-sentence description for every control, not just sliders, out of
-  `docs/00_DX7E.txt`, as source material for the slider naming cleanup and for tooltips. Not
-  started.
-- [ ] Put those descriptions into slider tooltips and test with VoiceOver. Not started.
+- [x] Decided, 2026-10-26, to split this into two separate tracks rather than one. Track one,
+  on the `accessibility` branch: finish the remaining accessibility work, including pulling
+  control descriptions for the slider naming cleanup and for tooltips, test with VoiceOver,
+  then open the PR for `accessibility`. Track two, afterward, on a new branch off
+  `accessibility`: build a real standalone user guide for Dexed, for every user, not just
+  accessibility-focused source material. Jim's reasoning: a user guide is its own thing, not
+  scratch notes for tooltips, and keeping it on its own branch keeps the accessibility PR
+  focused on one concern. `docs/dx7-manual.md` and `docs/dx7-manual-hardware-sections.md`
+  stay on `accessibility` for now since they already exist there; they'll get used once the
+  docs branch starts.
+- [ ] Track one: pull a one-sentence description for every control, not just sliders, out of
+  `docs/dx7-manual.md`, as source material for the slider naming cleanup and for tooltips.
+  Not started.
+- [ ] Track one: put those descriptions into slider tooltips and test with VoiceOver, then
+  open the PR for `accessibility`. Not started.
+- [ ] Track two, after the `accessibility` PR: branch off `accessibility` and build a
+  standalone Dexed user guide, covering the "mixed" and "fully relevant" sections from
+  `docs/dx7-manual-hardware-sections.md`, for every user, not just accessibility source
+  material. Not started.
