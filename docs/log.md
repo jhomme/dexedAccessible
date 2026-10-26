@@ -898,3 +898,35 @@ guide, using the "mixed" and "fully relevant" sections already sorted out in
 cleanup already done tonight, since it's all plain documentation files with no code
 changes. Recorded the two-track decision in docs/deviations.md and updated Plan.md and
 BOOKMARK.md to reflect it.
+
+2026-10-26: Jim asked the harder question: how closely does Dexed's actual code match what's
+left in `docs/dx7-manual.md`, now that the hardware-only sections are gone. Forked out a
+research task to read the real source rather than guess. Checked every parameter that could
+be directly verified against `Source/PluginParam.cpp`, `Source/GlobalEditor.cpp`, and
+`Source/OperatorEditor.cpp`: algorithm, feedback, LFO speed/delay/PMD/AMD and wave choices,
+both mod sensitivities, EG rates and levels (voice and pitch), operator output level,
+frequency coarse/fine, detune, keyboard level and rate scaling, key velocity sensitivity,
+key transpose, portamento time, poly/mono, the modulation wheel/foot/breath/after-touch
+ranges, MIDI channel, Voice Init (`PluginEditor.cpp` `initProgram()`), and the
+internal/cartridge voice concept (now `CartManager`/`ProgramListBox`). Every one matched the
+manual's numbers and behavior.
+
+Two real divergences turned up. Pitch bend range: the manual describes one symmetric 0 to 12
+parameter; Dexed actually has two independent parameters, up and down, each 0 to 48 (4
+octaves each direction), a genuine, deliberate expansion beyond the original hardware, not a
+documentation gap. Edit Recall: grepped the processor and editor source for "recall,"
+"undo," "compare," found nothing; Dexed has no equivalent to this DX7 function at all.
+Master Tune's exact range, the manual says plus or minus 75 cents, couldn't be confirmed
+without tracing further into the synthesis engine's fixed-point math in `msfa/dx7note.cc`;
+left as an open question rather than guessing.
+
+Also surfaced, as a side effect of reading the code closely: `Source/PluginParam.cpp`
+misspells the LFO waveform "TRIANGLE" as "TRIANGE," missing the L. Flagged since VoiceOver
+will likely mispronounce it; this is a real bug independent of the manual comparison. Also
+noted, separately, three things Dexed does that the manual never covered at all since
+they're beyond stock DX7 scope on purpose: a resonant lowpass filter, MPE pitch bend range,
+and the selectable alternate synthesis engines.
+
+Recorded all of this in Plan.md, with the typo fix and the Master Tune check parked as their
+own not-yet-started items, and in BOOKMARK.md. Jim then asked to stop for the night; this
+entry and the accompanying doc updates are the last thing done this session.

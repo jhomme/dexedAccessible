@@ -210,3 +210,23 @@ Tasks in order. Checked items are done.
   standalone Dexed user guide, covering the "mixed" and "fully relevant" sections from
   `docs/dx7-manual-hardware-sections.md`, for every user, not just accessibility source
   material. Not started.
+- [x] Checked, 2026-10-26, how closely the remaining `docs/dx7-manual.md` content matches
+  Dexed's actual code, parameter by parameter, before trusting it as source material. Every
+  range and behavior that could be directly checked in `Source/PluginParam.cpp`,
+  `Source/GlobalEditor.cpp`, and `Source/OperatorEditor.cpp` matched the manual: algorithm,
+  feedback, LFO speed/delay/PMD/AMD, both mod sensitivities, EG rates and levels, output
+  level, frequency coarse/fine, detune, keyboard scaling, key transpose, portamento time, the
+  mod wheel/foot/breath/after-touch ranges, MIDI channel, Voice Init, and the internal vs
+  cartridge voice concept. Two real divergences found: pitch bend range is a genuine software
+  expansion, two independent up/down parameters each going to 0-48 (4 octaves each way)
+  instead of the manual's single symmetric 0-12; and EDIT RECALL has no equivalent in the
+  code at all, grepped for it and found nothing. Master Tune's exact cents range, the
+  manual says plus or minus 75, couldn't be confirmed without tracing deeper into the
+  synthesis engine's fixed-point math; left unresolved. Also found a live bug while checking:
+  `Source/PluginParam.cpp` misspells the LFO waveform "TRIANGLE" as "TRIANGE," which
+  VoiceOver will likely mispronounce. Parked for a future fix, not done tonight.
+- [ ] Fix the "TRIANGE" typo for the LFO TRIANGLE waveform label in `Source/PluginParam.cpp`.
+  Not started.
+- [ ] Confirm Master Tune's actual cents range against `Source/msfa/dx7note.cc`'s fixed-point
+  math; the manual says plus or minus 75 cents but this wasn't confirmed from code. Not
+  started.

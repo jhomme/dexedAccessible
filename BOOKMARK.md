@@ -22,6 +22,18 @@ Jim decided, 2026-10-26, to split the remaining work into two tracks instead of 
 accessibility work on `accessibility` first (tooltips included), then build a real,
 standalone Dexed user guide afterward on its own branch. Detail in docs/Plan.md.
 
+Checked how closely the remaining `docs/dx7-manual.md` content matches Dexed's actual code,
+before trusting it as source material. Everything checkable matched: algorithm, feedback,
+LFO, both mod sensitivities, EG rates/levels, output level, frequency coarse/fine, detune,
+keyboard scaling, key transpose, portamento time, the mod wheel/foot/breath/after-touch
+ranges, MIDI channel, Voice Init, and the internal/cartridge voice concept. Two real
+divergences: pitch bend range is a genuine software expansion (independent up/down
+parameters to 4 octaves each, not the manual's single 0-12), and EDIT RECALL has no code
+equivalent at all. Master Tune's exact cents range is unconfirmed. Also found a live bug:
+`Source/PluginParam.cpp` misspells the LFO "TRIANGLE" waveform as "TRIANGE." Full detail in
+docs/Plan.md; the typo fix and the Master Tune check are both parked as separate items, not
+done tonight.
+
 ## What's next
 Two tracks now, track one first:
 1. Track one, on `accessibility`: pull a one-sentence description for every control, not
