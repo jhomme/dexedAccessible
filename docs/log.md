@@ -818,3 +818,16 @@ the diagram's own announcement anymore, so Level 1's double-speak isn't left ove
 today's bug. This is the same unexplained pattern as sclLeftLevel and sclRightLevel from
 2026-10-19, identical code, different behavior. Jim's call: fold this into the same parked
 double-speak bucket rather than chase it further.
+
+2026-10-26: Jim decided not to pursue the second unexplained occurrence, in Logic, of arrow
+keys stopping responding for a stretch and then starting to work again on their own. Recorded in
+docs/deviations.md and dropped from the open questions in bookmark.md.
+
+2026-10-26: Jim also decided not to pursue VoiceOver's silence on arrow-key presses in
+Logic, the other open question, where a slider's value changes correctly but VoiceOver never
+speaks it. Recorded in docs/deviations.md and dropped from the open questions in bookmark.md.
+
+2026-10-26: Closed out the VO+Right/Left step-size discussion in Plan.md. It was already
+tested on 2026-10-24: Dexed steps by 1, matching its JUCE-based code, while non-JUCE sliders
+step by 5. Why the Shift step-size difference happens stays unexplained, parked earlier on
+2026-10-24, and Jim confirmed today there's nothing left open on this topic.

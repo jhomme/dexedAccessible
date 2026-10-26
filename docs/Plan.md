@@ -98,11 +98,13 @@ Tasks in order. Checked items are done.
   helper process either, and a comparison speaking test, using VoiceOver's own gesture instead
   of a real key, showed neither process holding it at any point. That doesn't fit a clean
   story, so the theory is neither confirmed nor ruled out. Jim's call: stop investigating the
-  mechanism further for now and move on to other work.
-- [ ] Second unexplained occurrence, not yet investigated: arrow keys briefly doing nothing at
-  all in Logic before starting to work, same symptom as the one-time episode on 2026-10-21.
-  Happened again on 2026-10-22. See docs/log.md for both occurrences.
-- [ ] Jim's theory, from 2026-10-22, not yet tested: expected VoiceOver behavior for a blind
+  mechanism further for now and move on to other work. Jim's call, 2026-10-26: not pursuing
+  this at all now. See docs/deviations.md.
+- [ ] Second unexplained occurrence: arrow keys briefly doing nothing at all in Logic before
+  starting to work, same symptom as the one-time episode on 2026-10-21. Happened again on
+  2026-10-22. See docs/log.md for both occurrences. Jim's call, 2026-10-26: not pursuing this.
+  See docs/deviations.md.
+- [x] Jim's theory, from 2026-10-22, since tested: expected VoiceOver behavior for a blind
   Logic user is VO+Right/Left steps by 5, VO+Shift+Right/Left steps by 1, VO+End goes to the
   maximum, VO+Home goes to the minimum. In Dexed and in Musio, another JUCE app, VO+Right/Left
   always steps by 1 instead. Confirmed in JUCE's own macOS code,
@@ -139,9 +141,13 @@ Tasks in order. Checked items are done.
   real, but the mechanism behind it is still unexplained. Separately, Dexed's own `AxTrace` log
   still would not write at all in today's standalone testing, despite the marker file, the temp
   folder path, and the compiled-in code all checking out; left unresolved. See docs/log.md.
-- [ ] Parked for now, Jim's call on 2026-10-24: understanding the exact VO+Shift mechanism is
+- [x] Parked for now, Jim's call on 2026-10-24: understanding the exact VO+Shift mechanism is
   not worth more time right now. Priority moves to getting a version of Dexed Jim considers
   acceptable to ship. Revisit this if it becomes relevant again.
+- [x] Closed, Jim's call on 2026-10-26: the step-size discussion and testing is done. Dexed
+  steps by 1 on plain VO+Right/Left, matching its JUCE-based code; non-JUCE sliders step by 5.
+  The mechanism behind the Shift difference stays unexplained but isn't being chased further.
+  Nothing left open on this topic.
 - [x] Confirmed Shift+arrow in Logic behaves the same as plain arrows: the value changes
   correctly, but VoiceOver stays silent. Jim tested directly in Logic, 2026-10-24. Extends the
   Logic-silence finding from 2026-10-22, which had only been confirmed for plain arrows there.
@@ -174,3 +180,9 @@ Tasks in order. Checked items are done.
   isn't leftover from today's bug. Matches the same unexplained pattern as sclLeftLevel and
   sclRightLevel from 2026-10-19: identical code, different behavior. Folded into the same
   parked bucket as the rest of standalone double-speak; see docs/deviations.md. 2026-10-25.
+- [ ] Make documentation for the software from `docs/00_DX7E.txt`, the original DX7 manual,
+  as Jim directs step by step. Not started; Jim plans a short brainstorm first.
+- [ ] Pull a one-sentence description for every control, not just sliders, out of
+  `docs/00_DX7E.txt`, as source material for the slider naming cleanup and for tooltips. Not
+  started.
+- [ ] Put those descriptions into slider tooltips and test with VoiceOver. Not started.

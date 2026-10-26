@@ -27,3 +27,22 @@ Who decided: Jim, 2026-10-25.
 Also folded in: Pitch EG Level 1, found still double-speaking after testing the envelope
 diagram fix, even though its code is now identical to Pitch EG Rate 1, which doesn't. Same
 unexplained pattern as sclLeftLevel and sclRightLevel from 2026-10-19. Jim, 2026-10-25.
+
+## 2026-10-26: stopped pursuing arrow keys stopping responding in Logic
+What changed: Plan.md had a second, unexplained occurrence of arrow keys stopping
+responding for a stretch, then starting to work again on their own, in Logic, from
+2026-10-21 and again 2026-10-22, listed as not yet investigated. Jim decided not to pursue
+this.
+
+Why: Jim's call; no further reason given.
+
+Who decided: Jim, 2026-10-26.
+
+## 2026-10-26: stopped pursuing VoiceOver's silence on arrow-key presses in Logic
+What changed: Plan.md had an open investigation into why VoiceOver stays silent when a
+slider's value changes live from an arrow-key press in Logic, while the same arrow-key
+press speaks correctly in standalone. Jim decided not to pursue this further.
+
+Why: Jim's call; no further reason given.
+
+Who decided: Jim, 2026-10-26.

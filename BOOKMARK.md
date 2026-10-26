@@ -17,15 +17,20 @@
   now regardless, so a standalone-only double-speak bug isn't reaching them. Recorded in
   docs/deviations.md.
 - Dropped "acceptable to ship" from open questions; Jim will decide that himself.
-- Still parked, not forgotten: the Logic-silence investigation (VoiceOver stays quiet on a
-  live slider change in Logic), and the second unexplained "arrow keys briefly did nothing"
-  episode. Full detail on both in docs/log.md.
+- Jim's call, 2026-10-26: not pursuing either of the two remaining Logic issues. One, where
+  VoiceOver stays silent on a live slider change in Logic even though the value changes
+  correctly. Two, where arrow keys stop responding for a stretch, then start working again on
+  their own. Both recorded in docs/deviations.md; full investigation detail stays in
+  docs/log.md.
 
 ## What's next
-- Slider naming cleanup: work out which sliders need clearer or more consistent spoken names,
-  across `OperatorEditor.cpp` and `GlobalEditor.cpp`.
+Jim wants to work through this in stages, directing each step himself. Three items, in
+order:
+1. Make documentation for the software from `docs/00_DX7E.txt`, the original DX7 manual, as
+   Jim directs. Next up: a short brainstorm with Jim before starting.
+2. Pull a one-sentence description for every control, not just sliders, out of
+   `docs/00_DX7E.txt`, as source material for the slider naming cleanup and for tooltips.
+3. Put those descriptions into slider tooltips and test with VoiceOver.
 
 ## Open questions
-- Why VoiceOver stays silent on a live slider change in Logic: parked, unresolved, not a
-  priority right now.
-- The arrow-key hiccup in Logic, still open, not yet investigated.
+None right now.
