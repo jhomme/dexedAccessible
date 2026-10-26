@@ -831,3 +831,33 @@ speaks it. Recorded in docs/deviations.md and dropped from the open questions in
 tested on 2026-10-24: Dexed steps by 1, matching its JUCE-based code, while non-JUCE sliders
 step by 5. Why the Shift step-size difference happens stays unexplained, parked earlier on
 2026-10-24, and Jim confirmed today there's nothing left open on this topic.
+
+2026-10-26: Started the first of three staged tasks toward slider naming cleanup and
+tooltips: converting `docs/00_DX7E.txt`, the original DX7 manual, into Markdown, fixing OCR
+errors along the way. Read the full 921-line source file. Fixed dozens of clear OCR
+misreadings (wrong words like "voids" for "voices," garbled display text like "LORD MEMORY"
+for "LOAD MEMORY"), and a handful of numbers using the manual's own specifications table as a
+cross-check: amplitude modulation sensitivity is 0 to 3, not the OCR'd "1 to 3"; operators
+are numbered 1 to 6, not "1 to 8"; external ROM memory is 64, not "54." Kept every figure
+placeholder as a short note with its caption, where the original had one, instead of
+dropping them silently. Result is `docs/dx7-manual.md`.
+
+Jim asked whether the voice data list and MIDI data format appendices, mentioned in the
+manual but missing from the source text file, would be worth tracking down. Checked: Dexed
+already has `Documentation/sysex-format.txt` covering the MIDI wire format in detail, so the
+manual's appendix would just duplicate that. The voice data list is a blank paper worksheet
+for writing down voice parameter values by hand, which just repeats the parameter names and
+ranges already captured in the specifications table. Neither seemed likely to help document
+the software, so Jim decided not to pursue them.
+
+Jim then asked for a separate list sorting every section of the manual by whether it's about
+the physical hardware, the synthesis parameters Dexed actually implements, or a mix of both.
+Wrote `docs/dx7-manual-hardware-sections.md` with three groups: purely hardware (precautions,
+the physical panel description, cartridge mechanics, battery check, all of
+Store/Save/Load, the MIDI cable section, general specs like dimensions), mixed (sections with
+a real parameter wrapped in hardware-only instructions, like the modulation wheel controller
+parameters or the voice-creation tutorial's button presses), and fully relevant (FM Tone
+Generation, all of Edit Mode, Key Transpose, Master Tune/Poly-Mono/Pitch Bend/Portamento/Edit
+Recall/Voice Init, and the Voice Parameters and Function Parameters spec tables).
+
+Jim wants to talk over that sorting before deciding what to carry forward, so paused here.

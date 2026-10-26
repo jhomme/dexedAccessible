@@ -181,7 +181,16 @@ Tasks in order. Checked items are done.
   sclRightLevel from 2026-10-19: identical code, different behavior. Folded into the same
   parked bucket as the rest of standalone double-speak; see docs/deviations.md. 2026-10-25.
 - [ ] Make documentation for the software from `docs/00_DX7E.txt`, the original DX7 manual,
-  as Jim directs step by step. Not started; Jim plans a short brainstorm first.
+  as Jim directs step by step. In progress, 2026-10-26: converted the manual to Markdown at
+  `docs/dx7-manual.md`, fixing OCR errors along the way, some cross-checked against the
+  manual's own specifications table (for example, amplitude modulation sensitivity is 0 to 3,
+  not the OCR'd "1 to 3"; operators are numbered 1 to 6, not "1 to 8"). The voice data list
+  and MIDI data format appendices weren't in the source text; decided not worth chasing down,
+  since the voice data list just repeats the specifications table and the MIDI format is
+  already covered by `Documentation/sysex-format.txt`. Also sorted every section into
+  purely hardware, mixed, or fully software-relevant, at
+  `docs/dx7-manual-hardware-sections.md`, for Jim to review before deciding what to drop.
+  Jim wants to talk over the results before continuing.
 - [ ] Pull a one-sentence description for every control, not just sliders, out of
   `docs/00_DX7E.txt`, as source material for the slider naming cleanup and for tooltips. Not
   started.
