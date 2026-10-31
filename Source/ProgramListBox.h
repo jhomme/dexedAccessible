@@ -72,6 +72,14 @@ class ProgramLabel : public Component, public DragAndDropTarget {
 public:
     int idx;
 
+    // True when VoiceOver should say which list this slot belongs to along with the slot
+    // itself, because focus just arrived here from somewhere else, a different list or
+    // control, rather than from another slot in this same list. Tab, mouse clicks, and the
+    // dialog's own initial focus all leave this true; moving with the arrow keys inside the
+    // list, in ProgramListBox::keyPressed, clears it, since the list is already known at
+    // that point.
+    bool announceGroupNameNext = true;
+
     ProgramLabel(ProgramListBox *pgmListBox, int idx) {
         this->pgmListBox = pgmListBox;
         this->idx = idx;
@@ -202,7 +210,10 @@ public:
         }
 
         virtual String getTitle() const override {
-            return String(program->idx + 1) + " " + program->getProgramName();
+            String title = String(program->idx + 1) + " " + program->getProgramName();
+            if ( program->announceGroupNameNext )
+                return program->pgmListBox->getTitle() + ", " + title;
+            return title;
         }
 
         ProgramLabel *program;

@@ -88,7 +88,11 @@ bool ProgramListBox::keyPressed(const KeyPress &key, Component *originatingCompo
 
     int currentIdx = programLabel->idx;
 
-    if ( key.isKeyCode(KeyPress::upKey) ) {
+    if ( key.isKeyCode(KeyPress::homeKey) ) {
+        currentIdx = 0;
+    } else if ( key.isKeyCode(KeyPress::endKey) ) {
+        currentIdx = 31;
+    } else if ( key.isKeyCode(KeyPress::upKey) ) {
         currentIdx--;
         if ( currentIdx < 0 )
             currentIdx += rows;
@@ -108,6 +112,12 @@ bool ProgramListBox::keyPressed(const KeyPress &key, Component *originatingCompo
         return false;
     }
 
+    activePgm = currentIdx;
+    if ( activePgm != -1 ) {
+        listener->programSelected(this, activePgm);
+    }
+
+    labels[currentIdx]->announceGroupNameNext = false;
     labels[currentIdx]->grabKeyboardFocus();
 
     repaint();

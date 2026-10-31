@@ -84,6 +84,7 @@ class CartManager  : public Component, public Button::Listener, public DragAndDr
     void showSysexConfigMsg();
 
     std::vector<Component*> focusOrder;
+    std::vector<int> focusGroupId;
 
 public:
     CartManager(DexedAudioProcessorEditor *editor);

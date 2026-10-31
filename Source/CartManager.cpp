@@ -72,62 +72,85 @@ public :
 };
 
 /**
- * This is a hack to override global dexed focus traversal when the cart manager is shown. We could have used a 
+ * This is a hack to override global dexed focus traversal when the cart manager is shown. We could have used a
  * modal window but this would have blocked the keys and the user would not have been able to play the current
  * selected preset. Anything that is keyboard related should be ordered in the focusOrder vector.
+ *
+ * groupIds marks which entries belong to the same group, the 32 labels of one program grid, for
+ * instance. Tab and Shift+Tab skip over every other member of the current group, so each group
+ * acts as a single stop, the same way a sighted user would just tab past a whole list rather than
+ * every row in it. Arrow keys still move between individual labels inside a group, handled
+ * separately by ProgramListBox::keyPressed.
  */
 class CartBrowserFocusTraverser : public KeyboardFocusTraverser {
     std::vector<Component*> &orders;
+    std::vector<int> &groupIds;
     Component *root;
+
+    static bool isInactiveLabel(Component *c) {
+        ProgramLabel *label = dynamic_cast<ProgramLabel*>(c);
+        return label != nullptr && !label->isActive();
+    }
+
+    // Tab always leaves the current list behind, even on wrap-around, so the landing slot
+    // should always tell VoiceOver which list it's now in.
+    static Component* landOn(Component *c) {
+        if ( ProgramLabel *label = dynamic_cast<ProgramLabel*>(c) )
+            label->announceGroupNameNext = true;
+        return c;
+    }
 public:
-    CartBrowserFocusTraverser(Component *root, std::vector<Component*> &orders) : orders(orders), root(root) {}
+    CartBrowserFocusTraverser(Component *root, std::vector<Component*> &orders, std::vector<int> &groupIds)
+        : orders(orders), groupIds(groupIds), root(root) {}
 
     Component* getDefaultComponent(Component* parentComponent) override {
-        return orders[0];
+        return landOn(orders[0]);
     }
 
     Component* getNextComponent(Component* current) override {
         bool srcFound = false;
         int i;
+        int srcGroup = -1;
 
         for (i=0;i<orders.size();i++) {
             if ( orders[i] == current ) {
                 srcFound = true;
+                srcGroup = groupIds[i];
                 continue;
             }
 
             if ( srcFound ) {
-                ProgramLabel *label = dynamic_cast<ProgramLabel*>(orders[i]);
-                if ( label != nullptr && !label->isActive() )
+                if ( groupIds[i] == srcGroup || isInactiveLabel(orders[i]) )
                     continue;
                 break;
             }
         }
 
         if ( i == orders.size() )
-            return orders.front();
-        return orders[i];
+            return landOn(orders.front());
+        return landOn(orders[i]);
     }
 
     Component* getPreviousComponent(Component* current) override {
         bool srcFound = false;
         int i=0;
+        int srcGroup = -1;
 
         for(i=orders.size()-1;i>=0;i--) {
             if ( orders[i] == current ) {
                 srcFound = true;
+                srcGroup = groupIds[i];
                 continue;
             }
             if ( srcFound ) {
-                ProgramLabel *label = dynamic_cast<ProgramLabel*>(orders[i]);
-                if ( label != nullptr && !label->isActive() )
+                if ( groupIds[i] == srcGroup || isInactiveLabel(orders[i]) )
                     continue;
                 break;
             }
         }
         if ( i == -1 )
-            return orders.back();
-        return orders[i];
+            return landOn(orders.back());
+        return landOn(orders[i]);
     }
 
     std::vector<Component*> getAllComponents(Component* parentComponent) override {
@@ -181,19 +204,31 @@ CartManager::CartManager(DexedAudioProcessorEditor *editor) : Component("CartMan
     activeCartName.reset(new CartridgeFileDisplay());
     addAndMakeVisible(activeCartName.get());
 
+    int groupId = 0;
+
     focusOrder.push_back(cartBrowser.get());
-    //focusOrder.push_back(browserCart.get());
+    focusGroupId.push_back(groupId++);
+
     for(int i=0;i<32;i++) {
         focusOrder.push_back(browserCart->getProgramComponent(i));
+        focusGroupId.push_back(groupId);
     }
-    //focusOrder.push_back(activeCart.get());
+    groupId++;
+
     for(int i=0;i<32;i++) {
         focusOrder.push_back(activeCart->getProgramComponent(i));
+        focusGroupId.push_back(groupId);
     }
+    groupId++;
+
     focusOrder.push_back(closeButton.get());
+    focusGroupId.push_back(groupId++);
     focusOrder.push_back(loadButton.get());
+    focusGroupId.push_back(groupId++);
     focusOrder.push_back(saveButton.get());
+    focusGroupId.push_back(groupId++);
     focusOrder.push_back(fileMgrButton.get());
+    focusGroupId.push_back(groupId++);
 
 /*
  *
@@ -216,7 +251,7 @@ CartManager::~CartManager() {
 }
 
 std::unique_ptr<ComponentTraverser> CartManager::createKeyboardFocusTraverser() {
-    return std::make_unique<CartBrowserFocusTraverser>(this, focusOrder);
+    return std::make_unique<CartBrowserFocusTraverser>(this, focusOrder, focusGroupId);
 }
 
 void CartManager::resized() {
