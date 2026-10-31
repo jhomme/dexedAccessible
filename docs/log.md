@@ -930,3 +930,53 @@ and the selectable alternate synthesis engines.
 Recorded all of this in Plan.md, with the typo fix and the Master Tune check parked as their
 own not-yet-started items, and in BOOKMARK.md. Jim then asked to stop for the night; this
 entry and the accompanying doc updates are the last thing done this session.
+
+## 2026-10-31
+
+Started track one's first concrete step: pulling a one-sentence description for every
+control. Read `Source/GlobalEditor.cpp`, `Source/OperatorEditor.cpp`, and
+`Source/ParamDialog.cpp` directly rather than relying on the earlier manual-only pass, since
+the real control list lives in code, not in the manual. Confirmed, at `Source/PluginEditor.h:37`
+with `OperatorEditor operators[6]`, that all six operator panels are the exact same class, so
+each operator control only needed listing once. Corrected an early miscount: a first pass said
+roughly 50 controls total, but that only counted the operator panel's controls once instead of
+multiplying by 6; the real total is around 200 across the global panel, the six operator
+panels, and the Function dialog.
+
+Wrote `docs/control-manual-mapping.md`, matching every control to the manual section it came
+from, with its one-sentence description and value range. Jim clarified he wanted the
+one-sentence descriptions in that same doc, not a separate mapping-only file, so it was
+rewritten once to fold both together. This doc stays as permanent, fuller reference material
+for track two's user guide, not just a tooltip draft.
+
+Along the way, Jim explained why most controls on the main panel and the operator panels
+speak their raw internal code name, things like `lfoSpeed` or `sclLvlBrkPt`, instead of a real
+word: JUCE, the framework this plugin is built on, only uses a separate human-readable
+accessible name when a control's code explicitly calls `setTitle()`. Checked: only 3 of about
+34 controls in `GlobalEditor.cpp`, and only 1 in `OperatorEditor.cpp`, have that call; nearly
+everything in `ParamDialog.cpp` does. That's the direct cause of the abbreviated names Jim
+hears, and fixing it is now part of track one's planned code change, not just adding
+tooltips.
+
+Jim then set out several rules for a second, shorter pass before any code changes: don't
+define a control using the word being defined, for example "sets the LFO's speed" for
+lfoSpeed; don't name which manual section a sentence came from; don't list value ranges or
+option names, since VoiceOver users can explore those directly; don't describe a control in
+terms of the original hardware's physical knob or switch; don't mention the date a change was
+made; and use "preset" instead of the manual's "voice," since "voice" already means something
+else on the DX7, a single playing note, as in "16-voice polyphony." Recorded all of these in
+Plan.md as they came up, each one before Jim said "go," per his request to keep them
+documented even while just talking, not acting.
+
+Once Jim said "go," wrote `docs/tooltip-descriptions.md`, the short, tooltip-ready version,
+following all of the above, plus a suggested full-word title for every control that currently
+falls back to its raw name. Replaced "voice" with "preset" everywhere it appeared: the
+Initialize and Store buttons, the preset selector, and the sysex input/output/channel
+controls' "preset data" wording. Removed the one date mention, on `pitchEnvDisplay`, which
+already has a real accessibility handler from earlier work and needs no further change.
+Jim proofread the doc by hand along the way and fixed a couple of incorrect commas himself;
+did a full grammar pass over the rest while writing the final version.
+
+Updated Plan.md, marking the description-pulling task done, and BOOKMARK.md to match. Next:
+put these titles and tooltips into the actual code in `Source/GlobalEditor.cpp`,
+`Source/OperatorEditor.cpp`, and `Source/ParamDialog.cpp`, then test with VoiceOver.

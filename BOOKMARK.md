@@ -32,17 +32,28 @@ parameters to 4 octaves each, not the manual's single 0-12), and EDIT RECALL has
 equivalent at all. Master Tune's exact cents range is unconfirmed. Also found a live bug:
 `Source/PluginParam.cpp` misspells the LFO "TRIANGLE" waveform as "TRIANGE." Full detail in
 docs/Plan.md; the typo fix and the Master Tune check are both parked as separate items, not
-done tonight.
+done yet.
+
+Pulled a one-sentence description for every control, not just sliders, out of
+`docs/dx7-manual.md`. `docs/control-manual-mapping.md` holds the full version, descriptions,
+manual sections, and value ranges included, kept as groundwork for track two's user guide.
+`docs/tooltip-descriptions.md` holds the short, tooltip-ready version: each control's internal
+code name, a suggested full-word title to replace the raw name VoiceOver currently falls back
+to, and a one-sentence tooltip. That doc uses "preset" instead of the manual's "voice," avoids
+circular definitions, manual citations, value ranges, physical-knob language, and dates, per
+rules recorded in docs/Plan.md. Jim proofread it by hand and caught a couple of bad commas;
+fixed those and did a full grammar pass.
 
 ## What's next
 Two tracks now, track one first:
-1. Track one, on `accessibility`: pull a one-sentence description for every control, not
-   just sliders, out of `docs/dx7-manual.md`, as source material for the slider naming
-   cleanup and for tooltips. Then put those descriptions into slider tooltips and test with
-   VoiceOver. Then open the PR for `accessibility`.
+1. Track one, on `accessibility`: put the descriptions from `docs/tooltip-descriptions.md`
+   into the actual code, `setTitle()` calls and tooltips in `Source/GlobalEditor.cpp`,
+   `Source/OperatorEditor.cpp`, and `Source/ParamDialog.cpp`, then test with VoiceOver. Then
+   open the PR for `accessibility`.
 2. Track two, after that PR: branch off `accessibility` and build a standalone Dexed user
    guide, for every user, from the "mixed" and "fully relevant" sections in
-   `docs/dx7-manual-hardware-sections.md`.
+   `docs/dx7-manual-hardware-sections.md`, with a glossary covering both DX7-specific terms
+   and general synthesis vocabulary for newcomers.
 
 ## Open questions
 None right now.

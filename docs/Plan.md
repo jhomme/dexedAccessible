@@ -201,15 +201,37 @@ Tasks in order. Checked items are done.
   focused on one concern. `docs/dx7-manual.md` and `docs/dx7-manual-hardware-sections.md`
   stay on `accessibility` for now since they already exist there; they'll get used once the
   docs branch starts.
-- [ ] Track one: pull a one-sentence description for every control, not just sliders, out of
+- [x] Track one: pull a one-sentence description for every control, not just sliders, out of
   `docs/dx7-manual.md`, as source material for the slider naming cleanup and for tooltips.
-  Not started.
+  Wrote `docs/control-manual-mapping.md`, listing every control from
+  `Source/GlobalEditor.cpp`, `Source/OperatorEditor.cpp`, and `Source/ParamDialog.cpp` with a
+  one-sentence description, the manual section it came from, and its value range. That doc
+  stays as is, not overwritten, since the fuller explanations are useful groundwork for track
+  two's user guide. Then wrote the tooltip-ready version, `docs/tooltip-descriptions.md`,
+  following these rules: don't define a control using the word being defined, for example
+  "sets the LFO's speed" for lfoSpeed; don't name which manual section the sentence came from;
+  don't list value ranges or option names, since a VoiceOver user can explore those directly
+  on the control itself; don't describe a control in terms of the original hardware's physical
+  knob or switch, since this is the software control, not the physical one; don't mention the
+  date a change was made, since that belongs in docs/log.md and docs/Plan.md, not in tooltip
+  text; and use "preset" instead of the manual's "voice," since "voice" already means
+  something else on the DX7, a single playing note, as in "16-voice polyphony." Jim also
+  proofread the doc by hand and caught a couple of incorrect commas; fixed those and did a
+  full grammar pass over the rest.
 - [ ] Track one: put those descriptions into slider tooltips and test with VoiceOver, then
-  open the PR for `accessibility`. Not started.
+  open the PR for `accessibility`. Not started. Jim's rule, 2026-10-31: beyond adding
+  tooltips, give every control that currently falls back to its raw internal name, such as
+  `lfoSpeed`, `sclLvlBrkPt`, or `egl1`, a real `setTitle()` call spelling that name out in
+  full words, so VoiceOver stops reading code variable names out loud. Found in
+  `Source/GlobalEditor.cpp`, `Source/OperatorEditor.cpp`, and a handful of spots in
+  `Source/ParamDialog.cpp`.
 - [ ] Track two, after the `accessibility` PR: branch off `accessibility` and build a
   standalone Dexed user guide, covering the "mixed" and "fully relevant" sections from
   `docs/dx7-manual-hardware-sections.md`, for every user, not just accessibility source
-  material. Not started.
+  material. Not started. Jim's note, 2026-10-31: the guide should include a glossary of
+  terms, covering both DX7-specific words like operator, carrier, modulator, and algorithm,
+  and general synthesis words like modulate and envelope, so someone new to synthesis can
+  follow along.
 - [x] Checked, 2026-10-26, how closely the remaining `docs/dx7-manual.md` content matches
   Dexed's actual code, parameter by parameter, before trusting it as source material. Every
   range and behavior that could be directly checked in `Source/PluginParam.cpp`,
