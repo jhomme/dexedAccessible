@@ -1161,3 +1161,118 @@ AU again to cover this.
 
 Not yet tested by Jim in Logic: the full accumulated set of fixes above. Updated Plan.md and
 BOOKMARK.md.
+
+## 2026-10-31: cleaned up the project docs
+Jim said Plan.md had become confusing from decisions made, reversed, and made again, and
+asked what could be learned about working together going forward. Looking at Plan.md
+confirmed the problem: it had absorbed three jobs that belong elsewhere. Multi-paragraph
+investigation narratives that belong in this log, a full test plan written inline that
+belongs in acceptance.md, and decision reversals that belong in deviations.md. A checkbox
+had also drifted into meaning two different things, done as planned, or settled by deciding
+to stop, with no way to tell which from the box alone.
+
+Rewrote Plan.md as a short, one-line-per-task punch list, pointing back to this log by date
+for narrative and to deviations.md for anything that changed or got closed. No content was
+lost: every item already had its real detail here or in deviations.md, or picked it up in
+this cleanup. Added one missing deviations.md entry along the way: the VO+Shift step-size
+investigation, closed 2026-10-24/26, had never been recorded there despite fitting the same
+pattern as the other closed investigations.
+
+Also caught up acceptance.md, which had stopped after the 2026-10-15 batch of fixes even
+though a lot of real, testable work shipped since then: arrow-key stepping, the LCD and
+envelope diagram double-announcement fixes, the full titles-and-tooltips round, the
+cartridge manager wall, and the Function Settings fixes. Added a "done when" and "Jim tests"
+entry for each.
+
+BOOKMARK.md and docs/prd.md didn't need the same treatment. BOOKMARK.md already gets pruned
+each session, per the 2026-10-19 entry above, and prd.md was never where the sprawl
+happened.
+
+## 2026-10-31: checked whether we can send the accessibility work upstream, found we can't right now
+Jim asked to send the code changes to asb2m10/dexed, but wanted it confirmed clean first.
+Starting that check surfaced real news: pull request 534, our standing crash-fix PR, had just
+been closed by asb2m10, unmerged. His comment: "Closing this since with version 1.1.0 this is
+no more applicable." Checked why: upstream merged `eebb748`, "Dexed 1.1.0 Refactor for JUCE
+8" (their PR 535), the same day. It reorganizes the entire source tree, `Source` becomes
+`source`, split across new subfolders, `source/ui`, `source/ui/component`,
+`source/ui/window`, `source/parameter`, and replaces the AudioProcessorValueTreeState-based
+parameter handling with a new `Model`/`MetaParameter`/`ParametersMapper` system. 120 files
+changed upstream, about 13,000 lines each way.
+
+Also found local `master` was two commits behind `upstream/master`, including this exact
+refactor, so it hadn't been pulled in yet.
+
+Measured the real cost of reconciling before recommending anything, rather than guessing.
+Ran `git merge-tree accessibility upstream/master`, a read-only simulation that doesn't touch
+the working tree, to see what a real merge would hit. Result: 20 conflicts. Most are
+modify/delete conflicts, files like `PluginParam.h`, `PluginParam.cpp`, `GlobalEditor.cpp`,
+`OperatorEditor.cpp`, and `AlgoDisplay.h` that our accessibility work edited and upstream
+deleted outright, with equivalent code now living elsewhere in a different shape. A handful
+are genuine content conflicts in files that do have a clear renamed target, `ParamDialog.cpp`
+chief among them, 2770 lines different. One submodule conflict, in `libs/clap-juce-extensions`.
+
+Flagged one side finding worth remembering later, not acted on today: upstream's new folder
+is `source`, lowercase; ours is `Source`, capital. Those collide by default on a Mac's normal
+case-insensitive filesystem. Not a problem yet, since we haven't merged anything, but a real
+trap if this ever gets reconciled locally.
+
+Reported all of this to Jim plainly before doing anything else, since it changed the premise
+of what he'd asked for: a clean upstream-ready branch isn't something to build today, since
+upstream's own tree moved out from under the code our work is built on. Jim decided to keep
+developing on this fork for now rather than take on reconciling against the new upstream
+layout. Recorded in docs/deviations.md. Updated bookmark.md's open questions to reflect PR
+534's closure and this decision, and adjusted its "What's next" list to drop the upstream PR
+step for now.
+
+No branch was created. The ask to "start another branch we can keep clean" assumed sending
+upstream would happen soon; since that's on hold, there's nothing yet for a dedicated
+upstream branch to carry.
+
+## 2026-10-31: backfilled a record for untracked cartridge manager work
+While scoping the release checklist below, found real code sitting uncommitted:
+`Source/CartManager.cpp`, `CartManager.h`, `ProgramListBox.cpp`, `ProgramListBox.h`, and an
+already-rewritten `Documentation/Keybindings.md`. None of it was ever written up in this log,
+Plan.md, or acceptance.md.
+
+Read the diff to understand it before asking Jim anything. It adds Home and End key support
+to the cartridge manager's two program lists, the browser list and the active list, jumping
+straight to slot 1 or slot 32 instead of arrowing through all 32. It also makes VoiceOver
+announce which list a slot belongs to whenever focus arrives there from somewhere else, such
+as pressing Tab, tracked with a new `announceGroupNameNext` flag on each `ProgramLabel` that
+gets set on arrival and cleared once the arrow keys are doing the moving within the same
+list. `CartBrowserFocusTraverser` picked up a parallel `groupIds` vector so Tab can skip a
+whole list as one stop instead of all 32 of its slots.
+
+Asked Jim directly whether this had been tested with VoiceOver already, since there was no
+record either way, and this is exactly the kind of change that would be going into a release
+other people rely on. Jim confirmed it's tested. Added the missing entries to docs/Plan.md
+and docs/acceptance.md.
+
+## 2026-10-31: scoped out what a real release needs, since this build is for others now too
+Jim asked what it takes to make a release, meaning a real downloadable build, not just his
+own local rebuilds. Confirmed he wants this to reach other VoiceOver and screen reader users,
+not just himself, which is a real widening of docs/prd.md's original "who this is for."
+Recorded that in docs/deviations.md and docs/prd.md.
+
+Checked the actual state of things rather than assuming the existing CI pipeline just works
+on this fork. Found, via the GitHub API: zero workflows registered on jhomme/dexedAccessible,
+meaning GitHub Actions has never run there, almost certainly because Actions are off by
+default on a fork. Also confirmed no releases and no tags exist on the fork yet.
+
+Read `assets/installers/make_macos_pkg.sh`, the script the Mac build uses to package a
+`.pkg` installer. It expects Apple signing certificates through environment variables that
+exist as secrets on asb2m10's original repo, which forks never inherit. Good news: the
+script degrades gracefully, it builds an unsigned package instead of failing, confirmed by
+reading the conditional around the `codesign` and `pkgbuild --sign` calls. The real cost
+isn't a build failure, it's that anyone installing an unsigned package has to override
+macOS Gatekeeper's warning by hand.
+
+Also flagged: upstream just tagged its own `v1.1.0`, built on the completely different
+refactored codebase we decided not to chase. Reusing that version number for our own release
+would wrongly imply the same codebase underneath.
+
+Wrote all of this into docs/Plan.md as a release checklist: turn on GitHub Actions for the
+fork, decide a version scheme separate from upstream's, decide on Mac code signing, commit
+the outstanding working-tree changes, then tag and push the first release. Updated
+bookmark.md's "What's next" to point at this checklist, with turning on GitHub Actions as
+the immediate next step.

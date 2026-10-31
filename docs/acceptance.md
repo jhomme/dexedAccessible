@@ -79,3 +79,98 @@ the group from sounding broken when there is real content inside it.
 Jim also tested this whole batch of fixes, the algorithm dial, the mono mode switch, the
 keyboard scroll buttons, and the keyboard keys group content, in Logic, in both the VST3 and
 AU builds, not just the standalone app. Confirmed working, 2026-10-15.
+
+## Arrow-key stepping on parameters
+Done when Home jumps a slider to its lowest value and End to its highest, on every slider,
+and Shift+arrow (or Shift+Up/Down) moves the value by 5 in the matching direction, clamped at
+that slider's own min and max.
+- Jim tests: with VoiceOver on, in the standalone app, press Home, End, and Shift+arrow on
+  several sliders and confirm the jumps. Confirmed working, 2026-10-15.
+- Jim tests: the same checks in Logic, VST3 and AU. Confirmed working, 2026-10-17.
+
+## LCD and slider double-announcement
+Done when moving a slider's value with the keyboard announces the new value once, not twice.
+The LCD readout still updates its visible text at the same time, just without announcing that
+change itself.
+- Jim tests: with VoiceOver on, arrow-key through `detune`, `opCoarse`, and `opFine`, and
+  confirm each press speaks once. Confirmed working in standalone, 2026-10-21, and in Logic,
+  VST3 and AU, 2026-10-21.
+
+## Envelope and pitch envelope diagram double-announcement
+Done when moving an envelope or pitch envelope rate or level slider announces the new value
+once, not twice.
+- Jim tests: with VoiceOver on, move the rate and level sliders on the envelope and pitch
+  envelope diagrams and confirm each speaks once. Confirmed working, 2026-10-25, with one
+  known exception: Pitch EG Level 1 still double-speaks in standalone for a reason that was
+  never found. Not being pursued further; see deviations.md. Standalone double-speak in
+  general matters less than it might, since Logic doesn't speak live slider changes at all
+  right now regardless.
+
+## Real titles for every control
+Done when every control in the plugin announces its own plain-language name when VoiceOver
+lands on it, not its raw internal DX7 parameter name, such as `lfoSpeed` or `egl1`.
+- Jim tests: with VoiceOver on, tab through every control in the global section, each
+  operator panel, and the parameter dialogs, and confirm each announces a real name.
+  Confirmed working, 2026-10-31.
+
+## Tooltip text for every control
+Done when VoiceOver's help command, VoiceOver plus shift plus H, speaks a plain-language
+description of what a control does, for every slider, button, and combo box, without
+repeating the control's own name or describing the original hardware's knob or switch.
+- Jim tests: with VoiceOver on, use the help command on controls across the global section,
+  each operator panel, and the parameter dialogs, and confirm each gives a useful
+  description. Confirmed working, 2026-10-31.
+
+## Keyboard scaling curve button labels
+Done when the four keyboard scaling curve buttons speak "Linear decrease," "Exponential
+decrease," "Exponential increase," and "Linear increase," instead of the abbreviations
+"-LN," "-EX," "+EX," "+LN." The LCD readout keeps its own short abbreviations, left alone on
+purpose for players who already know the original DX7.
+- Jim tests: with VoiceOver on, open the keyboard scaling curve menu for an operator and
+  confirm each of the four choices announces its spelled-out name. Confirmed working,
+  2026-10-31.
+
+## Algorithm diagram and VU meters hidden from accessibility
+Done when the algorithm diagram and all VU meters, the main output meter and the six
+per-operator meters, no longer appear to VoiceOver as empty, unexplained stops, since none of
+their live readings currently reach VoiceOver.
+- Jim tests: with VoiceOver on, tab through the main window and each operator panel, and
+  confirm VoiceOver skips the diagram and the meters entirely rather than landing on an empty
+  control. Confirmed working, 2026-10-31.
+
+## Cartridge manager keeps VoiceOver inside the dialog
+Done when VoiceOver's arrow-key navigation can't leave the cartridge manager dialog and land
+on the operators, the global section, or the on-screen keyboard behind it, while the dialog
+is open.
+- Jim tests: with VoiceOver on, open the cartridge manager, arrow past its last control, and
+  confirm VoiceOver stays inside the dialog instead of reaching the main window behind it.
+  Confirmed working, 2026-10-31.
+
+## Function Settings dialog title and first focus
+Done when opening Function Settings announces "Function Settings," not an unnamed empty
+group, and VoiceOver lands on the pitch bend range up slider first, not that empty group.
+Also done when the Scale, Keyboard Mapping, Show Tuning, and Reset Tuning buttons each
+announce their name once, not with the word "Button" said twice.
+- Jim tests: with VoiceOver on, open Function Settings and confirm the dialog's own name,
+  that focus lands on the pitch bend range up slider, and that all four buttons announce
+  cleanly. Confirmed working, 2026-10-31.
+
+## Keyboard octave scroll button tooltips
+Done when VoiceOver's help command explains what the keyboard's scroll-down-an-octave and
+scroll-up-an-octave buttons do.
+- Jim tests: with VoiceOver on, use the help command on both buttons and confirm each
+  explains what it does. Confirmed working, 2026-10-31.
+
+Jim's full VoiceOver pass over this whole 2026-10-31 round, in Logic, is still pending. See
+bookmark.md.
+
+## Cartridge manager: Home/End jump and list-name announcement
+Done when Home jumps to the first program slot and End jumps to the last, slot 32, in either
+the browser list or the active list inside the cartridge manager. Also done when VoiceOver
+announces which list, browser or active, a slot belongs to whenever focus arrives there from
+somewhere else, such as pressing Tab, but not when just arrowing between slots already
+inside the same list.
+- Jim tests: with VoiceOver on, open the cartridge manager, tab into each list and confirm it
+  announces the list name, then press Home and End in each list and confirm it jumps to the
+  first and last slot. Confirmed working by Jim. This was tested before it got written up
+  here; the exact test date wasn't recorded at the time.

@@ -13,6 +13,10 @@ The user, jhomme, is blind and uses VoiceOver, the Mac screen reader, with a key
 can't reliably use a mouse. He wants to use Dexed the same way a sighted musician would, moving
 between knobs and displays and hearing what each one is and what it's set to.
 
+As of 2026-10-31, this is meant for other VoiceOver and screen reader users too, not just
+jhomme. That's why a real, downloadable release matters, not just a build jhomme keeps
+rebuilding for himself. See docs/deviations.md.
+
 ## Why we're doing this
 Dexed's screen, like most synth plugin screens, is built from custom drawn controls. A sighted
 user sees knobs, sliders, and diagrams. VoiceOver only knows about standard controls unless the

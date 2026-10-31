@@ -61,6 +61,44 @@ instead of mixing code changes with a large documentation addition.
 
 Who decided: Jim, 2026-10-26.
 
+## 2026-10-31: widened who this project is for, and started a real release
+What changed: docs/prd.md scoped this project to jhomme alone. Jim decided the accessible
+build should go to other VoiceOver and screen reader users too, which means producing a real,
+downloadable release instead of jhomme rebuilding it for himself each time.
+
+Why: Jim's call; he wants this available to other people, not just himself.
+
+Who decided: Jim, 2026-10-31.
+
+## 2026-10-31: decided not to pursue an upstream pull request for now
+What changed: Plan.md's "open the PR for accessibility" step, and bookmark.md's open question
+about whether to propose this work to asb2m10/dexed, are both set aside for now. Jim will
+keep developing accessibility work on this fork directly instead.
+
+Why: asb2m10 closed PR 534, our earlier crash-fix pull request, on 2026-10-31, calling it "no
+more applicable." The cause: upstream merged their own "Dexed 1.1.0 Refactor for JUCE 8" the
+same day, moving the whole source tree from `Source` to `source` and splitting it into
+subfolders, and replacing the parameter-handling code our accessibility fixes depend on.
+Tested what reconciling now would actually take: simulating a real merge produced 20
+conflicts, most of them files that no longer exist upstream at all rather than ordinary line
+conflicts. Reconciling would mean redoing the accessibility work by hand against upstream's
+new layout, not a rebase, so Jim chose to keep going on the fork instead of taking that on
+right now.
+
+Who decided: Jim, 2026-10-31.
+
+## 2026-10-26: closed the VO+Shift step-size investigation unresolved
+What changed: Plan.md had an open investigation into why VO+Shift+Right/Left steps a value by
+1 in Dexed but by 5 on native Logic sliders. Testing on 2026-10-24 confirmed the difference is
+real, not imagined, but the mechanism behind it stayed unexplained: it isn't a real keystroke,
+a real mouse event, or an extra accessibility action name. Jim decided to stop investigating
+the mechanism and close the topic rather than keep digging.
+
+Why: Jim's call, to put priority on shipping a version of Dexed he considers acceptable,
+rather than chasing full VoiceOver step-size parity with native macOS controls.
+
+Who decided: Jim, 2026-10-24, confirmed closed 2026-10-26.
+
 ## 2026-10-26: removed the ax-watch and event-watch diagnostic tools from the repo
 What changed: `tools/ax-watch` and `tools/event-watch`, Swift diagnostic scripts used across
 several sessions to debug VoiceOver's accessibility notifications, were removed from the
