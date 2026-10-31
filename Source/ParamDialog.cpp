@@ -341,7 +341,7 @@ ParamDialog::ParamDialog ()
     addAndMakeVisible (glissando.get());
     glissando->setExplicitFocusOrder (30);
     glissando->setButtonText (juce::String());
-    glissando->setTooltip ("Enable or disable glissando effect.");
+    glissando->setTooltip ("Turns on or off whether notes slide in fixed steps instead of smoothly.");
     glissando->addListener (this);
     glissando->setToggleState (true, juce::dontSendNotification);
 
@@ -352,7 +352,7 @@ ParamDialog::ParamDialog ()
     portamentoTm->setExplicitFocusOrder (22);
     portamentoTm->setRange (0, 99, 1);
     portamentoTm->setSliderStyle (juce::Slider::RotaryVerticalDrag);
-    portamentoTm->setTooltip ("Adjust the portamento time.");
+    portamentoTm->setTooltip ("Controls how slowly one note slides into the next.");
     portamentoTm->setTextBoxStyle (juce::Slider::TextBoxLeft, false, 80, 20);
     portamentoTm->addListener (this);
 
@@ -411,10 +411,10 @@ ParamDialog::ParamDialog ()
     ftRange->setTitle("Foot Range");
     brRange->setTitle("Breath Range");
     atRange->setTitle("After Touch Range");
-    whlEg->setTitle("Wheel EG");
-    ftEg->setTitle("Foot EG");
-    brEg->setTitle("Breath EG");
-    atEg->setTitle("After Touch EG");
+    whlEg->setTitle("Wheel Envelope Bias");
+    ftEg->setTitle("Foot Envelope Bias");
+    brEg->setTitle("Breath Envelope Bias");
+    atEg->setTitle("After Touch Envelope Bias");
     whlAmp->setTitle("Wheel Amp");
     ftAmp->setTitle("Foot Amp");
     brAmp->setTitle("Breath Amp");
@@ -433,6 +433,41 @@ ParamDialog::ParamDialog ()
     transposeHelp->setTitle("Transpose Help");
     scalingFactor->setTitle("Scaling Factor");
     portamentoTm->setTitle("Portamento Time");
+    glissando->setTitle("Glissando");
+
+    pitchRangeUp->setTooltip("Sets how far pitch bend can raise the pitch.");
+    pitchRangeDn->setTooltip("Sets how far pitch bend can lower the pitch.");
+    pitchStep->setTooltip("Sets pitch bend to move in fixed steps instead of smoothly.");
+    sysexIn->setTooltip("Chooses which MIDI device preset data comes in from.");
+    sysexOut->setTooltip("Chooses which MIDI device preset data goes out to.");
+    sysexChl->setTooltip("Sets which MIDI channel the plugin sends and receives preset data on.");
+    engineReso->setTooltip("Chooses which synthesis engine generates the sound, a Dexed-only choice not on the original DX7.");
+    showKeyboard->setTooltip("Shows or hides the on-screen keyboard.");
+    whlRange->setTooltip("Sets how strongly the modulation wheel affects pitch, volume, or tone over time.");
+    ftRange->setTooltip("Sets how strongly the foot controller affects pitch, volume, or tone over time.");
+    brRange->setTooltip("Sets how strongly the breath controller affects pitch, volume, or tone over time.");
+    atRange->setTooltip("Sets how strongly after touch affects pitch, volume, or tone over time.");
+    whlEg->setTooltip("Turns on or off whether the modulation wheel can add brightness or loudness variation over time.");
+    ftEg->setTooltip("Turns on or off whether the foot controller can add brightness or loudness variation over time.");
+    brEg->setTooltip("Turns on or off whether the breath controller can add brightness or loudness variation over time.");
+    atEg->setTooltip("Turns on or off whether after touch can add brightness or loudness variation over time.");
+    whlAmp->setTooltip("Turns on or off whether the modulation wheel affects volume.");
+    ftAmp->setTooltip("Turns on or off whether the foot controller affects volume.");
+    brAmp->setTooltip("Turns on or off whether the breath controller affects volume.");
+    atAmp->setTooltip("Turns on or off whether after touch affects volume.");
+    whlPitch->setTooltip("Turns on or off whether the modulation wheel affects pitch.");
+    ftPitch->setTooltip("Turns on or off whether the foot controller affects pitch.");
+    brPitch->setTooltip("Turns on or off whether the breath controller affects pitch.");
+    atPitch->setTooltip("Turns on or off whether after touch affects pitch.");
+    sclButton->setTooltip("Loads a scale file for custom tuning.");
+    kbmButton->setTooltip("Loads a keyboard mapping file for custom tuning.");
+    showTunButton->setTooltip("Shows the current tuning table.");
+    resetTuningButton->setTooltip("Resets tuning back to standard equal temperament.");
+    transposeScale->setTooltip("Chooses whether a 12 semitone transpose follows the keyboard or follows a custom tuning scale's length.");
+    mpePBRange->setTooltip("Sets the pitch bend range used for per-note expressive control.");
+    mpeEnabled->setTooltip("Turns on or off per-note expressive pitch, pressure, and timbre control.");
+    transposeHelp->setTooltip("Opens an explanation of the transpose scale setting.");
+    scalingFactor->setTooltip("Sets the size of the plugin window.");
 
     pitchRangeUp->setWantsKeyboardFocus(true);
     pitchRangeDn->setWantsKeyboardFocus(true);

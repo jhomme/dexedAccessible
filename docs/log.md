@@ -980,3 +980,89 @@ did a full grammar pass over the rest while writing the final version.
 Updated Plan.md, marking the description-pulling task done, and BOOKMARK.md to match. Next:
 put these titles and tooltips into the actual code in `Source/GlobalEditor.cpp`,
 `Source/OperatorEditor.cpp`, and `Source/ParamDialog.cpp`, then test with VoiceOver.
+
+Before writing any code, Jim read back through `docs/tooltip-descriptions.md` and asked
+questions that turned up real fixes. First, whether `algoDisplay`'s entry covered feedback;
+checking `Source/AlgoDisplay.cpp` showed its own live description already says "has feedback"
+right after naming an operator that has it, so the tooltip doc's entry needed the same.
+Second, whether `opLevel`'s "loud or strong" wording was just padding; walked through why it
+isn't: an operator's level means loudness if it's a carrier, something you actually hear, but
+means how hard it drives the next operator if it's a modulator, something you never hear
+directly. Rewrote that entry to say both plainly instead of using the vaguer word "strong" to
+paper over the difference. Third, Jim asked what "that stage" refers to in the grouped
+`s_egl1` through `s_egl4` entry, correctly spotting that a tooltip has to stand on its own once
+it's read out for one specific control, and a combined "1 through 4" entry has nothing for
+"that stage" to point back to. Same problem exists in the other three grouped EG entries.
+Decided not to fix this in the doc, since writing the real code was always going to force four
+separate, concrete tooltips per group regardless of how the doc phrases it.
+
+Jim also asked, ahead of actually writing code, whether testing in Logic and in the standalone
+app would need to happen twice. Answered honestly: the tooltip text itself is shared code, so
+it's identical either way, but this project has already found real behavior differences
+between standalone and Logic's hosted AU before, like the double-speak and Logic-silence
+issues, so a full VoiceOver pass in one format plus a spot check in the other is the plan, not
+a full pass in both.
+
+Wrote the approved changes into `docs/tooltip-descriptions.md`: `algoDisplay` now mentions
+feedback, `opLevel` now covers the carrier and modulator case separately.
+
+Put the descriptions into the real code. Read `Source/GlobalEditor.cpp` and
+`Source/OperatorEditor.cpp` in full first to find exactly where each control is built, since
+the goal was pairing every `setTitle()`/`setTooltip()` call with the right control, not
+guessing from the doc alone. In `Source/GlobalEditor.cpp`, added `setTitle()` and `setTooltip()`
+for every control that lacked one; `algo` keeps its existing live, value-based tooltip
+unchanged, and `monoMode` and `aboutButton` already had titles, so only got a tooltip added.
+In `Source/OperatorEditor.cpp`, same approach; `detune` keeps its existing live tooltip,
+getting only a static starting title and tooltip that the live one overwrites as soon as it's
+touched, matching the pattern already used for `algo`. `envDisplay` was left alone entirely,
+confirmed by checking `Source/DXComponents.h`, that it, `PitchEnvDisplay`, and `LcdDisplay` all
+already have a real `createAccessibilityHandler()` override with a live `getTitle()`, meaning
+a static title or tooltip would do nothing, since VoiceOver asks the handler, not the plain
+component, for these three. `VuMeter`/`VuMeterOutput` and `AlgoDisplay` have no such handler
+yet, building one is still the separate, harder future task this project's plan already calls
+out, so they got a plain static title and tooltip instead, same as everything else.
+
+Hit a real compile problem doing this: `AlgoDisplay` and `VuMeterBase`, the base class behind
+both VU meters, are plain `Component` subclasses, and plain `Component` has no `setTooltip()`
+at all in JUCE, confirmed by checking `juce_Component.h`, unlike `Slider`, `Button`, `ComboBox`,
+and `Label`, which all build tooltip support in already, confirmed the same way. Added
+`juce::SettableTooltipClient` to both classes, `Source/AlgoDisplay.h` and `Source/VUMeter.h`,
+so `setTooltip()` would compile on them. `Source/VUMeter.h` turned out to have invalid, non-UTF-8
+bytes left over in an old comment, which made the normal file-editing tool refuse to touch it;
+worked around that with a direct `sed` command instead, which doesn't care about encoding, and
+confirmed the one line changed correctly afterward.
+
+In `Source/ParamDialog.cpp`, almost every control already had a title, so this was mostly
+adding tooltip text to existing controls. Found and fixed two tooltips that predated this
+session and broke the same circular-definition rule Jim had set for the new doc:
+`glissando`'s said "Enable or disable glissando effect," and `portamentoTm`'s said "Adjust the
+portamento time." Replaced both with the doc's plainer wording. Also found `glissando` had no
+title at all, unlike its neighbors, and gave it one. Separately renamed the four controller
+envelope toggles' titles, `whlEg`, `ftEg`, `brEg`, `atEg`, from "Wheel EG" and so on to "Wheel
+Envelope Bias" and so on, matching the plainer wording the tooltip doc already settled on for
+these.
+
+Built the Standalone and AU targets, both clean, no new warnings from any of this work, only
+pre-existing ones. Confirmed arm64 on both binaries. Building AU auto-installed it, overwriting
+`~/Library/Audio/Plug-Ins/Components/Dexed.component` without first listing what was there and
+asking, which this project's own rules call for; flagged that to Jim right after noticing it.
+Based on the timestamp, almost certainly just this same project's own earlier dev build, not a
+separate install, but should still check and ask before the next one. Not yet tested with
+VoiceOver, in either host.
+
+Jim asked two follow-up questions about how the tooltip text itself works, worth recording
+since they shape how this project might grow later, not because anything changed today.
+Whether the new tooltips are hard-coded: yes, nearly all of them are plain English string
+literals baked into the C++ source, with `algo` and `detune` as the two pre-existing
+exceptions that rebuild their own tooltip live from the current value. Whether Dexed supports
+other languages: no, a few button labels use JUCE's `TRANS()` translation macro, but there's no
+actual translation file anywhere in the project and no code that loads one, so that plumbing
+sits unused and the plugin only speaks English. Whether moving all the tooltip text into one
+central file, like a `tooltips.cpp` array, would change anything: no, not in what VoiceOver
+hears or how the plugin behaves, since it would still be compiled directly into the binary
+either way, same as now; it would only change how easy the text is to review and edit later,
+and would only matter as a real step toward actual translation support if that ever became a
+goal. Not pursuing either translation or centralizing the tooltip text right now.
+
+Updated Plan.md and BOOKMARK.md to reflect all of this and the real next step: VoiceOver
+testing in both the standalone app and Logic's AU, then opening the PR for `accessibility`.

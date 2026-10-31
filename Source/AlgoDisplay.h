@@ -23,7 +23,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class AlgoDisplay : public Component {
+class AlgoDisplay : public Component, public juce::SettableTooltipClient {
     void displayOp(Graphics &g, char id, int x, int y, char link, char fb);
 public:
     const char *opStatus;

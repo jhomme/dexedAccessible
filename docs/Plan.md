@@ -218,13 +218,37 @@ Tasks in order. Checked items are done.
   something else on the DX7, a single playing note, as in "16-voice polyphony." Jim also
   proofread the doc by hand and caught a couple of incorrect commas; fixed those and did a
   full grammar pass over the rest.
-- [ ] Track one: put those descriptions into slider tooltips and test with VoiceOver, then
-  open the PR for `accessibility`. Not started. Jim's rule, 2026-10-31: beyond adding
-  tooltips, give every control that currently falls back to its raw internal name, such as
-  `lfoSpeed`, `sclLvlBrkPt`, or `egl1`, a real `setTitle()` call spelling that name out in
-  full words, so VoiceOver stops reading code variable names out loud. Found in
-  `Source/GlobalEditor.cpp`, `Source/OperatorEditor.cpp`, and a handful of spots in
-  `Source/ParamDialog.cpp`.
+- [x] Track one: before writing code, Jim reviewed `docs/tooltip-descriptions.md` and asked
+  questions that turned up a few more fixes, each folded into the doc: `algoDisplay`'s
+  description now mentions feedback, since `AlgoDisplay.cpp` already says "has feedback" in
+  its own live description when an operator has it; `opLevel`'s description now covers both
+  the carrier case, loudness, and the modulator case, how strongly it drives the operator it
+  feeds, instead of the vaguer "loud or strong"; and the grouped "1 through 4" entries for the
+  operator and pitch EG rate and level controls were flagged as not standing on their own,
+  since phrases like "that stage" have nothing to point back to once each of the 4 sliders
+  gets its own separate tooltip in code. Decided that last one doesn't need a doc fix, since
+  writing the actual code already forces 4 separate, concrete tooltips regardless of what the
+  doc says.
+- [x] Track one: put the descriptions from `docs/tooltip-descriptions.md` into the real code,
+  `setTitle()` and `setTooltip()` calls in `Source/GlobalEditor.cpp`, `Source/OperatorEditor.cpp`,
+  and `Source/ParamDialog.cpp`, 2026-10-31. Every control that was falling back to its raw
+  internal name, such as `lfoSpeed`, `sclLvlBrkPt`, or `egl1`, now has a real `setTitle()` call
+  spelling that name out in full words. Two displays, `algoDisplay` and the VU meters, `vu` and
+  `vuOutput`, had no tooltip support at all, since plain JUCE components don't carry it the
+  way sliders, buttons, and combo boxes do; added `juce::SettableTooltipClient` to
+  `Source/AlgoDisplay.h` and `Source/VUMeter.h` so they could get one. `pitchEnvDisplay`,
+  `lcdDisplay`, and `envDisplay` were left alone, since they already have real, live
+  accessibility handlers that describe their current values in words, and a static title or
+  tooltip would either do nothing or fight with that. Along the way, fixed two old,
+  circular tooltips that predated this work, `glissando`'s and `portamentoTm`'s, and gave
+  `glissando` a real title, since it had none. Also renamed the four controller-to-envelope
+  toggle titles, `whlEg`/`ftEg`/`brEg`/`atEg`, from "Wheel EG" and so on to "Wheel Envelope
+  Bias" and so on, matching the plainer wording already decided for the tooltip doc. Built
+  both the Standalone and AU targets clean, confirmed arm64 on both. Not yet tested with
+  VoiceOver.
+- [ ] Test the new titles and tooltips with VoiceOver, in both standalone and Logic's AU,
+  since this project has already found real behavior differences between the two before.
+  Then open the PR for `accessibility`. Not started.
 - [ ] Track two, after the `accessibility` PR: branch off `accessibility` and build a
   standalone Dexed user guide, covering the "mixed" and "fully relevant" sections from
   `docs/dx7-manual-hardware-sections.md`, for every user, not just accessibility source

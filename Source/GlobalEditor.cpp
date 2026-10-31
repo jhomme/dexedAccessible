@@ -462,8 +462,74 @@ GlobalEditor::GlobalEditor ()
     setFocusContainerType(FocusContainerType::focusContainer);
     setWantsKeyboardFocus(true);
     aboutButton->setTitle("About DEXED");
+    aboutButton->setTooltip("Opens information about the plugin's version and credits.");
     algo->setTitle("Algorithm");
     monoMode->setTitle("Mono Mode");
+    monoMode->setTooltip("Switches between playing multiple notes at once and playing only one note at a time.");
+
+    lfoSpeed->setTitle("LFO Speed");
+    lfoSpeed->setTooltip("Sets how fast the low frequency oscillator cycles.");
+    lfoDelay->setTitle("LFO Delay");
+    lfoDelay->setTooltip("Sets how long the low frequency oscillator waits after a key is pressed before it starts affecting the sound.");
+    lfoPitchDepth->setTitle("LFO Pitch Modulation Depth");
+    lfoPitchDepth->setTooltip("Sets how strongly the low frequency oscillator wavers the pitch for vibrato.");
+    lfoAmDepth->setTitle("LFO Amplitude Modulation Depth");
+    lfoAmDepth->setTooltip("Sets how strongly the low frequency oscillator wavers the volume for tremolo.");
+    lfoType->setTitle("LFO Waveform");
+    lfoType->setTooltip("Chooses the shape of wave the low frequency oscillator produces.");
+    lfoSync->setTitle("LFO Key Sync");
+    lfoSync->setTooltip("Turns on or off whether the low frequency oscillator restarts at the same point every time a key is pressed.");
+    oscSync->setTitle("Oscillator Sync");
+    oscSync->setTooltip("Turns on or off whether every operator starts from the same point in its cycle for every note.");
+
+    cutoff->setTitle("Filter Cutoff");
+    cutoff->setTooltip("Sets the cutoff point of the resonant filter, a Dexed addition not on the original DX7.");
+    reso->setTitle("Filter Resonance");
+    reso->setTooltip("Sets how much the resonant filter emphasizes frequencies near its cutoff point, a Dexed addition not on the original DX7.");
+
+    pitchRate1->setTitle("Pitch EG Rate 1");
+    pitchRate1->setTooltip("Controls how quickly the pitch envelope moves toward its first target level.");
+    pitchRate2->setTitle("Pitch EG Rate 2");
+    pitchRate2->setTooltip("Controls how quickly the pitch envelope moves toward its second target level.");
+    pitchRate3->setTitle("Pitch EG Rate 3");
+    pitchRate3->setTooltip("Controls how quickly the pitch envelope moves toward its third target level.");
+    pitchRate4->setTitle("Pitch EG Rate 4");
+    pitchRate4->setTooltip("Controls how quickly the pitch envelope moves toward its fourth target level.");
+    pitchLevel1->setTitle("Pitch EG Level 1");
+    pitchLevel1->setTooltip("Sets the pitch envelope's first target, above, below, or at standard pitch.");
+    pitchLevel2->setTitle("Pitch EG Level 2");
+    pitchLevel2->setTooltip("Sets the pitch envelope's second target, above, below, or at standard pitch.");
+    pitchLevel3->setTitle("Pitch EG Level 3");
+    pitchLevel3->setTooltip("Sets the pitch envelope's third target, above, below, or at standard pitch.");
+    pitchLevel4->setTitle("Pitch EG Level 4");
+    pitchLevel4->setTooltip("Sets the pitch envelope's fourth target, above, below, or at standard pitch.");
+
+    transpose->setTitle("Transpose");
+    transpose->setTooltip("Shifts the whole keyboard's pitch up or down.");
+    pitchModSens->setTitle("Pitch Modulation Sensitivity");
+    pitchModSens->setTooltip("Controls how strongly the low frequency oscillator and controllers can waver this preset's pitch.");
+    feedback->setTitle("Feedback");
+    feedback->setTooltip("Controls how much of the chosen operator's output loops back into itself, adding harmonics and a noisier edge.");
+    output->setTitle("Output Level");
+    output->setTooltip("Sets the overall loudness of the sound coming out of the plugin.");
+    tune->setTitle("Master Tune");
+    tune->setTooltip("Fine-tunes the overall pitch of the instrument to match other instruments.");
+
+    initButton->setTitle("Initialize Preset");
+    initButton->setTooltip("Resets the current preset to its basic starting settings, ready for building a new sound.");
+    parmButton->setTitle("Function Settings");
+    parmButton->setTooltip("Opens the dialog holding pitch bend, portamento, MIDI, and controller settings.");
+    cartButton->setTitle("Cartridge");
+    cartButton->setTooltip("Opens the list of internal and cartridge presets for selection.");
+    storeButton->setTitle("Store");
+    storeButton->setTooltip("Saves the current edited preset into memory.");
+    programSelector->setTitle("Preset Selector");
+    programSelector->setTooltip("Lists the available presets for selection.");
+
+    algoDisplay->setTitle("Algorithm Diagram");
+    algoDisplay->setTooltip("Shows how the 6 operators connect to each other, which ones are turned on, and which ones have feedback.");
+    vuOutput->setTitle("Output Meter");
+    vuOutput->setTooltip("Shows the overall output level.");
     //[/Constructor]
 }
 

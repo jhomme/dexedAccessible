@@ -47,10 +47,9 @@ and the one-sentence tooltip text.
   plugin.
 - tune: title "Master Tune." Fine-tunes the overall pitch of the instrument to match other
   instruments.
-- cutoff: title "Filter Cutoff." Sets the cutoff point of the resonant filter, a Dexed addition
-  not on the original DX7.
+- cutoff: title "Filter Cutoff." Sets the cutoff point of the resonant filter, not not on the original DX7.
 - reso: title "Filter Resonance." Sets how much the resonant filter emphasizes frequencies
-  near its cutoff point, a Dexed addition not on the original DX7.
+near its cutoff point,                           not on the original DX7.
 - monoMode: title "Mono Mode." Switches between playing multiple notes at once and playing
   only one note at a time.
 - initButton: title "Initialize Preset." Resets the current preset to its basic starting
@@ -61,8 +60,8 @@ and the one-sentence tooltip text.
   selection.
 - storeButton: title "Store." Saves the current edited preset into memory.
 - programSelector: title "Preset Selector." Lists the available presets for selection.
-- algoDisplay: title "Algorithm Diagram." Shows how the 6 operators connect to each other and
-  which ones are turned on.
+- algoDisplay: title "Algorithm Diagram." Shows how the 6 operators connect to each other,
+  which ones are turned on, and which ones have feedback.
 - pitchEnvDisplay: title "Pitch Envelope Graph." Already has a real accessibility handler that
   describes the current envelope values in words. No change needed here.
 - lcdDisplay: title "Status Display." Shows the plugin's current status message.
@@ -71,7 +70,8 @@ and the one-sentence tooltip text.
 
 ## Operator panel, applies to all 6 operators
 
-- opLevel: title "Output Level." Sets how loud or strong this operator is.
+- opLevel: title "Output Level." Sets how loud this operator is as a carrier, or how strongly
+  it drives the operator it feeds as a modulator.
 - opCoarse: title "Frequency Coarse." Sets this operator's frequency as a broad multiple of
   the base pitch.
 - opFine: title "Frequency Fine." Fine-tunes this operator's frequency within its coarse

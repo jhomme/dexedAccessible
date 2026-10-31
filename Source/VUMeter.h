@@ -124,7 +124,7 @@ typedef union {
 
 // Fundamental class to define VU Meters.
 // Not intended to instantiate directly.
-class VuMeterBase : public Component {
+class VuMeterBase : public Component, public juce::SettableTooltipClient {
     // Paints an image of a single stripe addresses by the
     // index calculated by the index calculating method
     // set by its constructor.

@@ -1,39 +1,6 @@
 # Bookmark
 
 ## Where we are
-Slider and diagram accessibility fixes from earlier this week are done: move-by-5 is
-simplified and confirmed clean with VoiceOver on every slider, and the envelope/pitch
-envelope diagram double-announcement fix is in. A handful of standalone-only double-speak
-sliders, and the Logic-silence and arrow-key-stops-responding issues, are all parked per
-Jim's decisions; detail in docs/deviations.md and docs/log.md.
-
-Converted `docs/00_DX7E.txt`, the original DX7 manual, into Markdown at
-`docs/dx7-manual.md`, fixing OCR errors as we went, some cross-checked against the manual's
-own specifications table. Sorted every section into purely hardware, mixed, or fully
-software-relevant, at `docs/dx7-manual-hardware-sections.md`. Removed the purely-hardware
-sections (precautions, physical panel description, cartridge/battery/power-on mechanics, all
-of Store/Save/Load, the MIDI cable section, the LFO block diagram, general hardware specs)
-from `docs/dx7-manual.md`, confirmed with Jim first. Also removed `tools/ax-watch` and
-`tools/event-watch` from the repo entirely; those were just diagnostic scripts used to debug
-VoiceOver behavior, not part of Dexed, and the real copies live in the reusable `event-watch`
-Claude Code skill outside this repo, confirmed before deleting anything.
-
-Jim decided, 2026-10-26, to split the remaining work into two tracks instead of one: finish
-accessibility work on `accessibility` first (tooltips included), then build a real,
-standalone Dexed user guide afterward on its own branch. Detail in docs/Plan.md.
-
-Checked how closely the remaining `docs/dx7-manual.md` content matches Dexed's actual code,
-before trusting it as source material. Everything checkable matched: algorithm, feedback,
-LFO, both mod sensitivities, EG rates/levels, output level, frequency coarse/fine, detune,
-keyboard scaling, key transpose, portamento time, the mod wheel/foot/breath/after-touch
-ranges, MIDI channel, Voice Init, and the internal/cartridge voice concept. Two real
-divergences: pitch bend range is a genuine software expansion (independent up/down
-parameters to 4 octaves each, not the manual's single 0-12), and EDIT RECALL has no code
-equivalent at all. Master Tune's exact cents range is unconfirmed. Also found a live bug:
-`Source/PluginParam.cpp` misspells the LFO "TRIANGLE" waveform as "TRIANGE." Full detail in
-docs/Plan.md; the typo fix and the Master Tune check are both parked as separate items, not
-done yet.
-
 Pulled a one-sentence description for every control, not just sliders, out of
 `docs/dx7-manual.md`. `docs/control-manual-mapping.md` holds the full version, descriptions,
 manual sections, and value ranges included, kept as groundwork for track two's user guide.
@@ -41,19 +8,51 @@ manual sections, and value ranges included, kept as groundwork for track two's u
 code name, a suggested full-word title to replace the raw name VoiceOver currently falls back
 to, and a one-sentence tooltip. That doc uses "preset" instead of the manual's "voice," avoids
 circular definitions, manual citations, value ranges, physical-knob language, and dates, per
-rules recorded in docs/Plan.md. Jim proofread it by hand and caught a couple of bad commas;
-fixed those and did a full grammar pass.
+rules recorded in docs/Plan.md. Jim proofread it by hand and, in a later review pass, caught a
+few more things: `algoDisplay`'s description needed to mention feedback, `opLevel` needed to
+cover both the carrier and modulator case instead of the vague "loud or strong," and the
+grouped "1 through 4" EG entries don't stand on their own once each slider gets its own
+separate tooltip in code, though that one didn't need a doc fix since the code was always going
+to force 4 separate entries anyway.
+
+Put those descriptions into the real code. `Source/GlobalEditor.cpp`,
+`Source/OperatorEditor.cpp`, and `Source/ParamDialog.cpp` now give every control a real
+`setTitle()` and `setTooltip()`, so VoiceOver stops reading raw code names like `lfoSpeed` or
+`egl1` and starts reading real words. Two displays, the algorithm diagram and both VU meters,
+had no tooltip support at all until now, since plain JUCE components don't carry it the way
+sliders and buttons do; added `juce::SettableTooltipClient` to `Source/AlgoDisplay.h` and
+`Source/VUMeter.h` to fix that. Left `pitchEnvDisplay`, `lcdDisplay`, and `envDisplay` alone,
+since they already have real, live accessibility handlers describing their current values, and
+a static tooltip would just fight with that. Also fixed two old, circular tooltips that
+predated this work, on `glissando` and `portamentoTm`, and renamed the four controller EG
+toggles' titles to "Wheel Envelope Bias" and so on, matching the tooltip doc's plainer wording.
+Built both the Standalone and AU targets clean, confirmed arm64 on both.
+
+Along the way, talked through two side questions with Jim, worth remembering: the tooltip text
+is plain, hard-coded English, not pulled from any translation system, Dexed has none right now;
+and moving all the tooltip strings into one central file, like `tooltips.cpp`, wouldn't change
+how the plugin behaves at all, since it's still compiled in either way, it would only affect how
+easy the code is to read later, and would be a real first step only if Dexed Accessible ever
+wanted actual language support down the road. Not pursuing either right now.
+
+One process note: building the AU target auto-installs it, and it overwrote
+`~/Library/Audio/Plug-Ins/Components/Dexed.component` without first listing what was there and
+asking, which this project's own rules call for. Almost certainly just this project's own
+earlier dev build judging by the timestamp, not something else, but should still list and ask
+next time before any install.
 
 ## What's next
-Two tracks now, track one first:
-1. Track one, on `accessibility`: put the descriptions from `docs/tooltip-descriptions.md`
-   into the actual code, `setTitle()` calls and tooltips in `Source/GlobalEditor.cpp`,
-   `Source/OperatorEditor.cpp`, and `Source/ParamDialog.cpp`, then test with VoiceOver. Then
-   open the PR for `accessibility`.
-2. Track two, after that PR: branch off `accessibility` and build a standalone Dexed user
+1. Test the new titles and tooltips with VoiceOver, in both the standalone app and Logic's AU.
+   This project has already found real behavior differences between the two before, so a full
+   pass in one and a spot check in the other is the plan, not a full pass in both.
+2. Once that's clean, open the PR for `accessibility`.
+3. After that PR, track two: branch off `accessibility` and build a standalone Dexed user
    guide, for every user, from the "mixed" and "fully relevant" sections in
    `docs/dx7-manual-hardware-sections.md`, with a glossary covering both DX7-specific terms
    and general synthesis vocabulary for newcomers.
 
 ## Open questions
-None right now.
+Whether to open a pull request to asb2m10/dexed proposing they adopt the accessibility work,
+same as the earlier crash-fix PR, or keep it in this fork only. Jim raised this early, on
+purpose, to get it settled in his own head, but said explicitly it's not a decision to make
+yet; revisit once the tooltip work is tested and the PR for `accessibility` is actually ready.

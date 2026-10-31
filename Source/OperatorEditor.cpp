@@ -316,6 +316,53 @@ OperatorEditor::OperatorEditor ()
 
     background = lookAndFeel->imageOperator;
     opSwitch->setTitle("Operator switch");
+    opSwitch->setTooltip("Turns this operator on or off.");
+
+    s_egl1->setTitle("EG Level 1");
+    s_egl1->setTooltip("Sets this operator's loudness target at the first stage of its envelope.");
+    s_egl2->setTitle("EG Level 2");
+    s_egl2->setTooltip("Sets this operator's loudness target at the second stage of its envelope.");
+    s_egl3->setTitle("EG Level 3");
+    s_egl3->setTooltip("Sets this operator's loudness target at the third stage of its envelope.");
+    s_egl4->setTitle("EG Level 4");
+    s_egl4->setTooltip("Sets this operator's loudness target at the fourth stage of its envelope.");
+    s_egv1->setTitle("EG Rate 1");
+    s_egv1->setTooltip("Controls how quickly this operator's envelope moves toward its first target level.");
+    s_egv2->setTitle("EG Rate 2");
+    s_egv2->setTooltip("Controls how quickly this operator's envelope moves toward its second target level.");
+    s_egv3->setTitle("EG Rate 3");
+    s_egv3->setTooltip("Controls how quickly this operator's envelope moves toward its third target level.");
+    s_egv4->setTitle("EG Rate 4");
+    s_egv4->setTooltip("Controls how quickly this operator's envelope moves toward its fourth target level.");
+
+    opLevel->setTitle("Output Level");
+    opLevel->setTooltip("Sets how loud this operator is as a carrier, or how strongly it drives the operator it feeds as a modulator.");
+    opFine->setTitle("Frequency Fine");
+    opFine->setTooltip("Fine-tunes this operator's frequency within its coarse setting.");
+    opCoarse->setTitle("Frequency Coarse");
+    opCoarse->setTooltip("Sets this operator's frequency as a broad multiple of the base pitch.");
+    khzDisplay->setTitle("Frequency Readout");
+    khzDisplay->setTooltip("Shows this operator's current frequency as a number.");
+    detune->setTitle("Detune");
+    detune->setTooltip("Shifts this operator slightly sharp or flat.");
+
+    sclLeftLevel->setTitle("Keyboard Scale Level Left Depth");
+    sclRightLevel->setTitle("Keyboard Scale Level Right Depth");
+    sclLvlBrkPt->setTitle("Scale Level Breakpoint");
+    sclRateScaling->setTitle("Keyboard Rate Scaling");
+    keyVelSens->setTitle("Key Velocity Sensitivity");
+    keyVelSens->setTooltip("Controls how much this operator responds to how hard a key is struck.");
+    ampModSens->setTitle("Amplitude Modulation Sensitivity");
+    ampModSens->setTooltip("Controls how strongly the low frequency oscillator and controllers can waver this operator's volume.");
+
+    vu->setTitle("Operator Meter");
+    vu->setTooltip("Shows this operator's output level.");
+    opMode->setTitle("Oscillator Mode");
+    opMode->setTooltip("Switches this operator between following the keyboard's pitch and staying at one fixed frequency.");
+    kbdLeftCurve->setTitle("Keyboard Scaling Curve Left");
+    kbdLeftCurve->setTooltip("Chooses the shape of level change for keys below the breakpoint.");
+    kbdRightCurve->setTitle("Keyboard Scaling Curve Right");
+    kbdRightCurve->setTooltip("Chooses the shape of level change for keys above the breakpoint.");
 
     setWantsKeyboardFocus(true);
     //[/Constructor]
