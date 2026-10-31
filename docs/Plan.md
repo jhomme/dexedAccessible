@@ -246,9 +246,61 @@ Tasks in order. Checked items are done.
   Bias" and so on, matching the plainer wording already decided for the tooltip doc. Built
   both the Standalone and AU targets clean, confirmed arm64 on both. Not yet tested with
   VoiceOver.
-- [ ] Test the new titles and tooltips with VoiceOver, in both standalone and Logic's AU,
-  since this project has already found real behavior differences between the two before.
-  Then open the PR for `accessibility`. Not started.
+- [x] Tested the new titles and tooltips with VoiceOver, 2026-10-31. Found and fixed several
+  real bugs along the way:
+  - The real root cause of controls reading raw internal names: `Ctrl::bind()` in
+    `Source/PluginParam.cpp` was calling `setTitle(label)` with the raw DX7 parameter label on
+    every bound control, after the editor constructors had already set a proper title,
+    silently overwriting it. Removed that call from all three `bind()` overloads, for
+    sliders, buttons, and combo boxes.
+  - Four Operator 1 sliders, the left and right scale depth sliders, the breakpoint slider,
+    and the rate scaling slider, had leftover placeholder tooltips from before the real
+    tooltip text existed. Replaced them with the approved sentences from
+    `docs/tooltip-descriptions.md`. `Source/OperatorEditor.cpp`.
+  - The keyboard scaling curve pop-up buttons showed sighted users abbreviations, "-LN",
+    "-EX", "+EX", "+LN". Jim asked for those spelled out, "Linear decrease", "Exponential
+    decrease", "Exponential increase", "Linear increase", confirming this is fine for sighted
+    users to see too. The LCD readout's own separate copy of the same abbreviations, which
+    Jim wants left alone for the sake of players who know the original DX7, was not touched.
+    `Source/OperatorEditor.cpp`.
+  - The Oscillator Mode toggle button's tooltip didn't explain what on and off actually do.
+    Added: "When off, the frequency follows the notes you play. When on, the frequency
+    ignores the keyboard and stays fixed." `Source/OperatorEditor.cpp`.
+  - Reworded the cutoff and resonance tooltips in `Source/GlobalEditor.cpp` at Jim's direction,
+    dropping "a Dexed addition" language in favor of "not on the original DX7."
+  - Added "in half steps" to the transpose tooltip, `Source/GlobalEditor.cpp`.
+  - The algorithm diagram and the main output meter showed as empty, unexplained stops to
+    VoiceOver. Confirmed the algorithm diagram's information is already available from the
+    algo slider's own live description, and that the output meter has no live reading wired
+    up to VoiceOver at all. Hid both from accessibility entirely with `setAccessible(false)`,
+    `Source/GlobalEditor.cpp`, rather than leave them as empty stops that look like bugs.
+  - The six per-operator VU meters: initially kept, since they show genuinely live,
+    non-redundant information, combining envelope, velocity, keyboard scaling, and tremolo.
+    After further testing Jim confirmed none of that reaches VoiceOver as a live reading
+    either, so hid these too, same way, `Source/OperatorEditor.cpp`.
+  - The keyboard's scroll-down-an-octave and scroll-up-an-octave buttons had titles but no
+    tooltips explaining what they do. Added both. `Source/PluginEditor.cpp`.
+  - Opening Function Settings announced an unnamed "empty group." Gave the dialog itself a
+    real title, "Function Settings." `Source/ParamDialog.cpp`.
+  - Four buttons in Function Settings, Scale, Keyboard Mapping, Show Tuning, and Reset Tuning,
+    had the word "Button" baked into their own titles, so VoiceOver said "button" twice.
+    Dropped the word from all four. `Source/ParamDialog.cpp`.
+  - VoiceOver could arrow past the cartridge manager's last control and escape onto Operator
+    1 and the rest of the main window behind it, instead of hitting a wall. Added
+    `DexedAudioProcessorEditor::setMainUIAccessible()`, which turns accessibility off for the
+    six operators, the global section, and the on-screen keyboard while the cartridge dialog
+    is open, and back on when it closes. `Source/PluginEditor.cpp`, `Source/PluginEditor.h`,
+    `Source/CartManager.cpp`. First built covering only the operators and global section; a
+    later test found the on-screen keyboard was still reachable too, so added it to the same
+    fix.
+  - Opening Function Settings landed VoiceOver on the dialog's own empty group instead of its
+    first real control. The dialog was grabbing keyboard focus for itself, rather than for the
+    pitch bend range up slider, which is the control meant to come first. Changed
+    `ParamDialog::timerCallback()` to grab focus on that slider directly, the same pattern
+    already used for the cartridge browser's own initial focus. `Source/ParamDialog.cpp`.
+  Built and installed the AU and Standalone several times through this round of fixes,
+  confirmed arm64 each time. Next: Jim's own VoiceOver pass over all of this in Logic, then
+  open the PR for `accessibility`.
 - [ ] Track two, after the `accessibility` PR: branch off `accessibility` and build a
   standalone Dexed user guide, covering the "mixed" and "fully relevant" sections from
   `docs/dx7-manual-hardware-sections.md`, for every user, not just accessibility source

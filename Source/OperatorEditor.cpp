@@ -194,7 +194,7 @@ OperatorEditor::OperatorEditor ()
 
     sclLeftLevel.reset (new DXSlider ("sclLeftLevel"));
     addAndMakeVisible (sclLeftLevel.get());
-    sclLeftLevel->setTooltip (TRANS ("Keyboard Scale Level Left Depth "));
+    sclLeftLevel->setTooltip (TRANS ("Sets how much this operator's level changes for keys below the breakpoint."));
     sclLeftLevel->setExplicitFocusOrder (16);
     sclLeftLevel->setRange (0, 99, 1);
     sclLeftLevel->setSliderStyle (juce::Slider::RotaryVerticalDrag);
@@ -205,7 +205,7 @@ OperatorEditor::OperatorEditor ()
 
     sclRightLevel.reset (new DXSlider ("sclRightLevel"));
     addAndMakeVisible (sclRightLevel.get());
-    sclRightLevel->setTooltip (TRANS ("Keyboard Scale Level Right Depth "));
+    sclRightLevel->setTooltip (TRANS ("Sets how much this operator's level changes for keys above the breakpoint."));
     sclRightLevel->setExplicitFocusOrder (18);
     sclRightLevel->setRange (0, 99, 1);
     sclRightLevel->setSliderStyle (juce::Slider::RotaryVerticalDrag);
@@ -216,7 +216,7 @@ OperatorEditor::OperatorEditor ()
 
     sclLvlBrkPt.reset (new DXSlider ("sclLvlBrkPt"));
     addAndMakeVisible (sclLvlBrkPt.get());
-    sclLvlBrkPt->setTooltip (TRANS ("Scale Level Breakpoint"));
+    sclLvlBrkPt->setTooltip (TRANS ("Sets the keyboard key that keyboard level scaling measures from."));
     sclLvlBrkPt->setExplicitFocusOrder (17);
     sclLvlBrkPt->setRange (0, 99, 1);
     sclLvlBrkPt->setSliderStyle (juce::Slider::LinearHorizontal);
@@ -227,7 +227,7 @@ OperatorEditor::OperatorEditor ()
 
     sclRateScaling.reset (new DXSlider ("sclRateScaling"));
     addAndMakeVisible (sclRateScaling.get());
-    sclRateScaling->setTooltip (TRANS ("Keyboard Rate Scaling"));
+    sclRateScaling->setTooltip (TRANS ("Controls how much faster this operator's envelope runs for higher keys."));
     sclRateScaling->setExplicitFocusOrder (20);
     sclRateScaling->setRange (0, 7, 1);
     sclRateScaling->setSliderStyle (juce::Slider::RotaryVerticalDrag);
@@ -300,17 +300,17 @@ OperatorEditor::OperatorEditor ()
     light = lookAndFeel->imageLight;
     Image tmp = lookAndFeel->imageScaling;
     
-    kbdLeftCurve->addItem("-LN", 1);
-    kbdLeftCurve->addItem("-EX", 2);
-    kbdLeftCurve->addItem("+EX", 3);
-    kbdLeftCurve->addItem("+LN", 4);
+    kbdLeftCurve->addItem("Linear decrease", 1);
+    kbdLeftCurve->addItem("Exponential decrease", 2);
+    kbdLeftCurve->addItem("Exponential increase", 3);
+    kbdLeftCurve->addItem("Linear increase", 4);
     int posLeft[] = {0,5,4,3};
     kbdLeftCurve->setImage(tmp, posLeft);
 
-    kbdRightCurve->addItem("-LN", 1);
-    kbdRightCurve->addItem("-EX", 2);
-    kbdRightCurve->addItem("+EX", 3);
-    kbdRightCurve->addItem("+LN", 4);
+    kbdRightCurve->addItem("Linear decrease", 1);
+    kbdRightCurve->addItem("Exponential decrease", 2);
+    kbdRightCurve->addItem("Exponential increase", 3);
+    kbdRightCurve->addItem("Linear increase", 4);
     int posRight[] = {3,2,1,0};
     kbdRightCurve->setImage(tmp, posRight);
 
@@ -355,10 +355,12 @@ OperatorEditor::OperatorEditor ()
     ampModSens->setTitle("Amplitude Modulation Sensitivity");
     ampModSens->setTooltip("Controls how strongly the low frequency oscillator and controllers can waver this operator's volume.");
 
-    vu->setTitle("Operator Meter");
-    vu->setTooltip("Shows this operator's output level.");
+    // Same reasoning as the main output meter in GlobalEditor.cpp: no live reading reaches
+    // VoiceOver yet, so landing on it just produces an empty stop. Hidden until it has
+    // something real to say.
+    vu->setAccessible(false);
     opMode->setTitle("Oscillator Mode");
-    opMode->setTooltip("Switches this operator between following the keyboard's pitch and staying at one fixed frequency.");
+    opMode->setTooltip("When off, the frequency follows the notes you play. When on, the frequency ignores the keyboard and stays fixed.");
     kbdLeftCurve->setTitle("Keyboard Scaling Curve Left");
     kbdLeftCurve->setTooltip("Chooses the shape of level change for keys below the breakpoint.");
     kbdRightCurve->setTitle("Keyboard Scaling Curve Right");

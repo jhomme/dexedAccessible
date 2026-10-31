@@ -93,10 +93,14 @@ DexedAudioProcessorEditor::DexedAudioProcessorEditor (DexedAudioProcessor* owner
     // visible octave range. They are its only two child components, always in this order,
     // and JUCE never gives them a name, so VoiceOver reports them as unlabeled. Name them
     // here instead of patching vendored JUCE code.
-    if (auto *scrollDown = midiKeyboard.getChildComponent(0))
+    if (auto *scrollDown = dynamic_cast<Button*>(midiKeyboard.getChildComponent(0))) {
         scrollDown->setTitle("Scroll Keyboard Down an Octave");
-    if (auto *scrollUp = midiKeyboard.getChildComponent(1))
+        scrollDown->setTooltip("Moves the visible range of the on-screen keyboard down by one octave.");
+    }
+    if (auto *scrollUp = dynamic_cast<Button*>(midiKeyboard.getChildComponent(1))) {
         scrollUp->setTitle("Scroll Keyboard Up an Octave");
+        scrollUp->setTooltip("Moves the visible range of the on-screen keyboard up by one octave.");
+    }
 
     frameComponent.addAndMakeVisible(&global);
     global.setBounds(2,436,864,144);
@@ -138,7 +142,21 @@ void DexedAudioProcessorEditor::cartShow() {
     cartManager.setBounds(16, 16, cartManagerCover.getWidth() - 32, cartManagerCover.getHeight() - 32);
     cartManager.updateCartFilename();
     cartManagerCover.setVisible(true);
+
+    // The cartridge manager isn't a real modal window, so it doesn't block keyboard or MIDI
+    // input to the rest of the plugin, on purpose, to keep playing notes while browsing.
+    // But that also means VoiceOver can walk straight out of it into the operators behind
+    // it. Hiding the rest of the UI from accessibility while this is open stops that.
+    setMainUIAccessible(false);
+
     cartManager.initialFocus();
+}
+
+void DexedAudioProcessorEditor::setMainUIAccessible(bool accessible) {
+    for (int i = 0; i < 6; i++)
+        operators[i].setAccessible(accessible);
+    global.setAccessible(accessible);
+    midiKeyboard.setAccessible(accessible);
 }
 
 std::unique_ptr<ComponentTraverser> DexedAudioProcessorEditor::createFocusTraverser() {

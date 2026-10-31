@@ -1066,3 +1066,98 @@ goal. Not pursuing either translation or centralizing the tooltip text right now
 
 Updated Plan.md and BOOKMARK.md to reflect all of this and the real next step: VoiceOver
 testing in both the standalone app and Logic's AU, then opening the PR for `accessibility`.
+
+## 2026-10-31: VoiceOver testing of the new titles and tooltips turned up real bugs
+Jim tested the titles and tooltips work from the previous session in Logic, reopening the same
+project without a Dexed track loaded first, which ruled out any stale-cache explanation for
+what he found.
+
+The first and biggest bug: several controls were reading their raw internal DX7 names instead
+of the new titles. Traced this to `Ctrl::bind()` in `Source/PluginParam.cpp`, which was calling
+`setTitle(label)` on every bound control using the raw parameter label, after the editor
+constructors had already set a proper title. The bind call ran later and silently overwrote
+the good title. Removed that call from all three `bind()` overloads, for sliders, buttons, and
+combo boxes, after checking every bound control project-wide already had its own correct title
+from its constructor, so nothing would end up unnamed.
+
+Second bug, found by Jim testing Operator 1 specifically: four sliders, left and right scale
+depth, breakpoint, and rate scaling, still had old placeholder tooltips left over from before
+the real tooltip text existed, nearly identical to their titles. Replaced them with the
+sentences already approved in `docs/tooltip-descriptions.md`. Jim expects this and the
+`Ctrl::bind()` fix to apply across all six operators, not just Operator 1, since the code is
+shared.
+
+Jim then asked about the keyboard scaling curve pop-up buttons, which use abbreviations, "-LN",
+"-EX", "+EX", "+LN". Explained that JUCE's pop-up menu items have no separate tooltip or
+description field at all, confirmed in `juce_PopupMenu.h`, only text, an icon, and a shortcut
+key description, so a pop-up menu choice can't carry a longer explanation the way a slider or
+button can. Jim decided to spell the abbreviations out instead, "Linear decrease", "Exponential
+decrease", "Exponential increase", "Linear increase", accepting that sighted users will see the
+same spelled-out words in the open list. Left the LCD readout's own separate copy of the
+abbreviations untouched, since Jim wants that kept exactly as the original DX7 showed it, for
+players who already know the hardware.
+
+Worked through a batch of smaller items after that, each confirmed with Jim before changing
+anything:
+- Oscillator Mode's tooltip now explains what on and off actually do, after a few rounds of
+  wording.
+- Reworded the cutoff and resonance tooltips in `Source/GlobalEditor.cpp`, dropping "a Dexed
+  addition" language for "not on the original DX7," exact wording from Jim after two guesses
+  of mine missed what he wanted.
+- Added "in half steps" to the transpose tooltip.
+- Traced the DSP code to answer two of Jim's side questions: `lfoDelay` genuinely is
+  calibrated to real seconds internally, confirmed in `Source/msfa/lfo.cc`, though the UI never
+  exposes that; and `lfoPitchDepth` only ever affects the LFO's own vibrato contribution, never
+  the mod wheel, breath, or aftertouch path, confirmed in `Source/msfa/dx7note.cc`. Also walked
+  through how vibrato and tremolo are controlled overall, surfacing a real asymmetry: pitch mod
+  sensitivity is one global parameter, amplitude mod sensitivity is set separately per operator.
+
+Looked into whether the empty "Algorithm diagram" and "Output meter" groups show VoiceOver
+anything useful. Checked the DSP code, `Dx7Note::peekVoiceStatus()` and `PluginProcessor.cpp`'s
+`vuSignal`, and confirmed the meters do carry genuinely live, non-redundant data, but none of it
+currently reaches VoiceOver as a spoken reading. After going back and forth on this, Jim's
+final call: hide the algorithm diagram and the main output meter from accessibility entirely,
+`setAccessible(false)` in `Source/GlobalEditor.cpp`, since the diagram's info is already
+available from the algo slider and the meter has nothing to say. The six per-operator meters
+were initially kept, since they summarize real per-operator behavior, but after further
+VoiceOver testing Jim confirmed those don't speak either, and asked to hide them the same way,
+`Source/OperatorEditor.cpp`.
+
+Jim found two more missing tooltips, the keyboard's scroll-down-an-octave and
+scroll-up-an-octave buttons, which had titles but no explanation. Added both,
+`Source/PluginEditor.cpp`.
+
+While exploring the rest of the global section, Jim asked how the cartridge file browser's
+three-list table works; walked through `Source/CartManager.cpp` in full. That led to two more
+real fixes:
+- VoiceOver could arrow past the cartridge manager's last control and escape onto Operator 1
+  and the rest of the main window behind it, instead of hitting a wall, since the manager uses
+  a hand-rolled keyboard focus traverser that only affects the Tab key, not VoiceOver's own
+  arrow-key navigation through the real component tree. Added
+  `DexedAudioProcessorEditor::setMainUIAccessible()`, turning accessibility off for the six
+  operators and the global section while the cartridge dialog is open, restored when it closes.
+  `Source/PluginEditor.cpp`, `Source/PluginEditor.h`, `Source/CartManager.cpp`. A later test
+  found the on-screen keyboard was still reachable too, so extended the same fix to cover it.
+- Opening Function Settings announced an unnamed "empty group." The dialog itself, `ParamDialog`,
+  had never been given a title. Added one, "Function Settings." `Source/ParamDialog.cpp`.
+
+Jim separately found four buttons in Function Settings, Scale, Keyboard Mapping, Show Tuning,
+and Reset Tuning, each saying "button" twice, since the word "Button" was baked into their own
+titles on top of VoiceOver's own announcement of the button role. Dropped the word from all
+four.
+
+Built and reinstalled the AU and Standalone several times across this round of fixes, each
+time confirmed arm64, each time asked before overwriting the existing AU at
+`~/Library/Audio/Plug-Ins/Components/Dexed.component`.
+
+One more bug, found after the batch above was already tested: opening Function Settings landed
+VoiceOver on the dialog's own empty group rather than its first real control, the pitch bend
+range up slider. The constructor starts a short timer that calls `grabKeyboardFocus()` on the
+whole dialog, rather than on any specific control, even though every control already has an
+explicit tab order set, with the pitch bend slider first. Changed
+`ParamDialog::timerCallback()` to grab focus on that slider directly instead, the same pattern
+`CartManager::initialFocus()` already uses for the cartridge browser. Built and reinstalled the
+AU again to cover this.
+
+Not yet tested by Jim in Logic: the full accumulated set of fixes above. Updated Plan.md and
+BOOKMARK.md.

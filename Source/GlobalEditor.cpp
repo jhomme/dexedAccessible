@@ -483,9 +483,9 @@ GlobalEditor::GlobalEditor ()
     oscSync->setTooltip("Turns on or off whether every operator starts from the same point in its cycle for every note.");
 
     cutoff->setTitle("Filter Cutoff");
-    cutoff->setTooltip("Sets the cutoff point of the resonant filter, a Dexed addition not on the original DX7.");
+    cutoff->setTooltip("Sets the cutoff point of the resonant filter, not on the original DX7.");
     reso->setTitle("Filter Resonance");
-    reso->setTooltip("Sets how much the resonant filter emphasizes frequencies near its cutoff point, a Dexed addition not on the original DX7.");
+    reso->setTooltip("Sets how much the resonant filter emphasizes frequencies near its cutoff point, not on the original DX7.");
 
     pitchRate1->setTitle("Pitch EG Rate 1");
     pitchRate1->setTooltip("Controls how quickly the pitch envelope moves toward its first target level.");
@@ -505,7 +505,7 @@ GlobalEditor::GlobalEditor ()
     pitchLevel4->setTooltip("Sets the pitch envelope's fourth target, above, below, or at standard pitch.");
 
     transpose->setTitle("Transpose");
-    transpose->setTooltip("Shifts the whole keyboard's pitch up or down.");
+    transpose->setTooltip("Shifts the whole keyboard's pitch up or down in half steps.");
     pitchModSens->setTitle("Pitch Modulation Sensitivity");
     pitchModSens->setTooltip("Controls how strongly the low frequency oscillator and controllers can waver this preset's pitch.");
     feedback->setTitle("Feedback");
@@ -526,10 +526,14 @@ GlobalEditor::GlobalEditor ()
     programSelector->setTitle("Preset Selector");
     programSelector->setTooltip("Lists the available presets for selection.");
 
-    algoDisplay->setTitle("Algorithm Diagram");
-    algoDisplay->setTooltip("Shows how the 6 operators connect to each other, which ones are turned on, and which ones have feedback.");
-    vuOutput->setTitle("Output Meter");
-    vuOutput->setTooltip("Shows the overall output level.");
+    // Purely a picture, with nothing else to tell VoiceOver, since the algo slider already
+    // carries a live spoken description of the current algorithm. Hidden instead of leaving
+    // it as an empty, confusing stop.
+    algoDisplay->setAccessible(false);
+
+    // No live reading reaches VoiceOver from this meter yet, so landing on it just produces
+    // an empty stop. Hidden until it has something real to say.
+    vuOutput->setAccessible(false);
     //[/Constructor]
 }
 

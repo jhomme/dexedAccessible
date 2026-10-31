@@ -436,6 +436,7 @@ void CartManager::initialFocus() {
 
 void CartManager::hideCartridgeManager() {
         mainWindow->startTimer(100);
+        mainWindow->setMainUIAccessible(true);
         getParentComponent()->setVisible(false);
 }
 

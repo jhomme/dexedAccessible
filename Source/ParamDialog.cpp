@@ -34,6 +34,7 @@
 ParamDialog::ParamDialog ()
 {
     //[Constructor_pre] You can add your own custom stuff here..
+    setTitle("Function Settings");
     //[/Constructor_pre]
 
     pitchRangeDn.reset (new juce::Slider ("pitchRangeDn"));
@@ -423,10 +424,10 @@ ParamDialog::ParamDialog ()
     ftPitch->setTitle("Foot Pitch");
     brPitch->setTitle("Breath Pitch");
     atPitch->setTitle("After Touch Pitch");
-    sclButton->setTitle("Scale Button");
-    kbmButton->setTitle("Keyboard Mapping Button");
-    showTunButton->setTitle("Show Tuning Button");
-    resetTuningButton->setTitle("Reset Tuning Button");
+    sclButton->setTitle("Scale");
+    kbmButton->setTitle("Keyboard Mapping");
+    showTunButton->setTitle("Show Tuning");
+    resetTuningButton->setTitle("Reset Tuning");
     transposeScale->setTitle("Transpose Scale");
     mpePBRange->setTitle("MPE Pitch Bend Range");
     mpeEnabled->setTitle("MPE Enabled");
@@ -1327,7 +1328,7 @@ void ParamDialog::setIsStandardTuning( bool b )
 // the only way I have found (including on the JUCE forum).
 void ParamDialog::timerCallback() {
     stopTimer();
-    grabKeyboardFocus();
+    pitchRangeUp->grabKeyboardFocus();
 }
 
 //[/MiscUserCode]

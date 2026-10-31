@@ -68,6 +68,7 @@ public:
     void cartShow();
     void parmShow();
     void tuningShow();
+    void setMainUIAccessible(bool accessible);
     void discoverMidiCC(Ctrl *ctrl);
 
     static float getLargestScaleFactor();
