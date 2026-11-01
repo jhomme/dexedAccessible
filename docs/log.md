@@ -1276,3 +1276,49 @@ fork, decide a version scheme separate from upstream's, decide on Mac code signi
 the outstanding working-tree changes, then tag and push the first release. Updated
 bookmark.md's "What's next" to point at this checklist, with turning on GitHub Actions as
 the immediate next step.
+
+## 2026-10-31: turned on GitHub Actions for the fork, and a real CI run found two real bugs
+Installing GitHub's command line tool, `gh`, needed Homebrew first. Checked for it with
+`which brew` and found nothing, so installed Homebrew fresh, had Jim log into `gh` himself,
+and used it to check the fork's Actions settings. Jim later pointed out he already had
+Homebrew. He was right: it's at `/usr/local/Homebrew`, from 2019, reachable from his normal
+Terminal the whole time. The `which brew` check that said otherwise ran inside this tool's own
+shell, which uses a stripped-down PATH, `/usr/bin:/bin:/usr/sbin:/sbin`, that never included
+`/usr/local/bin` in the first place. Confirmed nothing of Jim's was touched, no shell profile
+file changed today, so his normal Terminal use is unaffected; there's just a second, unused
+Homebrew now at `/opt/homebrew`. Jim's call: leave both as they are rather than clean it up.
+Lesson: check real install locations directly, or ask, rather than trust one `which` call in
+this tool's shell.
+
+Checked the fork's Actions permissions through `gh`; they showed enabled. That turned out to
+be a different setting than the one that actually mattered: GitHub separately disables a
+fork's own workflows the first time, with a banner and a button on the Actions tab, confirmed
+by searching for how others had hit the same confusing "enabled: true but still won't run"
+state. No API does this; Jim clicked the button himself on github.com.
+
+Pushed the two commits already sitting locally to confirm Actions genuinely worked now, then
+an empty test commit, `fba4c3c`, once workflows showed up as registered but had never run.
+Watched the resulting build in the background rather than block on it. Final result: Linux
+passed; Windows and macOS both failed, so GitHub skipped publishing a Nightly release, which
+only happens when all three succeed.
+
+Read the actual failure logs rather than guess. Windows failed on a missing `jack/jack.h`;
+macOS failed immediately importing a code-signing certificate that doesn't exist on this fork,
+confirmed as `##[error]At least one of p12-filepath or p12-file-base64 must be provided`, from
+the `apple-actions/import-codesign-certs` step. That step has no graceful skip when the
+secret's missing, unlike `assets/installers/make_macos_pkg.sh`'s own signing logic, which does
+degrade gracefully; the earlier release-scoping session had only checked the packaging script,
+not this earlier step, and missed that this one fails hard.
+
+Jim asked to confirm the Windows cause before fixing anything: checked `Source/CMakeLists.txt`
+directly and found `JUCE_JACK=1` set with no platform check at all, on every target, while the
+`JUCE_ALSA` line right next to it correctly checks `DEXED_ALSA`. JACK is a Linux audio system;
+nothing about Windows should want it. Confirmed this was a plain oversight, not intentional,
+and told Jim yes before changing anything.
+
+Fixed it: `JUCE_JACK=$<IF:$<PLATFORM_ID:Linux>,1,0>`, same generator-expression pattern already
+used for `JUCE_ALSA`, in both places it was set, the real plugin target and `DexedTests`. Built
+locally, confirmed arm64, ran `DexedTests`, passing. Not yet pushed or re-tested in CI.
+
+Still open: the macOS signing-import failure, not yet fixed. Added both as entries in
+docs/Plan.md.

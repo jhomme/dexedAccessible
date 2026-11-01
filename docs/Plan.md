@@ -83,6 +83,15 @@ acceptance.md instead, and link back here.
 - [ ] Decide on Mac code signing for release installers: get an Apple Developer ID to sign
   them, or ship unsigned with instructions for getting past Gatekeeper. Not started.
 - [ ] Commit the outstanding working-tree changes before tagging anything. Not started.
+- [x] First real GitHub Actions run on the fork surfaced two real build breaks: `JUCE_JACK=1`
+  was set unconditionally in `Source/CMakeLists.txt`, so Windows failed looking for a Linux-only
+  header, and the macOS job fails up front importing a code-signing certificate that doesn't
+  exist on this fork. Fixed the JACK one: gated it to Linux only, matching how `JUCE_ALSA`
+  already checks the platform. Built and ran DexedTests locally, confirmed arm64, both passing.
+  The macOS signing-import failure is still open; see the next item.
+- [ ] Fix the macOS CI job failing outright on the code-signing import step, since this fork
+  has no Apple signing certificate. Needs the workflow to skip that step instead of failing
+  when the secret isn't set. Not started.
 - [ ] Tag and push the first release, once the above and Jim's VoiceOver pass are done.
   Not started.
 - [ ] Track two, after the release is out: build a standalone Dexed user guide on a new
