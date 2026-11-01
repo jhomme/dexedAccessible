@@ -72,3 +72,7 @@ Waiting on Jim's decision: whether to fix the gap in global CLAUDE.md that let
 docs/acceptance.md fall behind, add a template project folder under his Claude folder with
 the doc skeletons built in, or both. Recommendation given but not yet approved; this touches
 files outside this project, so needs his go-ahead before anything changes.
+
+Jim's VoiceOver pass over the latest round of fixes came back clean, 2026-11-01. The release
+checklist is otherwise done. He's holding off on tagging v0.1.0 until he understands some
+things first; he hasn't said what yet.
