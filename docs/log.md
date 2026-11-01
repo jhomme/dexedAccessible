@@ -1395,3 +1395,40 @@ like a continuation of upstream's own numbering.
 Fixed it: changed that line to `VERSION 0.1.0`, matching the release scheme Jim already
 settled on. Rebuilt locally, confirmed arm64, ran `DexedTests`, both passing. Not yet
 pushed.
+
+## 2026-11-01: tagged and pushed v0.1.0, then fixed a release permission bug
+Jim confirmed his VoiceOver pass was clean and gave the go-ahead to tag the real release.
+Pushed the annotated tag `v0.1.0` at commit `42eabc3`. `gh run list` showed it triggered a
+real build keyed to the tag, confirming the path-filter caveat from the entry above was not
+a problem this time.
+
+All three platform builds succeeded, and the version fix from the entry above worked: every
+file came out named with "0.1.0", not "1.0.1". But the job that actually creates the GitHub
+release, `publish-release`, failed with a 403, "Resource not accessible by integration."
+Checked the repo's default workflow token permission and found it set to read only, which
+blocks the release-creation action from creating a release or uploading files to it. No
+partial or draft release was created; the failure happened before anything was written.
+
+Fixed it by scoping `permissions: contents: write` to just the `publish-release` job in
+`.github/workflows/project-pipeline.yml`, rather than turning on write access for every job
+repo-wide. Jim chose this over the repo-wide setting after hearing both options, since it
+keeps the three build jobs read only. Committed as `167d038`, pushed to `accessibility`.
+
+Since the existing `v0.1.0` tag pointed at the old commit without this fix, and no real
+release had ever been created under it, moved the tag: deleted it locally and on GitHub,
+then recreated it on `167d038` and pushed it again. The retried build succeeded end to end,
+including `publish-release`. Confirmed with `gh release view v0.1.0` that a real,
+non-draft, non-prerelease release now exists with all three platform installers, both
+checksum files, and the source tarball attached.
+
+## 2026-11-01: removed the nightly publish job
+Jim noticed a flood of failure emails from GitHub Actions. Every push to `accessibility`
+was still running a `publish-nightly` job, separate from the real release path, that tries
+to clear out old files on a release called "Nightly" before uploading new ones. No
+"Nightly" release has ever existed on this fork, so that step failed immediately every
+time, on every branch push, nightly build or not.
+
+Gave Jim two options: bootstrap a real Nightly release by hand so the existing logic would
+start working, or remove the job entirely since nightly builds are not something this fork
+plans to use. He chose removal. Deleted the `publish-nightly` job from
+`.github/workflows/project-pipeline.yml`, committed as `abb2935`, pushed to `accessibility`.

@@ -98,9 +98,8 @@ acceptance.md instead, and link back here.
   `paths-ignore` to `.github/workflows/project-pipeline.yml`'s push trigger, confirmed
   working with a real readme-only push, 2026-11-01. See log.md for a caveat worth checking
   when the real release tag gets pushed.
-- [ ] Tag and push the first release, once Jim's VoiceOver pass over the latest round of
-  fixes is done. When that happens, check `gh run list` right after, don't assume the build
-  ran, per the path-filter caveat above. Not started.
+- [x] Tag and push the first release. `v0.1.0`, 2026-11-01. The release-creation job first
+  failed on a missing permission; fixed and retagged. See log.md.
 - [x] Fix the version number baked into the actual release files, separate from the version
   the git tag carries. `CMakeLists.txt`'s `project(Dexed VERSION 1.0.1)`, left over from
   before this project forked away from upstream, feeds the installer's real file names and
@@ -108,6 +107,10 @@ acceptance.md instead, and link back here.
   build's artifacts and finding "1.0.1" baked into every file name. Changed to
   `VERSION 0.1.0` to match the release scheme. Built and ran DexedTests locally, confirmed
   arm64, both passing, 2026-11-01.
+- [x] Fix the real GitHub release failing to get created: the workflow's automatic token had
+  only read access, so the release-creation job got a 403. Scoped write access to just that
+  job in `.github/workflows/project-pipeline.yml`, `167d038`, 2026-11-01. Confirmed a real,
+  non-draft release now exists with all three platform installers attached.
 - [ ] Track two, after the release is out: build a standalone Dexed user guide on a new
   branch off `accessibility`, covering the "mixed" and "fully relevant" manual sections, with
   a glossary for newcomers to synthesis. Not started.
