@@ -1355,3 +1355,21 @@ actual tag will need the "v" prefix, v0.1.0, since this project's CI already str
 first character off a tag name to get the version it reports, the same pattern upstream's
 own tags, v0.9.1 through v1.1.0, already use. Confirmed with Jim before recording this as
 settled.
+
+## 2026-11-01: doc-only pushes no longer trigger the full build
+Jim asked directly whether editing the readme or docs/ would still kick off all three
+platform builds. Checked the workflow: yes, it had no file filter at all, any push
+triggered everything regardless of what changed. Added `paths-ignore` to the push trigger
+in `.github/workflows/project-pipeline.yml`, covering `docs/**`, `BOOKMARK.md`, `README.md`,
+`Documentation/**`, and `diff.md`. The `.github` folder itself was deliberately left out of
+that list, since we're actively relying on pushes to test workflow fixes right now.
+
+One thing to watch for later, not fully resolved: whether this path filter could also
+accidentally skip a real build when the actual version tag gets pushed, if that push
+happens to introduce no file changes of its own. Searched for a clear answer and found
+mixed, not fully authoritative information; the most concrete source said tag pushes
+aren't affected by path filters at all, but couldn't confirm that against GitHub's current
+official docs. Given every tagged commit on this project has included real code changes
+alongside any doc changes so far, the practical risk looks low, but when the actual v0.1.0
+tag gets pushed, check with `gh run list` right after, the same way we checked every push
+today, and don't assume it ran.

@@ -6,6 +6,12 @@ on:
       - '*'
     tags:
       - '*'
+    paths-ignore:
+      - 'docs/**'
+      - 'BOOKMARK.md'
+      - 'README.md'
+      - 'Documentation/**'
+      - 'diff.md'
   pull_request:
     branches: [ master ]
 

@@ -97,8 +97,12 @@ acceptance.md instead, and link back here.
   real certificate later. See deviations.md. Made the import step skip itself when the
   certificate secret is missing, instead of failing the whole job, in
   `.github/workflows/project-pipeline.yml`. Not yet pushed or re-tested in CI.
+- [x] Stop doc-only pushes from triggering the full three-platform build. Added
+  `paths-ignore` to `.github/workflows/project-pipeline.yml`'s push trigger, 2026-11-01. See
+  log.md for a caveat worth checking when the real release tag gets pushed.
 - [ ] Tag and push the first release, once the above and Jim's VoiceOver pass are done.
-  Not started.
+  When that happens, check `gh run list` right after, don't assume the build ran, per the
+  path-filter caveat above. Not started.
 - [ ] Track two, after the release is out: build a standalone Dexed user guide on a new
   branch off `accessibility`, covering the "mixed" and "fully relevant" manual sections, with
   a glossary for newcomers to synthesis. Not started.
