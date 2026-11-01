@@ -1,36 +1,26 @@
 # Bookmark
 
 ## Where we are
-v0.1.0 is still the only published release. Since then, a different Claude session, asked to
-teach Jim how to publish a locally edited README, found that the plugin's build identity
-still exactly matched the original Dexed: same manufacturer code, plugin code, and bundle ID.
-That's a real clash risk for anyone with both the real Dexed and this fork installed. Jim
-chose DexedAccessible as the new name, and that rename is now done, built, and tested.
+v0.2.0 is out and confirmed real, with all three platforms' installers, both checksum
+files, and the source tarball, at
+https://github.com/jhomme/dexedAccessible/releases/tag/v0.2.0.
 
-What's done, all confirmed working with VoiceOver in Logic, 2026-11-01:
-- Renamed the plugin's identity everywhere it lives: `Source/CMakeLists.txt`,
-  `CMakeLists.txt`, both installer scripts, and two source files that picked folder and log
-  names (`Source/PluginData.cpp`, `Source/PluginProcessor.cpp`). See docs/log.md and
-  docs/deviations.md.
-- Hit and fixed two local-machine problems along the way: a mismatched `cmake` that produced
-  x86_64-only binaries, and a stale macOS plugin cache that kept the renamed AU from loading
-  in Logic until a restart. See docs/log.md.
-- Fixed the About box: button name, dialog title, swapped the first link from the original
-  Dexed site to this fork's repo, added a link to the releases/latest page, and made the
-  credits text readable by VoiceOver for the first time, since it had only ever been painted
-  graphics.
-- Bumped the version number to 0.2.0 in both places that carry one, since the rename breaks
-  projects saved under v0.1.0.
-- Added a paragraph to README.md and announcement.md pointing at the releases/latest page,
-  instead of per-file links that go stale every release.
+This release renames the plugin away from the original Dexed. A different Claude session,
+asked to teach Jim how to publish a locally edited README, found the plugin's build identity
+still exactly matched the original: same manufacturer code, plugin code, and bundle ID, a
+real clash risk for anyone with both installed. Jim chose DexedAccessible as the new name.
+That rename is done, built, tested with VoiceOver in Logic, committed, and released. Full
+account in docs/log.md and docs/deviations.md, entries dated 2026-11-01.
 
-None of this is committed or pushed yet. Jim's VoiceOver testing of all of it came back
-clean, nothing else found.
+Along the way, also fixed: a mismatched local `cmake` that produced x86_64-only binaries, a
+stale macOS plugin cache that kept the renamed AU from loading in Logic, two leftover "Dexed"
+references in the About box that the rename missed on the first pass, the About box's
+credits text never having been readable by VoiceOver at all, and a GitHub Actions macOS
+runner image, `macos-14`, that GitHub retired the day after it broke this release's first
+build attempt.
 
 ## What's next
-1. Get Jim's go-ahead on the commit, then commit.
-2. Tag and push `v0.2.0`, same release process as last time.
-3. Send the announcement (announcement.md, gitignored, not committed) once the new release is
+1. Send the announcement (announcement.md, gitignored, not committed) now that v0.2.0 is
    confirmed real.
 
 After that:
