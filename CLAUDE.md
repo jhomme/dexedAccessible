@@ -79,7 +79,7 @@ mkdir build && cd build
 cmake .. -DJUCE_COPY_PLUGIN_AFTER_BUILD=TRUE
 cmake --build .
 ```
-Binaries land in `build/Source/Dexed_artefacts`.
+Binaries land in `build/Source/DexedAccessible_artefacts`.
 
 Useful CMake options:
 - `-DBUILD_ID=<id>` sets `DEXED_ID`, used for nightly or release version stamping. CI sets
@@ -165,6 +165,12 @@ and `DexedResources`.
 - Before installing a build, list every existing Dexed copy in `/Applications`,
   `/Library/Audio/Plug-Ins`, and `~/Library/Audio/Plug-Ins`, with its architecture. Ask before
   overwriting or deleting any of them.
+
+## Session start
+
+- At the start of a session, read only `bookmark.md` and `docs/Plan.md`. Do not read
+  `docs/log.md` unless Jim asks, or a task needs one specific past entry. The log is over
+  100 KB, and reading it at start makes every session costly.
 
 ## Plan
 

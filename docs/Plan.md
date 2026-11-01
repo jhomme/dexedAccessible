@@ -114,3 +114,18 @@ acceptance.md instead, and link back here.
 - [ ] Track two, after the release is out: build a standalone Dexed user guide on a new
   branch off `accessibility`, covering the "mixed" and "fully relevant" manual sections, with
   a glossary for newcomers to synthesis. Not started.
+- [x] Rename the plugin's identity away from Dexed and Digital Suburban, to DexedAccessible
+  and jhomme, across build settings, both installer scripts, and two places in source code
+  that picked app data and log folder names. See deviations.md. Confirmed working in Logic,
+  2026-11-01.
+- [x] Fix a local build tool mismatch on this Mac that produced x86_64-only binaries after
+  the rename, and a stale macOS plugin cache that kept the new build from loading in Logic.
+  See log.md, 2026-11-01.
+- [x] Fix the About box for the rename: button name, dialog title, repo and latest-release
+  links, and make its credits text readable by VoiceOver instead of only painted graphics.
+  Confirmed working, 2026-11-01.
+- [x] Bump the version number to 0.2.0 in both places that carry one, since the identity
+  rename breaks projects saved under v0.1.0. See deviations.md, 2026-11-01.
+- [x] Add a paragraph to README.md and announcement.md pointing at the releases/latest page,
+  instead of per-file links that go stale every release. Done in both files, 2026-11-01; not
+  yet committed.

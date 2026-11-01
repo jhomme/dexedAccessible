@@ -1432,3 +1432,70 @@ Gave Jim two options: bootstrap a real Nightly release by hand so the existing l
 start working, or remove the job entirely since nightly builds are not something this fork
 plans to use. He chose removal. Deleted the `publish-nightly` job from
 `.github/workflows/project-pipeline.yml`, committed as `abb2935`, pushed to `accessibility`.
+
+## 2026-11-01: renamed the plugin's identity away from Dexed and Digital Suburban
+Jim asked a different Claude session to teach him how to move the locally edited README onto
+GitHub. That session found the plugin's build identity still matched the original Dexed
+exactly: company name "Digital Suburban", product name "Dexed", manufacturer code `DGSB`,
+plugin code `Dexd`, and bundle ID `com.digitalsuburban.Dexed`. Audio Unit hosts like Logic
+tell plugins apart by the manufacturer and plugin codes together, so anyone with both the
+real Dexed and this fork installed would likely get a clash, with only one showing up.
+
+Jim chose the product name DexedAccessible. Built out the matching identity: company name
+`jhomme`, manufacturer code `Jhom`, plugin code `Dxac`, bundle ID
+`io.github.jhomme.dexedaccessible`, all in `Source/CMakeLists.txt`. Also renamed the CLAP
+format's separate identity string, the build's internal target name (`BaseTargetName`, which
+controls the actual file names like `DexedAccessible.vst3`), the top level project name in
+`CMakeLists.txt` (which feeds the release zip file names), the Mac installer script's
+internal package identifiers in `assets/installers/make_macos_pkg.sh`, the Windows installer's
+publisher name in `assets/installers/windows/installer.iss`, and two places in actual source
+code: `Source/PluginData.cpp`'s `resolvAppDir()`, which decides where the app's own data
+folder lives on each platform, and a debug log file name in `Source/PluginProcessor.cpp`.
+Both used to say "Dexed" and "DigitalSuburban"; both now say "DexedAccessible" and "jhomme".
+
+This is a breaking change for anyone running v0.1.0: a saved Logic project from that release
+won't find the renamed plugin afterward, since Logic looks it up by the manufacturer and
+plugin codes, not the visible name. Decided the next release should be v0.2.0, not a patch
+number, since it breaks what a saved project depends on. See deviations.md.
+
+## 2026-11-01: chased down why the renamed plugin built as the wrong chip type, twice
+First rebuild after the rename, on this Apple Silicon Mac, came out x86_64 only on every
+format, VST3, AU, CLAP, and the standalone app. Traced it to `cmake` itself: the copy at
+`/usr/local/bin/cmake` turned out to be an Intel build, running under Rosetta, which made it
+treat x86_64 as the "native" architecture to build for, regardless of the actual chip. Found
+a second, correct Homebrew install already present at `/opt/homebrew`, missing only `cmake`.
+With Jim's approval, ran `/opt/homebrew/bin/brew install cmake`, deleted the stale `build`
+folders, which had the old project and target names baked into their CMake cache, and
+rebuilt from scratch with the new cmake. All four formats came out arm64. `DexedTests` passed.
+
+Second problem showed up once Jim loaded it in Logic: DexedAccessible wasn't in the new
+track instrument list at all. Apple's own `auval` validator opened the plugin fine for
+identity, but failed to actually load it: `OpenAComponent: result: -1,0xFFFFFFFF`. The
+system log pinned it exactly: macOS's AudioComponent registry had cached the plugin, at that
+exact install path, from the first bad x86_64 build, and never rechecked after the file on
+disk was replaced with the correct arm64 one. With Jim's approval, deleted
+`~/Library/Caches/AudioUnitCache/com.apple.audiounits.cache` and tried restarting
+`AudioComponentRegistrar`, but that process is protected and wouldn't terminate even for its
+owning user. A full restart of the Mac cleared it for good; `auval` passed every test
+afterward, and DexedAccessible showed up correctly in Logic.
+
+## 2026-11-01: reworded the About box for the rename, and made its credits text readable
+Jim's VoiceOver testing of the renamed build turned up two things: the About button's
+accessible name still said "About DEXED", and the About dialog's content was still entirely
+about the original Dexed. Fixed the button name. For the dialog, added the same line the
+README now opens with, naming this as the accessible fork, changed the dialog's own title to
+"About DexedAccessible", changed the first link from the original Dexed website to this
+fork's GitHub repository, and added a third link to the releases/latest page, matching the
+README and announcement.md.
+
+Also found, while making that last change, that the dialog's whole credits block, version
+number, license, and attribution to the original engine and UI authors, had only ever been
+painted graphics, `g.drawMultiLineText()` in `paint()`, never a real accessible control. On
+an accessibility-focused fork, that text had been invisible to VoiceOver from the start, not
+something this rename broke. Replaced it with a real `juce::Label`, so VoiceOver can now
+read it.
+
+Also bumped the version number to 0.2.0 in both places that carry one, `CMakeLists.txt` and
+the `VERSION` field in `Source/CMakeLists.txt`'s `juce_add_plugin()` call, matching the
+0.2.0 decision above. Rebuilt, confirmed arm64 on all four formats, and `DexedTests` passed
+again.

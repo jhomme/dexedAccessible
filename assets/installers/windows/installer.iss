@@ -1,5 +1,5 @@
 #ifndef Publisher
-#define Publisher "Digital Suburban"
+#define Publisher "jhomme"
 #endif
 
 #ifndef Version

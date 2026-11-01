@@ -1,4 +1,4 @@
-set(BaseTargetName Dexed)
+set(BaseTargetName DexedAccessible)
 
 set(DEXED_JUCE_FORMATS Standalone)
 
@@ -13,26 +13,26 @@ endif()
 message(STATUS "Building Dexed in formats: ${DEXED_JUCE_FORMATS}")
 
 juce_add_plugin("${BaseTargetName}"
-        VERSION "1.0.1"
+        VERSION "0.2.0"
         ICON_BIG "../assets/ui/dexedIcon.png"
         ICON_SMALL "../assets/ui/dexedIcon.png"
-        COMPANY_NAME "Digital Suburban"
+        COMPANY_NAME "jhomme"
         IS_SYNTH TRUE
         NEEDS_MIDI_INPUT TRUE
         NEEDS_MIDI_OUTPUT TRUE
         IS_MIDI_EFFECT FALSE
         EDITOR_WANTS_KEYBOARD_FOCUS TRUE
-        PLUGIN_MANUFACTURER_CODE DGSB
-        PLUGIN_CODE Dexd
+        PLUGIN_MANUFACTURER_CODE Jhom
+        PLUGIN_CODE Dxac
         FORMATS ${DEXED_JUCE_FORMATS}
-        PRODUCT_NAME "Dexed"
+        PRODUCT_NAME "DexedAccessible"
         DESCRIPTION "Dexed FM Synth"
-        BUNDLE_ID "com.digitalsuburban.Dexed"  # To avoid CMake Warning at libs/JUCE/extras/Build/CMake/JUCEUtils.cmake
+        BUNDLE_ID "io.github.jhomme.dexedaccessible"  # To avoid CMake Warning at libs/JUCE/extras/Build/CMake/JUCEUtils.cmake
         COPY_PLUGIN_AFTER_BUILD TRUE
 )
 
 clap_juce_extensions_plugin(TARGET ${BaseTargetName}
-        CLAP_ID "com.digital-suburban.dexed"
+        CLAP_ID "io.github.jhomme.dexedaccessible"
         CLAP_FEATURES instrument FM DX7)
 
 juce_generate_juce_header(${PROJECT_NAME})

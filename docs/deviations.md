@@ -113,6 +113,22 @@ rather than chasing full VoiceOver step-size parity with native macOS controls.
 
 Who decided: Jim, 2026-10-24, confirmed closed 2026-10-26.
 
+## 2026-11-01: renamed the plugin's identity away from Dexed, and skipped straight to v0.2.0
+What changed: the plugin stopped presenting itself as "Dexed" by "Digital Suburban". It's now
+"DexedAccessible" by "jhomme", with its own manufacturer code, plugin code, and bundle ID,
+across every format and both installer scripts. The next release is v0.2.0, not v0.1.1.
+
+Why: a different Claude session, asked to teach Jim how to publish a locally edited README,
+found that the plugin's build identity still exactly matched the original Dexed. Audio Unit
+hosts like Logic tell plugins apart by their manufacturer and plugin codes together, so
+anyone with both the real Dexed and this fork installed would likely get a clash, with only
+one of the two actually showing up. Skipping to 0.2.0 instead of 0.1.1 because this breaks
+saved projects from v0.1.0: Logic looks a plugin up by its codes, not its visible name, so a
+project saved before the rename won't find the plugin afterward. That's a bigger jump than a
+patch release implies.
+
+Who decided: Jim, 2026-11-01.
+
 ## 2026-10-26: removed the ax-watch and event-watch diagnostic tools from the repo
 What changed: `tools/ax-watch` and `tools/event-watch`, Swift diagnostic scripts used across
 several sessions to debug VoiceOver's accessibility notifications, were removed from the

@@ -164,6 +164,24 @@ scroll-up-an-octave buttons do.
 Jim's full VoiceOver pass over this whole 2026-10-31 round, in Logic, is still pending. See
 bookmark.md.
 
+## Plugin identity rename, DexedAccessible instead of Dexed
+Done when the plugin presents itself as DexedAccessible everywhere a host or the operating
+system shows plugin identity, with no leftover Dexed or Digital Suburban codes that could
+clash with the real Dexed, and when Apple's own AU validator, `auval`, passes every check.
+- Jim tests: with VoiceOver on, open a new track's instrument list in Logic and confirm
+  DexedAccessible appears there, distinct from the original Dexed if it's also installed.
+  Confirmed working, 2026-11-01.
+
+## About box reflects the rename and its credits text is readable
+Done when the About button's accessible name says "About DexedAccessible," the dialog's own
+title matches, the dialog's text opens by naming this as the accessible fork, the first link
+points at this fork's GitHub repository instead of the original Dexed site, a second link
+points at the releases/latest page, and the whole credits block, version, license, and
+attributions, can be read by VoiceOver rather than only appearing as painted graphics.
+- Jim tests: with VoiceOver on, activate the About button, confirm its name and the dialog's
+  title, tab through all three links, and confirm the credits text itself is announced.
+  Confirmed working, 2026-11-01.
+
 ## Cartridge manager: Home/End jump and list-name announcement
 Done when Home jumps to the first program slot and End jumps to the last, slot 32, in either
 the browser list or the active list inside the cartridge manager. Also done when VoiceOver

@@ -95,32 +95,32 @@ build_flavor()
 # =============================================================================
 # create flavor packages
 if [[ -d $INDIR/$VST3 ]]; then
-    build_flavor "VST3" "$VST3" "com.digitalsuburban.${PRODUCTFILE}.vst3.pkg" "/Library/Audio/Plug-Ins/VST3"
-  	VST3_PKG_REF="<pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.vst3.pkg\"/>"
-  	VST3_CHOICE="<line choice=\"com.digitalsuburban.${PRODUCTFILE}.vst3.pkg\"/>"
-  	VST3_CHOICE_DEF="<choice id=\"com.digitalsuburban.${PRODUCTFILE}.vst3.pkg\" visible=\"true\" start_selected=\"true\" title=\"${PRODUCT} VST3\"><pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.vst3.pkg\"/></choice><pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.vst3.pkg\" version=\"${VERSION}\" onConclusion=\"none\">${PRODUCTFILE}_VST3.pkg</pkg-ref>"
+    build_flavor "VST3" "$VST3" "io.github.jhomme.${PRODUCTFILE}.vst3.pkg" "/Library/Audio/Plug-Ins/VST3"
+  	VST3_PKG_REF="<pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.vst3.pkg\"/>"
+  	VST3_CHOICE="<line choice=\"io.github.jhomme.${PRODUCTFILE}.vst3.pkg\"/>"
+  	VST3_CHOICE_DEF="<choice id=\"io.github.jhomme.${PRODUCTFILE}.vst3.pkg\" visible=\"true\" start_selected=\"true\" title=\"${PRODUCT} VST3\"><pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.vst3.pkg\"/></choice><pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.vst3.pkg\" version=\"${VERSION}\" onConclusion=\"none\">${PRODUCTFILE}_VST3.pkg</pkg-ref>"
 fi
 
 if [[ -d $INDIR/$AU ]]; then
-    build_flavor "AU" "$AU" "com.digitalsuburban.${PRODUCTFILE}.component.pkg" "/Library/Audio/Plug-Ins/Components"
-  	AU_PKG_REF="<pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.component.pkg\"/>"
-  	AU_CHOICE="<line choice=\"com.digitalsuburban.${PRODUCTFILE}.component.pkg\"/>"
-  	AU_CHOICE_DEF="<choice id=\"com.digitalsuburban.${PRODUCTFILE}.component.pkg\" visible=\"true\" start_selected=\"true\" title=\"${PRODUCT} Audio Unit\"><pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.component.pkg\"/></choice><pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.component.pkg\" version=\"${VERSION}\" onConclusion=\"none\">${PRODUCTFILE}_AU.pkg</pkg-ref>"
+    build_flavor "AU" "$AU" "io.github.jhomme.${PRODUCTFILE}.component.pkg" "/Library/Audio/Plug-Ins/Components"
+  	AU_PKG_REF="<pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.component.pkg\"/>"
+  	AU_CHOICE="<line choice=\"io.github.jhomme.${PRODUCTFILE}.component.pkg\"/>"
+  	AU_CHOICE_DEF="<choice id=\"io.github.jhomme.${PRODUCTFILE}.component.pkg\" visible=\"true\" start_selected=\"true\" title=\"${PRODUCT} Audio Unit\"><pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.component.pkg\"/></choice><pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.component.pkg\" version=\"${VERSION}\" onConclusion=\"none\">${PRODUCTFILE}_AU.pkg</pkg-ref>"
 fi
 
 if [[ -d $INDIR/$APP ]]; then
     chmod +x "$INDIR/$APP/Contents/MacOS/$PRODUCT"
-    build_flavor "APP" "$APP" "com.digitalsuburban.${PRODUCTFILE}.app.pkg" "/tmp/dsgb-install" $TMPDIR/AppResourcesPackageScript
-  	APP_PKG_REF="<pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.app.pkg\"/>"
-  	APP_CHOICE="<line choice=\"com.digitalsuburban.${PRODUCTFILE}.app.pkg\"/>"
-  	APP_CHOICE_DEF="<choice id=\"com.digitalsuburban.${PRODUCTFILE}.app.pkg\" visible=\"true\" start_selected=\"true\" title=\"${PRODUCT} App\"><pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.app.pkg\"/></choice><pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.app.pkg\" version=\"${VERSION}\" onConclusion=\"none\">${PRODUCTFILE}_APP.pkg</pkg-ref>"
+    build_flavor "APP" "$APP" "io.github.jhomme.${PRODUCTFILE}.app.pkg" "/tmp/dsgb-install" $TMPDIR/AppResourcesPackageScript
+  	APP_PKG_REF="<pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.app.pkg\"/>"
+  	APP_CHOICE="<line choice=\"io.github.jhomme.${PRODUCTFILE}.app.pkg\"/>"
+  	APP_CHOICE_DEF="<choice id=\"io.github.jhomme.${PRODUCTFILE}.app.pkg\" visible=\"true\" start_selected=\"true\" title=\"${PRODUCT} App\"><pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.app.pkg\"/></choice><pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.app.pkg\" version=\"${VERSION}\" onConclusion=\"none\">${PRODUCTFILE}_APP.pkg</pkg-ref>"
 fi
 
 if [[ -d $INDIR/$CLAP ]]; then
-    build_flavor "CLAP" "$CLAP" "com.digitalsuburban.${PRODUCTFILE}.clap.pkg" "/Library/Audio/Plug-Ins/CLAP"
-  	CLAP_PKG_REF="<pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.clap.pkg\"/>"
-  	CLAP_CHOICE="<line choice=\"com.digitalsuburban.${PRODUCTFILE}.clap.pkg\"/>"
-  	CLAP_CHOICE_DEF="<choice id=\"com.digitalsuburban.${PRODUCTFILE}.clap.pkg\" visible=\"true\" start_selected=\"true\" title=\"${PRODUCT} CLAP\"><pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.clap.pkg\"/></choice><pkg-ref id=\"com.digitalsuburban.${PRODUCTFILE}.clap.pkg\" version=\"${VERSION}\" onConclusion=\"none\">${PRODUCTFILE}_CLAP.pkg</pkg-ref>"
+    build_flavor "CLAP" "$CLAP" "io.github.jhomme.${PRODUCTFILE}.clap.pkg" "/Library/Audio/Plug-Ins/CLAP"
+  	CLAP_PKG_REF="<pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.clap.pkg\"/>"
+  	CLAP_CHOICE="<line choice=\"io.github.jhomme.${PRODUCTFILE}.clap.pkg\"/>"
+  	CLAP_CHOICE_DEF="<choice id=\"io.github.jhomme.${PRODUCTFILE}.clap.pkg\" visible=\"true\" start_selected=\"true\" title=\"${PRODUCT} CLAP\"><pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.clap.pkg\"/></choice><pkg-ref id=\"io.github.jhomme.${PRODUCTFILE}.clap.pkg\" version=\"${VERSION}\" onConclusion=\"none\">${PRODUCTFILE}_CLAP.pkg</pkg-ref>"
 fi
 
 # =============================================================================

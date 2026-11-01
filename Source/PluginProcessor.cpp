@@ -71,7 +71,7 @@ DexedAudioProcessor::DexedAudioProcessor()
     if ( !JUCEApplication::isStandaloneApp() ) {
         Logger *tmp = Logger::getCurrentLogger();
         if ( tmp == NULL ) {
-            Logger::setCurrentLogger(FileLogger::createDateStampedLogger("Dexed", "DebugSession-", "log", "DexedAudioProcessor Created"));
+            Logger::setCurrentLogger(FileLogger::createDateStampedLogger("DexedAccessible", "DebugSession-", "log", "DexedAudioProcessor Created"));
         }
     }
     TRACE("Hi");
