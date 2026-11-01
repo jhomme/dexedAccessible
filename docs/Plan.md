@@ -70,7 +70,9 @@ acceptance.md instead, and link back here.
 - [x] Add Home/End jumping to the cartridge manager's program lists, and announce which list,
   browser or active, a slot belongs to when focus arrives from elsewhere. Jim confirmed with
   VoiceOver; not yet committed as of 2026-10-31.
-- [ ] Jim's own VoiceOver pass over the full accumulated set of fixes above, in Logic.
+- [x] Jim's own VoiceOver pass over the full accumulated set of fixes above, in Logic.
+  Confirmed clean, 2026-11-01. Jim is holding off on tagging the release until he
+  understands some things first; see bookmark.md.
 - [x] Open the PR for `accessibility`. Closed instead: asb2m10 closed our earlier PR 534 after
   upstream's own 1.1.0 refactor, and Jim decided not to pursue an upstream PR for now. See
   deviations.md, 2026-10-31.
@@ -99,6 +101,13 @@ acceptance.md instead, and link back here.
 - [ ] Tag and push the first release, once Jim's VoiceOver pass over the latest round of
   fixes is done. When that happens, check `gh run list` right after, don't assume the build
   ran, per the path-filter caveat above. Not started.
+- [x] Fix the version number baked into the actual release files, separate from the version
+  the git tag carries. `CMakeLists.txt`'s `project(Dexed VERSION 1.0.1)`, left over from
+  before this project forked away from upstream, feeds the installer's real file names and
+  version property, not the tag-derived `BUILD_ID`. Confirmed by downloading a real nightly
+  build's artifacts and finding "1.0.1" baked into every file name. Changed to
+  `VERSION 0.1.0` to match the release scheme. Built and ran DexedTests locally, confirmed
+  arm64, both passing, 2026-11-01.
 - [ ] Track two, after the release is out: build a standalone Dexed user guide on a new
   branch off `accessibility`, covering the "mixed" and "fully relevant" manual sections, with
   a glossary for newcomers to synthesis. Not started.

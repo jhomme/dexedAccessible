@@ -1373,3 +1373,25 @@ official docs. Given every tagged commit on this project has included real code 
 alongside any doc changes so far, the practical risk looks low, but when the actual v0.1.0
 tag gets pushed, check with `gh run list` right after, the same way we checked every push
 today, and don't assume it ran.
+
+## 2026-11-01: fixed the version number actually baked into release files
+Jim asked how someone would actually get the build for their own operating system, before
+agreeing to tag a release. Walking through it surfaced a real problem worth fixing first.
+
+Downloaded a real completed CI run's artifacts, rather than guess, to see exactly what
+files a release would contain: macOS gets a `.dmg` and a `.zip`; Windows gets a `.exe`
+installer and a `.zip`; Linux gets only a `.zip`, no installer. All of them, in that nightly
+test build, were named with "1.0.1" in them, not anything matching our chosen `v0.1.0`
+scheme.
+
+Traced why: `installer.cmake`'s release-mode version name uses `${PROJECT_VERSION}` only,
+never `BUILD_ID`, the value the workflow derives from the git tag. `PROJECT_VERSION` comes
+from a single line in the top-level `CMakeLists.txt`, `project(Dexed VERSION 1.0.1)`, left
+untouched since before this project forked away from upstream. So tagging `v0.1.0` and
+pushing it would have made the git tag say one thing while every actual downloaded file
+said another, "1.0.1," a leftover number that was never really ours and would have looked
+like a continuation of upstream's own numbering.
+
+Fixed it: changed that line to `VERSION 0.1.0`, matching the release scheme Jim already
+settled on. Rebuilt locally, confirmed arm64, ran `DexedTests`, both passing. Not yet
+pushed.
