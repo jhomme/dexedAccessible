@@ -1340,3 +1340,11 @@ macOS job finish and produce an unsigned installer. Once Jim adds real signing s
 the fork's settings later, this same condition will start signing again on its own; nothing
 else will need to change. Not yet pushed or tested in CI. Recorded the decision in
 docs/deviations.md.
+
+First attempt at that fix, `37cb3f7`, broke the workflow file outright: GitHub Actions
+flatly rejects referencing the `secrets` context inside any `if:` condition, job or step
+level, confirmed by searching rather than guessing twice. The run failed instantly with
+zero jobs ever created, "likely failed because of a workflow file issue," before touching
+any platform. Fixed with the documented workaround: pass the secret through a step-level
+`env:` first, then test `env.MAC_CERTS_P12 != ''` in the `if:` instead of the secret
+directly. Not yet pushed.
