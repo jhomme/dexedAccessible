@@ -1499,3 +1499,19 @@ Also bumped the version number to 0.2.0 in both places that carry one, `CMakeLis
 the `VERSION` field in `Source/CMakeLists.txt`'s `juce_add_plugin()` call, matching the
 0.2.0 decision above. Rebuilt, confirmed arm64 on all four formats, and `DexedTests` passed
 again.
+
+## 2026-11-01: committed, pushed, and tagged v0.2.0; macOS build failed on a GitHub runner retirement
+Jim approved the commit covering everything above, `2930a9e`, pushed to `accessibility`, then
+tagged and pushed `v0.2.0`. Both triggered real builds. Linux and Windows succeeded, but the
+macOS job failed instantly. `gh run watch`'s annotation explained it: GitHub is retiring the
+`macos-14` runner image this build pipeline asks for by name, with scheduled brownouts
+through late October and November 1, and a hard cutoff on November 2, 2026, one day after this
+happened. Because the macOS job failed, `Publish Release` never ran, so no release exists yet
+for `v0.2.0`.
+
+Checked `actions/runner-images` issue #13518 for the actual retirement schedule and available
+replacement images: macOS 15 and macOS 15 Arm64 are current and supported. Gave Jim two
+options: `macos-latest`, a rolling label that always means GitHub's current recommendation, or
+pinning to a specific version like `macos-15`, matching how the Windows and one Linux job are
+already pinned. Jim chose pinning. Changed `runs-on: macos-14` to `runs-on: macos-15` in
+`.github/workflows/project-pipeline.yml`.

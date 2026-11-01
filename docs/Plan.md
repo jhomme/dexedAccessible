@@ -129,3 +129,7 @@ acceptance.md instead, and link back here.
 - [x] Add a paragraph to README.md and announcement.md pointing at the releases/latest page,
   instead of per-file links that go stale every release. Done in both files, 2026-11-01; not
   yet committed.
+- [x] Commit, push, and tag `v0.2.0`. `2930a9e`, 2026-11-01.
+- [x] Fix the macOS build pointing at a GitHub runner image, `macos-14`, that GitHub retired
+  the day after this build ran. Changed to `macos-15`. Not yet committed. See log.md,
+  2026-11-01.
