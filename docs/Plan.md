@@ -74,35 +74,31 @@ acceptance.md instead, and link back here.
 - [x] Open the PR for `accessibility`. Closed instead: asb2m10 closed our earlier PR 534 after
   upstream's own 1.1.0 refactor, and Jim decided not to pursue an upstream PR for now. See
   deviations.md, 2026-10-31.
-- [ ] Release checklist, since the accessible build is now meant for other VoiceOver and
+- [x] Release checklist, since the accessible build is now meant for other VoiceOver and
   screen reader users, not just Jim. See deviations.md, 2026-10-31:
-- [ ] Turn on GitHub Actions for the jhomme/dexedAccessible fork; it's never run there.
-  Not started.
+- [x] Turn on GitHub Actions for the jhomme/dexedAccessible fork; it had never run there.
+  Needed a one-time click on github.com, no API for it. Confirmed working, 2026-11-01.
 - [x] Decide a version-numbering scheme for fork releases, separate from upstream's own
   numbers, since upstream is already at a 1.1.0 that's a different codebase. Jim's call,
   2026-11-01: start at v0.1.0, three-part major.minor.patch, matching the "v" prefix
   upstream's own tags use and that this project's CI already expects when it reads a
   version number from a tag.
-- [ ] Decide on Mac code signing for release installers: get an Apple Developer ID to sign
-  them, or ship unsigned with instructions for getting past Gatekeeper. Not started.
-- [ ] Commit the outstanding working-tree changes before tagging anything. Not started.
+- [x] Decide on Mac code signing for release installers. Jim's call, 2026-10-31: ship
+  unsigned for now, get a real certificate later. See the next item and deviations.md.
 - [x] First real GitHub Actions run on the fork surfaced two real build breaks: `JUCE_JACK=1`
   was set unconditionally in `Source/CMakeLists.txt`, so Windows failed looking for a Linux-only
-  header, and the macOS job fails up front importing a code-signing certificate that doesn't
+  header, and the macOS job failed up front importing a code-signing certificate that doesn't
   exist on this fork. Fixed the JACK one: gated it to Linux only, matching how `JUCE_ALSA`
-  already checks the platform. Built and ran DexedTests locally, confirmed arm64, both passing.
-  The macOS signing-import failure is still open; see the next item.
-- [x] Fix the macOS CI job failing outright on the code-signing import step, since this fork
-  has no Apple signing certificate. Jim's call, 2026-10-31: ship unsigned for now, get a
-  real certificate later. See deviations.md. Made the import step skip itself when the
-  certificate secret is missing, instead of failing the whole job, in
-  `.github/workflows/project-pipeline.yml`. Not yet pushed or re-tested in CI.
+  already checks the platform. Fixed the macOS one: the certificate-import step now skips
+  itself when the secret is missing, instead of failing the whole job. Both confirmed working
+  in a real CI run, 2026-11-01: Linux, Windows, and macOS all build successfully now.
 - [x] Stop doc-only pushes from triggering the full three-platform build. Added
-  `paths-ignore` to `.github/workflows/project-pipeline.yml`'s push trigger, 2026-11-01. See
-  log.md for a caveat worth checking when the real release tag gets pushed.
-- [ ] Tag and push the first release, once the above and Jim's VoiceOver pass are done.
-  When that happens, check `gh run list` right after, don't assume the build ran, per the
-  path-filter caveat above. Not started.
+  `paths-ignore` to `.github/workflows/project-pipeline.yml`'s push trigger, confirmed
+  working with a real readme-only push, 2026-11-01. See log.md for a caveat worth checking
+  when the real release tag gets pushed.
+- [ ] Tag and push the first release, once Jim's VoiceOver pass over the latest round of
+  fixes is done. When that happens, check `gh run list` right after, don't assume the build
+  ran, per the path-filter caveat above. Not started.
 - [ ] Track two, after the release is out: build a standalone Dexed user guide on a new
   branch off `accessibility`, covering the "mixed" and "fully relevant" manual sections, with
   a glossary for newcomers to synthesis. Not started.
