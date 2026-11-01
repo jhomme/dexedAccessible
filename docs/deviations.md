@@ -61,6 +61,20 @@ instead of mixing code changes with a large documentation addition.
 
 Who decided: Jim, 2026-10-26.
 
+## 2026-10-31: shipping the Mac release unsigned for now
+What changed: the Mac installer will go out without an Apple code-signing certificate for
+now. Anyone downloading it has to click past a Gatekeeper security warning once. The CI
+workflow's certificate-import step was changed to skip itself when no certificate secret is
+present, rather than fail the whole Mac build outright, so the macOS job can actually finish
+and produce an installer.
+
+Why: Jim doesn't have an Apple Developer ID yet. Getting one costs money, about 99 dollars a
+year, and setup time he didn't want to spend right now.
+
+Who decided: Jim, 2026-10-31. He intends to get the certificate later; once the real signing
+secrets are added to the fork's settings, the workflow will start signing automatically,
+since the skip is conditional on the secret being missing, not a permanent change.
+
 ## 2026-10-31: widened who this project is for, and started a real release
 What changed: docs/prd.md scoped this project to jhomme alone. Jim decided the accessible
 build should go to other VoiceOver and screen reader users too, which means producing a real,

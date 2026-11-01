@@ -1322,3 +1322,21 @@ locally, confirmed arm64, ran `DexedTests`, passing. Not yet pushed or re-tested
 
 Still open: the macOS signing-import failure, not yet fixed. Added both as entries in
 docs/Plan.md.
+
+Jim confirmed the JACK fix by watching the next CI run: Windows and Linux both passed.
+Mac still failed the same way, as expected, since that fix only touched the Windows problem.
+
+Walked Jim through the Mac signing decision as two real options, since it changes what
+happens to anyone downloading the Mac build: ship it unsigned for now, meaning one
+Gatekeeper warning to click past, or get an Apple Developer ID, about 99 dollars a year, and
+sign it properly. Jim's call: unsigned for now, a real certificate later.
+
+Fixed the actual failure to match: `.github/workflows/project-pipeline.yml`'s
+`apple-actions/import-codesign-certs` step now only runs when `secrets.MAC_CERTS_P12` is
+set, instead of always running and failing outright when it's empty. The build step right
+after it already degrades gracefully with no certificate, confirmed earlier by reading
+`assets/installers/make_macos_pkg.sh`, so skipping just the import step should let the whole
+macOS job finish and produce an unsigned installer. Once Jim adds real signing secrets to
+the fork's settings later, this same condition will start signing again on its own; nothing
+else will need to change. Not yet pushed or tested in CI. Recorded the decision in
+docs/deviations.md.
