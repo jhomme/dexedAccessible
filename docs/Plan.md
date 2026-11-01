@@ -78,8 +78,11 @@ acceptance.md instead, and link back here.
   screen reader users, not just Jim. See deviations.md, 2026-10-31:
 - [ ] Turn on GitHub Actions for the jhomme/dexedAccessible fork; it's never run there.
   Not started.
-- [ ] Decide a version-numbering scheme for fork releases, separate from upstream's own
-  numbers, since upstream is already at a 1.1.0 that's a different codebase. Not started.
+- [x] Decide a version-numbering scheme for fork releases, separate from upstream's own
+  numbers, since upstream is already at a 1.1.0 that's a different codebase. Jim's call,
+  2026-11-01: start at v0.1.0, three-part major.minor.patch, matching the "v" prefix
+  upstream's own tags use and that this project's CI already expects when it reads a
+  version number from a tag.
 - [ ] Decide on Mac code signing for release installers: get an Apple Developer ID to sign
   them, or ship unsigned with instructions for getting past Gatekeeper. Not started.
 - [ ] Commit the outstanding working-tree changes before tagging anything. Not started.

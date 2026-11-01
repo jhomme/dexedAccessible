@@ -1348,3 +1348,10 @@ zero jobs ever created, "likely failed because of a workflow file issue," before
 any platform. Fixed with the documented workaround: pass the secret through a step-level
 `env:` first, then test `env.MAC_CERTS_P12 != ''` in the `if:` instead of the secret
 directly. Not yet pushed.
+
+## 2026-11-01: settled the release version scheme
+Jim decided: start the fork's own releases at 0.1.0, three parts, major.minor.patch. The
+actual tag will need the "v" prefix, v0.1.0, since this project's CI already strips the
+first character off a tag name to get the version it reports, the same pattern upstream's
+own tags, v0.9.1 through v1.1.0, already use. Confirmed with Jim before recording this as
+settled.
