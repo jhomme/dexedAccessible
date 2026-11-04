@@ -81,7 +81,7 @@ DexedAudioProcessorEditor::DexedAudioProcessorEditor (DexedAudioProcessor* owner
     midiKeyboard.setLowestVisibleKey(24);
     midiKeyboard.setBounds(4, 581, getWidth() - 8, 90);
     midiKeyboard.setTitle("Keyboard keys");
-    midiKeyboard.setDescription("Shows which notes are playing. Play notes with a MIDI keyboard or the mouse.");
+    midiKeyboard.setDescription("Shows which notes are playing. Play notes with a MIDI keyboard, the computer keyboard, or the mouse.");
 
     // Without this, VoiceOver's interact command reports the keyboard as an empty group,
     // because JUCE only exposes a component's children to that command if the component is
@@ -641,6 +641,12 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
 
     if ( keycode == 'G' && mods.isCtrlDown() ) {
         global.grabKeyboardFocus();
+        return true;
+    }
+
+    if ( keycode == 'K' && mods.isCtrlDown() ) {
+        if ( midiKeyboard.isShowing() )
+            midiKeyboard.grabKeyboardFocus();
         return true;
     }
 
