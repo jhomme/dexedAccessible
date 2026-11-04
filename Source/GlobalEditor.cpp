@@ -475,7 +475,8 @@ GlobalEditor::GlobalEditor ()
     imageLight = lookAndFeel->imageLight;
     setTitle("Global Parameters");
     setFocusContainerType(FocusContainerType::focusContainer);
-    setWantsKeyboardFocus(true);
+    // The panel itself does not take keyboard focus, so it is not an empty Tab stop and
+    // Ctrl+G lands on its first control.
     aboutButton->setTitle("About DexedAccessible");
     aboutButton->setTooltip("Opens information about the plugin's version and credits.");
     algo->setTitle("Algorithm");

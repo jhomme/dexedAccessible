@@ -55,6 +55,11 @@ public:
     void updateEnvPos(char pos);
     void mouseDown(const MouseEvent& e) override;
     void toggleOpSwitch();
+    // JUCE's default role, unspecified, is a group on macOS but a custom control on Windows,
+    // which NVDA does not announce when focus moves into the panel. Say group explicitly.
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<AccessibilityHandler>(*this, AccessibilityRole::group);
+    }
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

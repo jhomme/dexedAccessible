@@ -366,7 +366,8 @@ OperatorEditor::OperatorEditor ()
     kbdRightCurve->setTitle("Keyboard Scaling Curve Right");
     kbdRightCurve->setTooltip("Chooses the shape of level change for keys above the breakpoint.");
 
-    setWantsKeyboardFocus(true);
+    // The panel itself does not take keyboard focus. If it did, it would be an empty Tab stop,
+    // and Ctrl+1 to Ctrl+6 would land on the panel instead of its first control.
     //[/Constructor]
 }
 
