@@ -47,6 +47,8 @@ class DexedAudioProcessorEditor  : public AudioProcessorEditor, public ComboBox:
     #endif
 
     void resetSize();
+    bool initialFocusGiven = false;
+    int initialFocusTicks = 0;
 
     Component frameComponent;
 public:

@@ -81,7 +81,7 @@ DexedAudioProcessorEditor::DexedAudioProcessorEditor (DexedAudioProcessor* owner
     midiKeyboard.setLowestVisibleKey(24);
     midiKeyboard.setBounds(4, 581, getWidth() - 8, 90);
     midiKeyboard.setTitle("Keyboard keys");
-    midiKeyboard.setDescription("Shows which notes are playing. Play notes with a MIDI keyboard or the mouse.");
+    midiKeyboard.setDescription("Shows which notes are playing. Play notes with a MIDI keyboard, the computer keyboard, or the mouse.");
 
     // Without this, VoiceOver's interact command reports the keyboard as an empty group,
     // because JUCE only exposes a component's children to that command if the component is
@@ -294,6 +294,23 @@ void DexedAudioProcessorEditor::comboBoxChanged (ComboBox* comboBoxThatHasChange
 }
 
 void DexedAudioProcessorEditor::timerCallback() {
+    // A top-level JUCE window wants keyboard focus itself, so when the standalone window
+    // opens, focus lands on the window and never reaches any control. Tab then does nothing,
+    // since the window has no siblings to move to, and the shortcuts in keyPressed never fire,
+    // since key events go to the focused component and its parents, not its children. Focus
+    // can only be given once the editor is on screen, so do it from a timer tick. Wait until
+    // the window is also the active one: NVDA drops focus events from background windows, and
+    // JUCE does not repeat the event when the window is activated later. Then wait a few more
+    // ticks: NVDA announces the window activation itself a moment later, and if our focus
+    // event arrives first, that later announcement leaves NVDA thinking the window has focus.
+    auto *peer = getPeer();
+    if ( ! initialFocusGiven && isShowing() && peer != nullptr && peer->isFocused()
+         && ++initialFocusTicks >= 4 ) {
+        initialFocusGiven = true;
+        if ( ! hasKeyboardFocus(true) )
+            grabKeyboardFocus();
+    }
+
     if ( processor->forceRefreshUI ) {
         processor->forceRefreshUI = false;
         updateUI();
@@ -624,6 +641,12 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
 
     if ( keycode == 'G' && mods.isCtrlDown() ) {
         global.grabKeyboardFocus();
+        return true;
+    }
+
+    if ( keycode == 'K' && mods.isCtrlDown() ) {
+        if ( midiKeyboard.isShowing() )
+            midiKeyboard.grabKeyboardFocus();
         return true;
     }
 

@@ -8,6 +8,7 @@ Standalone instead to confirm whether it's Dexed or the host getting in the way.
 - Focus on operator 'X' group: CTRL+1 to CTRL+6
 - Toggle active operator 'X': CTRL+SHIFT+1 to CTRL+SHIFT+6
 - Focus on global group: CTRL+G
+- Focus on the on-screen keyboard, to play notes from the computer keyboard: CTRL+K
 - Open cartridge manager: CTRL+L
 - Open parameter dialog: CTRL+P
 - On any slider, jump to the lowest value: HOME
