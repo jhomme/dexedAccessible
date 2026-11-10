@@ -68,6 +68,10 @@ public:
 #endif //IMPLEMENT_MidiMonitor
 
     void mouseDown(const MouseEvent& e) override;
+    // See OperatorEditor: an explicit group role, so NVDA announces the panel on entry.
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<AccessibilityHandler>(*this, AccessibilityRole::group);
+    }
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;
