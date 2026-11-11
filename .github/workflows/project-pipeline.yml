@@ -61,7 +61,7 @@ jobs:
     - uses: awalsh128/cache-apt-pkgs-action@latest
       if: runner.os == 'linux'
       with:
-        packages: libasound2-dev libx11-dev libxinerama-dev libxext-dev libfreetype6-dev libglu1-mesa-dev ccache xvfb libjack-dev libsndfile-dev
+        packages: libasound2-dev libx11-dev libxcomposite-dev libxcursor-dev libxext-dev libxinerama-dev libxrandr-dev libxrender-dev libfreetype6-dev libfontconfig1-dev ladspa-sdk libglu1-mesa-dev mesa-common-dev ccache xvfb libjack-dev libsndfile-dev
 
     - uses: actions/checkout@v4
       with:

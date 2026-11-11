@@ -76,13 +76,19 @@ Useful CMake options:
 - `--target installer` builds the packaged installer target, the same one CI uses, instead of
   just the plugin.
 
-On Linux, missing headers usually mean missing dev packages. See the Linux build dependencies
-wiki page linked from README.md. CI installs `libasound2-dev`, `libx11-dev`,
-`libxinerama-dev`, `libxext-dev`, `libfreetype6-dev`, `libglu1-mesa-dev`, `xvfb`,
-`libjack-dev`, and `libsndfile-dev`. `libwebkit2gtk-4.1-dev` was dropped from that list: this
-project builds with `JUCE_WEB_BROWSER=0`, so the package was never needed, and a broken
-dependency of its own, `libsoup3`, was unavailable on Ubuntu's mirrors after the `ubuntu-latest`
-runner moved to Ubuntu 26.04, which was failing the whole Linux build.
+On Linux, missing headers usually mean missing dev packages. See JUCE's own list, in
+`libs/JUCE/docs/Linux Dependencies.md`, for which package covers which JUCE module. CI
+installs `libasound2-dev`, `libx11-dev`, `libxcomposite-dev`, `libxcursor-dev`,
+`libxext-dev`, `libxinerama-dev`, `libxrandr-dev`, `libxrender-dev`, `libfreetype6-dev`,
+`libfontconfig1-dev`, `ladspa-sdk`, `libglu1-mesa-dev`, `mesa-common-dev`, `xvfb`,
+`libjack-dev`, and `libsndfile-dev`. It does not install `libwebkit2gtk-4.1-dev` or
+`libcurl4-openssl-dev`: this project builds with `JUCE_WEB_BROWSER=0` and
+`JUCE_USE_CURL=0`, so neither is needed. `libwebkit2gtk-4.1-dev` used to be installed anyway
+until its own dependency, `libsoup3`, became unavailable on Ubuntu's mirrors right after the
+`ubuntu-latest` runner moved to Ubuntu 26.04, which failed the whole Linux build; dropping the
+unused package fixed it. That same runner move also turned up several other packages this
+project's Linux build actually does need that had never been listed, because Ubuntu used to
+install them as side effects of something else.
 
 There is a small headless regression test suite in `Source/Tests`, built as the `DexedTests`
 CMake target. Run it with:
