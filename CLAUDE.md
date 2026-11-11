@@ -8,21 +8,10 @@ mouse, so describe any UI testing as VoiceOver testing, not generic manual testi
 
 When explaining what you want to do, are doing, or have done, or in writing any documentation
 including plans, use plain language without dumbing the content down. For example, say what
-"pr" is in plain words, but don't replace what it connotes. Also follow these style rules:
-
+"pr" is in plain words, but don't replace what it connotes. 
 - No bold.
-- No m dashes.
-- No n dashes.
-- Prefer bulleted lists to comma-separated ones.
-- Prefer lists to tables.
-- Use commas rather than parentheses.
-- Avoid choppy phrasing.
-- No AI filler, such as actually.
-- Write conversationally.
-- Write in pyramid style. Put the most important content first. Save the detail for afterward.
-  Keep the detail in the same order as the up-front summary.
-- Explain the consequences of your planned actions.
-- Remember that I may not know the programming language you are using.
+
+Use the AI No Slop skill.
 
 ## What this is
 
@@ -32,18 +21,16 @@ Google's music-synthesizer-for-android, called msfa, which stays under the Apach
 instead of the project's GPLv3, specifically so it can be shared across projects. Do not
 relicense or restructure `Source/msfa`.
 
-The project's goal is to stay compatible with the original DX7. Anything that adds capability
-beyond the DX7, like new engine features, float parameters, or extra waveforms, belongs in a
-fork, not here.
-
 ## Remotes
 
 - `origin` is `https://github.com/jhomme/dexedAccessible.git`, this fork.
 - `upstream` is `https://github.com/asb2m10/dexed.git`, the real project.
 
+This fork broke away from the original because the original was refactored the night of this fork's initial release. We are not going back.
+
 ## Branches
 
-- `master` tracks upstream, with no local changes.
+- `master` is the same as the original was when we forked it.
 - `fix/parameter-registration-crash`, a bug fix branch, opened as a PR upstream. See History
   below.
 - `accessibility`, where the accessibility work happens, now the only actively developed
@@ -79,7 +66,7 @@ mkdir build && cd build
 cmake .. -DJUCE_COPY_PLUGIN_AFTER_BUILD=TRUE
 cmake --build .
 ```
-Binaries land in `build/Source/DexedAccessible_artefacts`.
+Binaries are placed in `build/Source/DexedAccessible_artefacts`.
 
 Useful CMake options:
 - `-DBUILD_ID=<id>` sets `DEXED_ID`, used for nightly or release version stamping. CI sets
@@ -91,8 +78,11 @@ Useful CMake options:
 
 On Linux, missing headers usually mean missing dev packages. See the Linux build dependencies
 wiki page linked from README.md. CI installs `libasound2-dev`, `libx11-dev`,
-`libxinerama-dev`, `libxext-dev`, `libfreetype6-dev`, `libwebkit2gtk-4.1-dev`,
-`libglu1-mesa-dev`, `xvfb`, `libjack-dev`, and `libsndfile-dev`.
+`libxinerama-dev`, `libxext-dev`, `libfreetype6-dev`, `libglu1-mesa-dev`, `xvfb`,
+`libjack-dev`, and `libsndfile-dev`. `libwebkit2gtk-4.1-dev` was dropped from that list: this
+project builds with `JUCE_WEB_BROWSER=0`, so the package was never needed, and a broken
+dependency of its own, `libsoup3`, was unavailable on Ubuntu's mirrors after the `ubuntu-latest`
+runner moved to Ubuntu 26.04, which was failing the whole Linux build.
 
 There is a small headless regression test suite in `Source/Tests`, built as the `DexedTests`
 CMake target. Run it with:
@@ -107,9 +97,10 @@ registration, sliders, or JUCE API usage, since that is the area that broke last
 everything else, including all accessibility changes, validate by building and loading the
 plugin or standalone in a DAW or host, using VoiceOver to check the actual behavior.
 
-CI, in `.github/workflows/project-pipeline.yml`, builds Linux, Windows, and macOS in parallel,
-and publishes to a rolling Nightly GitHub release on branch pushes, or to a tagged release
-when a tag is pushed.
+CI, in `.github/workflows/project-pipeline.yml`, builds Linux, Windows, and macOS in parallel
+on every branch push, as a build check only. It only publishes a GitHub release when a
+version tag is pushed. A rolling Nightly release used to also publish on every branch push;
+that job was removed because it kept failing.
 
 ## Architecture
 
