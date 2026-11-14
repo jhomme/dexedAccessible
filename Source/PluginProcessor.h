@@ -216,6 +216,8 @@ public :
     const String getParameterName (int index) override;
     const String getParameterText (int index) override;
     String getParameterID (int index) override;
+    String getParameterTextForValue (int index, float value);
+    float getParameterValueForText (int index, const String& text);
 
     const String getInputChannelName (int channelIndex) const override;
     const String getOutputChannelName (int channelIndex) const override;

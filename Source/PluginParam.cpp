@@ -30,7 +30,8 @@ DexedParameterAdapter::DexedParameterAdapter(DexedAudioProcessor& p, int i) : pr
 float DexedParameterAdapter::getValue() const { return processor.getParameter(index); }
 void DexedParameterAdapter::setValue(float v) { processor.setParameter(index, v); }
 String DexedParameterAdapter::getName(int) const { return processor.getParameterName(index); }
-String DexedParameterAdapter::getText(float, int) const { return processor.getParameterText(index); }
+String DexedParameterAdapter::getText(float value, int) const { return processor.getParameterTextForValue(index, value); }
+float DexedParameterAdapter::getValueForText(const String& text) const { return processor.getParameterValueForText(index, text); }
 String DexedParameterAdapter::getParameterID() const { return processor.getParameterID(index); }
 
 // Async updater
@@ -399,6 +400,16 @@ void CtrlFloat::updateComponent() {
     }
 }
 
+String CtrlFloat::getTextForValue(float hostValue) {
+    String display;
+    display << hostValue;
+    return display;
+}
+
+float CtrlFloat::getValueForText(const String& text) {
+    return jlimit(0.0f, 1.0f, text.getFloatValue());
+}
+
 // ************************************************************************
 // CtrlDX - control DX mapping
 CtrlDX::CtrlDX(String name, int steps, int offset, int displayValue) : Ctrl(name) {
@@ -490,6 +501,16 @@ void CtrlDX::updateComponent() {
         }
         comboBox->setSelectedId(cvalue, dontSendNotification);
     }
+}
+
+String CtrlDX::getTextForValue(float hostValue) {
+    String ret;
+    ret << (roundToInt(hostValue * steps) + displayValue);
+    return ret;
+}
+
+float CtrlDX::getValueForText(const String& text) {
+    return jlimit(0.0f, 1.0f, (text.getIntValue() - displayValue) / (float) steps);
 }
 
 /***************************************************************
@@ -786,6 +807,14 @@ const String DexedAudioProcessor::getParameterText(int index) {
 
 String DexedAudioProcessor::getParameterID(int index) {
     return getParameterName(index);
+}
+
+String DexedAudioProcessor::getParameterTextForValue(int index, float value) {
+    return ctrl[index]->getTextForValue(value);
+}
+
+float DexedAudioProcessor::getParameterValueForText(int index, const String& text) {
+    return ctrl[index]->getValueForText(text);
 }
 
 void DexedAudioProcessor::loadPreference() {

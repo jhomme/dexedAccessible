@@ -41,7 +41,7 @@ public:
     String getName(int maximumStringLength) const override;
     String getLabel() const override { return {}; }
     String getText(float normalisedValue, int maximumStringLength) const override;
-    float getValueForText(const String&) const override { jassertfalse; return 0.0f; }
+    float getValueForText(const String& text) const override;
     String getParameterID() const override;
 private:
     DexedAudioProcessor& processor;
@@ -80,6 +80,16 @@ public:
     virtual String getValueDisplay() = 0;
     virtual void updateComponent() = 0;
 
+    // Text conversions for a host-given value, independent of the control's current
+    // value. CLAP hosts (see clap-juce-wrapper.cpp's paramsValueToText/paramsTextToValue)
+    // call these for typed parameter edits before any value is actually set. The
+    // default falls back to the control's current-value text/host value, which is the
+    // same behavior these controls had before this existed: not fixed for CLAP typed
+    // edits, but no worse. CtrlFloat and plain CtrlDX override with a real conversion;
+    // subclasses with non-numeric displays (switches, note names, labels, tune) don't.
+    virtual String getTextForValue(float) { return getValueDisplay(); }
+    virtual float getValueForText(const String&) { return getValueHost(); }
+
     void comboBoxChanged (ComboBox* combo);
     void sliderValueChanged (Slider* moved);
     void buttonClicked (Button* buttonThatWasClicked);
@@ -103,6 +113,8 @@ public:
 	float getValueHost();
 	String getValueDisplay();
     void updateComponent();
+    String getTextForValue(float hostValue);
+    float getValueForText(const String& text);
 };
 
 // CtrlDX is a controller that is related to DX parameters
@@ -127,8 +139,10 @@ public:
     void comboBoxChanged (ComboBox* combo);
     void buttonClicked (Button* buttonThatWasClicked);
     void updateComponent();
-    
+
     void updateDisplayName();
+    String getTextForValue(float hostValue);
+    float getValueForText(const String& text);
 };
 
 struct OperatorCtrl {

@@ -173,19 +173,23 @@ and `DexedResources`.
 
 - Accessibility work proceeds on `accessibility` now, regardless of PR 534's status upstream.
   Upstream review is not a dependency for anything here.
-- Next: `EnvDisplay` and `PitchEnvDisplay`, in `Source/DXComponents.h`, need real accessibility
-  handlers. They are custom-painted envelope diagrams with no title or role right now, so
-  VoiceOver reports them as unnamed. Follow the pattern already in the repo, `ProgramLabelAH`
-  in `Source/ProgramListBox.h`: a nested `AccessibilityHandler` subclass with a `getTitle`
-  method describing the current envelope values, returned from a `createAccessibilityHandler`
-  override. Also fire a `valueChanged` accessibility event wherever these displays currently
-  repaint in response to a parameter change, so VoiceOver announces live edits, not just the
-  first time a display gets focus. `LcdDisplay`, in the same file, is a simpler version of the
-  same pattern: announce `paramMsg`, and fire `valueChanged` from `setSystemMsg`.
-- After that: `AlgoDisplay`, in `Source/AlgoDisplay.h` and `.cpp`, the algorithm routing
-  diagram. This is harder, since describing 6 operators, feedback loops, and carrier or
-  modulator routing in words is its own small design problem. It deserves its own pass once
-  the simpler displays prove out the pattern.
+- Done: `EnvDisplay`, `PitchEnvDisplay`, and `LcdDisplay`, in `Source/DXComponents.h`, all
+  have real `createAccessibilityHandler()` overrides with a live `getTitle()`, following the
+  `ProgramLabelAH` pattern in `Source/ProgramListBox.h`. VoiceOver announces the envelope
+  rate/level values or the LCD message, and announces again as they change, not just on
+  first focus.
+- Next: `AlgoDisplay`, in `Source/AlgoDisplay.h` and `.cpp`, the algorithm routing diagram.
+  It's a plain `Component` with `juce::SettableTooltipClient` added just so `setTooltip()`
+  would compile, and only a static title/tooltip right now; no real accessibility handler.
+  `AlgoDisplay::describeAlgorithm()` already exists and already builds the right words for a
+  given algorithm and operator on/off state, reused today for the ALGO dial's live tooltip in
+  `Source/GlobalEditor.cpp`; the remaining work is wiring a real `createAccessibilityHandler()`
+  onto `AlgoDisplay` itself that calls the same function, plus firing a live update when the
+  algorithm or operator switches change. This is still harder than the envelope displays were,
+  since describing 6 operators, feedback loops, and carrier or modulator routing in words is
+  its own small design problem, even with `describeAlgorithm()` already doing that work.
+- Same gap, not yet scheduled: `VuMeter`/`VuMeterOutput`, in `Source/VUMeter.h`, also only
+  have a static title/tooltip via `SettableTooltipClient`, no real accessibility handler.
 - Future fixes and features belong on branches off `accessibility`. Upstream-bound bug fixes
   unrelated to accessibility can still go out as their own PRs off `master`, the way 534 did,
   but they are never a gate for anything on `accessibility`.

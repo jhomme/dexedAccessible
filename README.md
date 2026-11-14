@@ -1,11 +1,15 @@
 DexedAccessible:  an accessible fork of the original Dexed FM Plugin Synth
 =======================
 
-For information about the original, please see [Dexed User Website](https://asb2m10.github.io/dexed). 
+For information about the original, please see 
+https://asb2m10.github.io/dexed. 
 
-Downloads are on this repository's [Releases page](https://github.com/jhomme/dexedAccessible/releases). Each release lists separate files for Mac, Windows, and Linux; pick the one matching your system.
+Downloads are on this repository's [Releases page](
+https://github.com/jhomme/dexedAccessible/releases). Each 
+release lists separate files for Mac, Windows, and Linux; pick the one matching your system.
 
-For the newest version without digging through past releases, use this link, which always points to whatever release is currently latest: https://github.com/jhomme/dexedAccessible/releases/latest
+For the newest version without digging through past releases, use this link, which always points to whatever release is currently latest: 
+https://github.com/jhomme/dexedAccessible/releases/latest
 
 Accessibility was vibe coded using Claude Code and tested by me  on Mac in standalone and Logic Pro using VoiceOver.
 
