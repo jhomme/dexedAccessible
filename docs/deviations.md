@@ -141,3 +141,32 @@ independent copies of every script, so nothing was lost; the skill remains usabl
 any other project.
 
 Who decided: Jim, 2026-10-26.
+
+## 2026-11-14: announce the returning panel instead of forcing focus to the function button
+What changed: `docs/0.3.0.md` item 2 asked that pressing Escape in the function dialog put
+focus on the function button, not anywhere else. Instead, closing the function dialog (or
+the cartridge library), by Escape or by its own Close button, now announces which panel focus
+is returning to, such as "Operator 3," right before the control JUCE naturally restores focus
+to, such as that operator's Detune slider. Real keyboard focus itself was left to JUCE's
+existing restore behavior rather than redirected to the function button.
+
+Why: during testing, Jim confirmed hearing "Operator 3" then "Detune 0" gave him the context
+he actually wanted, without needing to tab away from the control JUCE already puts him back
+on. Forcing focus to the function button instead would have meant an extra Tab press to get
+back to where he was working.
+
+Who decided: Jim, 2026-11-14, confirmed by testing in standalone and Logic.
+
+## 2026-11-14: ship the Windows announcement over SAPI now, proper NVDA routing later
+What changed: the same panel-name and operator on/off announcements added for Mac VoiceOver
+also go out on Windows, using JUCE's `AccessibilityHandler::postAnnouncement`. On Windows,
+that function speaks directly through a raw SAPI (Windows' built-in text-to-speech) voice
+instead of routing through whatever screen reader, such as NVDA, is actually running;
+confirmed by reading `libs/JUCE/modules/juce_gui_basics/native/accessibility/
+juce_Accessibility_windows.cpp`. NVDA itself won't announce these.
+
+Why: Jim's call, to ship real announcements on both platforms now rather than block Mac
+VoiceOver support on a Windows-specific fix. A proper NVDA-routed announcement is real future
+work, not done here.
+
+Who decided: Jim, 2026-11-14. Not yet tested on Windows or with NVDA.

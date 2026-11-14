@@ -31,6 +31,50 @@
 
 #include "msfa/fm_op_kernel.h"
 
+// Command+1-6, Command+G, Command+K, and Command+L all jump keyboard focus straight to a
+// control inside some panel or dialog, skipping the panel itself, so VoiceOver/NVDA only
+// ever announce that control's own name, never which panel it's in. Speaking the panel's
+// name first fixes that, but only when focus is arriving from somewhere else; otherwise
+// jumping to the same panel repeatedly, or jumping within a panel you're already in, would
+// repeat its name on every press.
+//
+// The announcement and the actual focus move can't happen too close together: watching the
+// real accessibility notifications confirmed both are posted correctly, in the right order,
+// but VoiceOver cancels the announcement's speech the instant the focus-changed notification
+// arrives, so only the control's name was ever heard, never the group. Deferring the focus
+// move by a fraction of a second, instead of just to the next turn of the event loop, gives
+// VoiceOver time to actually finish speaking the group name first.
+static void announceGroupThenFocus(Component& group, std::function<void()> focusAction) {
+    auto *current = Component::getCurrentlyFocusedComponent();
+    if ( current == nullptr || ! group.isParentOf(current) ) {
+        AccessibilityHandler::postAnnouncement(group.getTitle(), AccessibilityHandler::AnnouncementPriority::medium);
+        Timer::callAfterDelay(1000, focusAction);
+    } else {
+        focusAction();
+    }
+}
+
+// Which of the named panels, if any, a given component sits inside. Used to remember where
+// focus was before the cartridge library opened, so leaving it again can announce that same
+// panel, the same way jumping to it would.
+static Component* findEnclosingNamedGroup(Component *focused, OperatorEditor *operators,
+                                            GlobalEditor &global, MidiKeyboardComponent &midiKeyboard) {
+    if ( focused == nullptr )
+        return nullptr;
+
+    for ( int i = 0; i < 6; i++ )
+        if ( operators[i].isParentOf(focused) )
+            return &operators[i];
+
+    if ( global.isParentOf(focused) )
+        return &global;
+
+    if ( midiKeyboard.isParentOf(focused) )
+        return &midiKeyboard;
+
+    return nullptr;
+}
+
 //==============================================================================
 DexedAudioProcessorEditor::DexedAudioProcessorEditor (DexedAudioProcessor* ownerFilter)
     : AudioProcessorEditor (ownerFilter),
@@ -136,6 +180,9 @@ void DexedAudioProcessorEditor::paint (Graphics& g) {
 }
 
 void DexedAudioProcessorEditor::cartShow() {
+    preCartridgeLibraryGroup = findEnclosingNamedGroup(Component::getCurrentlyFocusedComponent(),
+                                                        operators, global, midiKeyboard);
+
     stopTimer();
     cartManager.resetActiveSysex();
     cartManagerCover.setBounds(0, 0, WINDOW_SIZE_X , WINDOW_SIZE_Y - 94);
@@ -222,17 +269,51 @@ void DexedAudioProcessorEditor::tuningShow() {
 
 // I don't know why closeButtonPressed is not implemented in the standard DialogWindow version.
 class DexedDialogWindow : public juce::DialogWindow {
+    // DialogWindow's constructor registers Escape as a keyboard shortcut directly on its own
+    // close button, as well as handling Escape itself (see escapeKeyPressed below). A single
+    // Escape press ends up triggering both, which would call onCloseRequested twice: once to
+    // start the announce-then-close sequence, and a second time immediately afterward with
+    // nothing left to remember, closing right away and cutting the announcement off. This
+    // guard makes a second close request while one is already underway a no-op.
+    bool closeRequested = false;
 public:
+    // Set by whoever opens this dialog, so closing it (its own close button, or Escape, which
+    // both already land here) can announce the panel the user is returning to before focus
+    // actually settles there, the same way opening a panel does.
+    std::function<void()> onCloseRequested;
+
     DexedDialogWindow(const juce::String& title, juce::Colour backgroundColour)
         : juce::DialogWindow(title, backgroundColour, true, false) {
 
     }
     void closeButtonPressed() override {
-        setVisible(false);
+        if ( closeRequested )
+            return;
+        closeRequested = true;
+
+        if ( onCloseRequested )
+            onCloseRequested();
+        else
+            setVisible(false);
+    }
+
+    // DialogWindow's own escape-key handling hides the window directly instead of going
+    // through closeButtonPressed(), so without this override Escape would skip
+    // onCloseRequested entirely and silently hide the dialog with no announcement.
+    bool escapeKeyPressed() override {
+        closeButtonPressed();
+        return true;
     }
 };
 
-void DexedAudioProcessorEditor::parmShow() {
+// returnGroupOverride lets Command+P, which has to wait a second before this actually runs (see
+// the keyPressed handler), capture which panel to return to right away instead of waiting until
+// this runs to look at what's currently focused. In Logic Pro specifically, focus had already
+// moved on by the time the delay elapsed, so capturing it here was landing on the wrong panel,
+// Operator 1, instead of wherever the user actually was. The Function Settings button inside
+// Global Parameters calls this directly with no delay, so it still captures the current focus
+// itself, by passing nothing.
+void DexedAudioProcessorEditor::parmShow(Component *returnGroupOverride) {
     int tp = processor->getEngineType();
     auto param = new ParamDialog();
     param->setColour(AlertWindow::backgroundColourId, Colour(0xFF323E44));
@@ -277,7 +358,27 @@ void DexedAudioProcessorEditor::parmShow() {
                                };
     param->setGeneralCallback(generalCallback);
 
-    dexedParameterDialog = std::make_unique<DexedDialogWindow>("dexed Parameters", Colour(0xFF323E44));
+    preParamDialogGroup = returnGroupOverride != nullptr
+        ? returnGroupOverride
+        : findEnclosingNamedGroup(Component::getCurrentlyFocusedComponent(), operators, global, midiKeyboard);
+
+    auto *dialog = new DexedDialogWindow("dexed Parameters", Colour(0xFF323E44));
+    dialog->onCloseRequested = [this, dialog] {
+        if ( auto *f = fopen("/tmp/dexed_au_diag.log", "a") ) {
+            fprintf(f, "[DIAG] closing param dialog; preParamDialogGroup = %s\n",
+                    preParamDialogGroup != nullptr ? preParamDialogGroup->getTitle().toRawUTF8() : "nullptr");
+            fclose(f);
+        }
+        if ( preParamDialogGroup != nullptr ) {
+            Component *returnGroup = preParamDialogGroup;
+            preParamDialogGroup = nullptr;
+            announceGroupThenFocus(*returnGroup, [dialog] { dialog->setVisible(false); });
+        } else {
+            dialog->setVisible(false);
+        }
+    };
+
+    dexedParameterDialog.reset(dialog);
     dexedParameterDialog->setContentOwned(param, true);
     frameComponent.addAndMakeVisible(dexedParameterDialog.get());
     dexedParameterDialog->centreAroundComponent(&frameComponent, param->getWidth(), param->getHeight() + dexedParameterDialog->getTitleBarHeight());
@@ -627,6 +728,22 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
         TRACE("key pressed: %d\n", keycode);
     #endif
 
+    // While the cartridge library is open, the rest of the main window is hidden from
+    // accessibility on purpose (see setMainUIAccessible), to keep VoiceOver from wandering
+    // out of the dialog. Command+1-6, Command+G, and Command+K would otherwise still move
+    // real keyboard focus to one of those now-hidden controls, so VoiceOver would announce
+    // the jump but then have nothing to land on. Block them here instead, and say why.
+    if ( cartManagerCover.isVisible() ) {
+        bool isBlockedJump = ( ( (keycode >= '1' && keycode <= '6') && mods.isCommandDown() && ! mods.isShiftDown() )
+                               || ( keycode == 'G' && mods.isCommandDown() )
+                               || ( keycode == 'K' && mods.isCommandDown() ) );
+        if ( isBlockedJump ) {
+            AccessibilityHandler::postAnnouncement("Press Escape to exit the cartridge library",
+                                                    AccessibilityHandler::AnnouncementPriority::medium);
+            return true;
+        }
+    }
+
     // macOS reports the shifted symbol above each number key, not the digit itself,
     // once Shift is held, so Command+Shift+1 arrives as '!' rather than '1'. Map the
     // six shifted symbols back to the operator they stand in for.
@@ -648,7 +765,7 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
         if ( mods.isShiftDown() ) {
             operators[op].toggleOpSwitch();
         } else {
-            operators[op].grabKeyboardFocus();
+            announceGroupThenFocus(operators[op], [this, op] { operators[op].grabKeyboardFocus(); });
         }
 
         handled = true;
@@ -661,32 +778,74 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
         return true;
 
     if ( keycode == 'G' && mods.isCommandDown() ) {
-        global.grabKeyboardFocus();
+        announceGroupThenFocus(global, [this] { global.grabKeyboardFocus(); });
         return true;
     }
 
     if ( keycode == 'K' && mods.isCommandDown() ) {
         if ( midiKeyboard.isShowing() )
-            midiKeyboard.grabKeyboardFocus();
+            announceGroupThenFocus(midiKeyboard, [this] { midiKeyboard.grabKeyboardFocus(); });
         return true;
     }
 
     if ( keycode == 'L' && mods.isCommandDown() ) {
-        cartShow();
+        announceGroupThenFocus(cartManager, [this] { cartShow(); });
         return true;
     }
 
     if ( keycode == 'P' && mods.isCommandDown() ) {
-        parmShow();
+        // The dialog itself doesn't exist until parmShow() builds it, so there's no group
+        // Component yet to hand announceGroupThenFocus for the "already inside it" check. That
+        // check isn't needed here anyway: you can never already be inside this dialog when
+        // Command+P is pressed, since it doesn't exist until this opens it.
+        //
+        // Capture the return panel here, right now, rather than waiting for the delayed
+        // parmShow() call to do it: by the time that runs, a second from now, focus may no
+        // longer be what it was at the moment of the keypress.
+        Component *returnGroup = findEnclosingNamedGroup(Component::getCurrentlyFocusedComponent(),
+                                                           operators, global, midiKeyboard);
+        if ( auto *f = fopen("/tmp/dexed_au_diag.log", "a") ) {
+            fprintf(f, "[DIAG] Command+P pressed; captured return group = %s\n",
+                    returnGroup != nullptr ? returnGroup->getTitle().toRawUTF8() : "nullptr");
+            fclose(f);
+        }
+
+        AccessibilityHandler::postAnnouncement("Function Settings", AccessibilityHandler::AnnouncementPriority::medium);
+        Timer::callAfterDelay(1000, [this, returnGroup] {
+            Component *groupIfCapturedNow = findEnclosingNamedGroup(Component::getCurrentlyFocusedComponent(),
+                                                                      operators, global, midiKeyboard);
+            if ( auto *f = fopen("/tmp/dexed_au_diag.log", "a") ) {
+                fprintf(f, "[DIAG] parmShow() about to run; group captured at keypress time = %s; group if captured right now instead = %s\n",
+                        returnGroup != nullptr ? returnGroup->getTitle().toRawUTF8() : "nullptr",
+                        groupIfCapturedNow != nullptr ? groupIfCapturedNow->getTitle().toRawUTF8() : "nullptr");
+                fclose(f);
+            }
+            parmShow(returnGroup);
+        });
         return true;
     }
 
     if ( key.getKeyCode() == KeyPress::escapeKey ) {
-        cartManager.hideCartridgeManager();
+        closeCartridgeLibrary();
         return true;
     }
 
     return false;
+}
+
+// The single place that actually leaves the cartridge library, no matter which control the
+// user used to do it: Escape, or any button inside the dialog that closes it. Both paths used
+// to go their own way, so only Escape got the "you're back in Operator N" announcement and the
+// dialog's own Close button didn't say anything. Routing both through here fixes that for good,
+// instead of needing to remember to wrap every future close path by hand.
+void DexedAudioProcessorEditor::closeCartridgeLibrary() {
+    if ( cartManagerCover.isVisible() && preCartridgeLibraryGroup != nullptr ) {
+        Component *returnGroup = preCartridgeLibraryGroup;
+        preCartridgeLibraryGroup = nullptr;
+        announceGroupThenFocus(*returnGroup, [this] { cartManager.hideCartridgeManager(); });
+    } else {
+        cartManager.hideCartridgeManager();
+    }
 }
 
 void DexedAudioProcessorEditor::resetSize() {

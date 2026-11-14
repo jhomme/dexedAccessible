@@ -2,14 +2,25 @@
 
 ## Where we are
 GitHub issue #3, keyboard navigation shortcuts: switched the five existing shortcuts from
-Control to Command on Mac (Windows keeps Control, unchanged). Testing turned up two real,
-pre-existing bugs, neither caused by the switch: Command+Shift+1-6 didn't match at all
-because macOS reports the shifted symbol above a number key, not the digit, once Shift is
-held; and even once matched, the operator mute toggle never really applied because
-`toggleOpSwitch()` suppressed the notification that makes the change real. Both fixed. Jim
-confirmed all five shortcuts, including both toggle fixes, work in the standalone app and as
-an AU plugin in Logic. Not yet committed. Full account in docs/log.md, entry dated
-2026-11-14. Still open from issue #3: comma/period group-stepping, and the preset save/picker
+Control to Command on Mac (Windows keeps Control, unchanged), and fixed two real,
+pre-existing bugs found while testing the switch. Committed as `2dfe5e1`.
+
+On top of that, in the same session: VoiceOver now announces which panel a shortcut lands
+on or returns to, not just the control it lands on, such as "Operator 3" before "Detune 0."
+Covers Command+1-6, Command+Shift+1-6 (announces on/off without moving focus), Command+G,
+Command+K, Command+L, and Command+P, plus closing the cartridge library or the function
+dialog by Escape or by its own Close button. Along the way, fixed a real bug where the
+cartridge library's jump shortcuts announced a panel but landed nowhere (now blocked with a
+spoken "press Escape to exit" message instead), and a real JUCE double-invocation bug where
+a single Escape press closed the function dialog twice, cutting its own announcement off.
+Decided to announce context instead of forcing focus onto the function button, Jim's
+preference after testing; and to ship these announcements on Windows now even though that
+path bypasses NVDA, with proper NVDA routing as separate future work. Both decisions in
+deviations.md. Jim confirmed working with VoiceOver in standalone and in Logic (AU). Not yet
+tested on Windows or with NVDA. Full account in docs/log.md, entry dated 2026-11-14. Not yet
+committed.
+
+Still open from issue #3: comma/period group-stepping, and the preset save/picker
 tab-order fix, neither started.
 
 Separately, still open, untouched since 2026-11-10: GitHub issue #1, "Parameters not

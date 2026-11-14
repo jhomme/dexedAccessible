@@ -162,6 +162,8 @@ CartManager::CartManager(DexedAudioProcessorEditor *editor) : Component("CartMan
     mainWindow = editor;
     cartDir = DexedAudioProcessor::dexedCartDir;
 
+    setTitle("Cartridge Library");
+
     activeCart.reset(new ProgramListBox("Active Programs Selector", 8));
     addAndMakeVisible(activeCart.get());
     activeCart->addListener(this);
@@ -293,7 +295,7 @@ void CartManager::programSelected(ProgramListBox *source, int pos) {
 
 void CartManager::buttonClicked(juce::Button *buttonThatWasClicked) {
     if ( buttonThatWasClicked == closeButton.get() ) {
-        hideCartridgeManager();
+        mainWindow->closeCartridgeLibrary();
         return;
     }
 

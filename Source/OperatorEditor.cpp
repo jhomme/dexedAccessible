@@ -694,7 +694,13 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
 }
 
 void OperatorEditor::toggleOpSwitch() {
-    opSwitch->setToggleState(!opSwitch->getToggleState(), sendNotification);
+    bool newState = !opSwitch->getToggleState();
+    opSwitch->setToggleState(newState, sendNotification);
+
+    // Keyboard focus stays wherever the user already had it, so VoiceOver/NVDA won't say
+    // anything about this on their own. Speak the result directly instead.
+    AccessibilityHandler::postAnnouncement("Operator " + opNum + (newState ? " on" : " off"),
+                                            AccessibilityHandler::AnnouncementPriority::medium);
 }
 
 //[/MiscUserCode]

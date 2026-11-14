@@ -136,4 +136,10 @@ acceptance.md instead, and link back here.
 - [x] Switch the five keyboard navigation shortcuts from issue #3 to use Command instead of
   Control on Mac, and fix two real bugs found while testing the switch: the operator mute
   toggle never actually applied, and Shift held with a number key broke the match entirely.
-  See log.md, 2026-11-14. Not yet committed.
+  `2dfe5e1`, 2026-11-14.
+- [x] Announce context when a keyboard shortcut jumps or returns focus across panels:
+  Command+1-6, Command+G, Command+K, Command+L, and Command+P all announce the panel's name
+  before landing on its first control, but only when arriving from somewhere else. Toggling
+  an operator with Command+Shift+1-6 announces on/off without moving focus. Closing the
+  cartridge library or the function dialog, by Escape or by its own Close button, announces
+  the panel focus is returning to. See log.md and deviations.md, 2026-11-14.

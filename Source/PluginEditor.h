@@ -50,6 +50,13 @@ class DexedAudioProcessorEditor  : public AudioProcessorEditor, public ComboBox:
     bool initialFocusGiven = false;
     int initialFocusTicks = 0;
 
+    // Whichever operator panel, Global Parameters, or the on-screen keyboard had keyboard
+    // focus right before the cartridge library, or the Function Settings parameters dialog,
+    // opened, so closing either one can announce that panel's name again on the way back out,
+    // the same way jumping to it does.
+    Component *preCartridgeLibraryGroup = nullptr;
+    Component *preParamDialogGroup = nullptr;
+
     Component frameComponent;
 public:
     DexedAudioProcessor *processor;
@@ -68,7 +75,8 @@ public:
     void initProgram();
     void storeProgram();
     void cartShow();
-    void parmShow();
+    void closeCartridgeLibrary();
+    void parmShow(Component *returnGroupOverride = nullptr);
     void tuningShow();
     void setMainUIAccessible(bool accessible);
     void discoverMidiCC(Ctrl *ctrl);

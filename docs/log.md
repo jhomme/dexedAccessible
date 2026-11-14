@@ -1621,4 +1621,75 @@ own prior build, not the real upstream Dexed or either Dexed.vst3 copy, was touc
 confirmed that's fine for now.
 
 Jim tested all five shortcuts, including both toggle fixes, in the standalone app and as an
-AU instrument in Logic. Confirmed working in both. Not yet committed.
+AU instrument in Logic. Confirmed working in both. Committed as `2dfe5e1`.
+
+## 2026-11-14: announce which panel a keyboard shortcut lands on or returns to
+Jim noticed VoiceOver only ever spoke the control a shortcut landed on, such as "Detune 0,"
+never which operator or panel it was in. Built `announceGroupThenFocus()` in
+`Source/PluginEditor.cpp`: compares the currently focused component's group to the target
+group, and only announces the target's name, via
+`AccessibilityHandler::postAnnouncement()`, when arriving from somewhere else; moving within
+a group already focused skips the announcement. Applied to Command+1-6, Command+G,
+Command+K, and Command+L. Command+Shift+1-6 (`OperatorEditor::toggleOpSwitch()`) announces
+"Operator N on/off" immediately instead, explicitly without moving focus, since Jim wanted
+the toggle confirmed without losing his place.
+
+Timing bug: announcing and then moving focus in the same tick, or even via
+`MessageManager::callAsync`, made VoiceOver drop one of the two messages, confirmed by
+watching real `AXAnnouncementRequested` and `AXFocusedUIElementChanged` notifications with
+the `event-watch` skill's `ax-watch` tool after Jim suspended the global outside-project
+approval rule for this session so it could be compiled and run. Both notifications post
+correctly and in order; VoiceOver itself cancels the announcement's speech when a focus
+change follows too soon. Fixed with a real `Timer::callAfterDelay(1000, ...)` gap between
+the two instead of a same-tick defer; 500ms still cut the announcement off, 1000ms didn't.
+`AnnouncementPriority::high` alone, with no delay, did not help.
+
+While the cartridge library is open, the rest of the main window is deliberately hidden from
+accessibility (`setMainUIAccessible`), so the jump shortcuts above would announce a panel
+name but land nowhere VoiceOver could follow. Blocked them while the dialog is open and
+added a spoken "Press Escape to exit the cartridge library" instead of silent failure.
+
+Command+P's own dialog, and the cartridge library, needed to announce the panel focus is
+*returning* to, not just the panel it jumps to. Added `preCartridgeLibraryGroup` and
+`preParamDialogGroup` to `DexedAudioProcessorEditor`, captured at the moment the shortcut is
+pressed, and a `findEnclosingNamedGroup()` helper to resolve the currently focused component
+to one of the six operators, Global Parameters, or the on-screen keyboard. For Command+P
+specifically, had to capture that group synchronously when the key is pressed rather than
+inside the delayed `parmShow()` call: in Logic Pro specifically, focus had already moved on
+by the time the one-second delay elapsed, so capturing it late was landing on the wrong
+panel, Operator 1, instead of wherever Jim actually was.
+
+Found a real double-invocation bug while fixing Command+P's Escape path: JUCE's
+`DialogWindow` both overrides its own escape handling and separately registers Escape as a
+keyboard shortcut directly on its own close button (`DialogWindow::resized()`), so a single
+Escape press fired the dialog's close logic twice. The first call correctly started the
+announce-then-close sequence; the second fired immediately behind it with nothing left to
+remember, closing right away and cutting the first announcement off mid-sentence. Confirmed
+by temporary diagnostic logging (plain `fprintf(stderr, ...)` doesn't reach Logic's own
+process output or the macOS unified log, since the AU plugin runs inside a separate
+`AUHostingServiceXPC` process launchd spawns with its own stdio; had to write diagnostics
+straight to a file instead). Fixed with a simple `closeRequested` guard on the dialog so a
+second close request while one is already underway is a no-op.
+
+Separate gotcha, same investigation: after rebuilding and reinstalling the AU plugin,
+Logic's own plugin-hosting process can keep running the old build. Had to fully quit Logic
+and force-kill the lingering `AUHostingServiceXPC_arrow` process before relaunching to
+confirm a fix was really loaded, not just reopening the plugin window.
+
+Decided not to literally force focus onto the function button on Escape, as
+`docs/0.3.0.md` item 2 originally asked; Jim preferred hearing the panel name then the
+control JUCE already restores focus to. See deviations.md. Also decided to ship these
+announcements on Windows now via JUCE's existing `postAnnouncement`, even though that
+function bypasses NVDA on Windows and speaks through raw SAPI instead, confirmed by reading
+`juce_Accessibility_windows.cpp`; proper NVDA routing is separate future work. See
+deviations.md.
+
+Jim confirmed all of the above working with VoiceOver in both the standalone app and as an
+AU plugin in Logic, 2026-11-14. Not yet tested on Windows or with NVDA.
+
+Process note, unrelated to the code: partway through, Jim corrected repeated AI-speak filler
+phrasing ("Honestly,", "Fair criticism.") despite existing global instructions already
+covering plain language. Saved a global feedback memory and added a line to
+`~/.claude/CLAUDE.md`'s "Lessons turned into rules" section: check every reply against the
+`no-ai-slop` skill's "words to cut" and "patterns to cut" lists, not just drafts handed over
+for editing, across all projects.

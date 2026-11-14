@@ -214,3 +214,23 @@ Control for all of these, unchanged.
   all of the above combinations and confirm each one does what it says, including actually
   hearing or confirming an operator mute/unmute, not just a switch flipping visually.
   Confirmed working in both standalone and Logic, 2026-11-14.
+
+## Keyboard shortcuts announce panel context, not just the control they land on
+Done when Command+1 through Command+6, Command+G, Command+K, and Command+L each announce the
+panel's name, such as "Operator 3" or "Global Parameters," before landing on that panel's
+first control, but only when focus is arriving from somewhere else; moving between controls
+already inside the same panel never repeats the panel's name. Command+Shift+1 through 6
+announce "Operator N on" or "Operator N off" immediately, without moving keyboard focus from
+wherever it already was. Command+P announces "Function Settings" the same way the panel
+jumps do. Closing the cartridge library or the function dialog, whether by Escape or by its
+own Close button, announces the panel focus is returning to before the control JUCE restores
+focus to is announced. While the cartridge library is open, pressing any of the jump
+shortcuts instead announces "Press Escape to exit the cartridge library," since those panels
+are intentionally hidden from accessibility while that dialog is up.
+- Jim tests: with VoiceOver on, in both the standalone app and in Logic as an AU plugin, jump
+  between operators, Global Parameters, the on-screen keyboard, the cartridge library, and
+  the function dialog, and confirm each panel's name is announced only when arriving from
+  elsewhere. Toggle operators on and off with Command+Shift+1-6 and confirm the announcement
+  without a focus change. Open the cartridge library, try a jump shortcut, and confirm the
+  "press Escape" message instead of a silent failure. Confirmed working in both standalone
+  and Logic, 2026-11-14. Windows/NVDA not yet tested; see deviations.md.
