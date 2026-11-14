@@ -133,3 +133,7 @@ acceptance.md instead, and link back here.
 - [x] Fix the macOS build pointing at a GitHub runner image, `macos-14`, that GitHub retired
   the day after this build ran. Changed to `macos-15`. Not yet committed. See log.md,
   2026-11-01.
+- [x] Switch the five keyboard navigation shortcuts from issue #3 to use Command instead of
+  Control on Mac, and fix two real bugs found while testing the switch: the operator mute
+  toggle never actually applied, and Shift held with a number key broke the match entirely.
+  See log.md, 2026-11-14. Not yet committed.

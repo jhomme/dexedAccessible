@@ -476,7 +476,7 @@ GlobalEditor::GlobalEditor ()
     setTitle("Global Parameters");
     setFocusContainerType(FocusContainerType::focusContainer);
     // The panel itself does not take keyboard focus, so it is not an empty Tab stop and
-    // Ctrl+G lands on its first control.
+    // Command+G (Ctrl+G on Windows) lands on its first control.
     aboutButton->setTitle("About DexedAccessible");
     aboutButton->setTooltip("Opens information about the plugin's version and credits.");
     algo->setTitle("Algorithm");

@@ -627,35 +627,56 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
         TRACE("key pressed: %d\n", keycode);
     #endif
 
-    if ( (keycode >= '1' && keycode <= '6') && mods.isCtrlDown() ) {
+    // macOS reports the shifted symbol above each number key, not the digit itself,
+    // once Shift is held, so Command+Shift+1 arrives as '!' rather than '1'. Map the
+    // six shifted symbols back to the operator they stand in for.
+    int shiftedDigitOp = -1;
+    switch ( keycode ) {
+        case '!': shiftedDigitOp = 0; break;
+        case '@': shiftedDigitOp = 1; break;
+        case '#': shiftedDigitOp = 2; break;
+        case '$': shiftedDigitOp = 3; break;
+        case '%': shiftedDigitOp = 4; break;
+        case '^': shiftedDigitOp = 5; break;
+    }
+
+    bool handled = false;
+
+    if ( (keycode >= '1' && keycode <= '6') && mods.isCommandDown() ) {
         int op = keycode - '1';
 
         if ( mods.isShiftDown() ) {
             operators[op].toggleOpSwitch();
-            return true;
+        } else {
+            operators[op].grabKeyboardFocus();
         }
 
-        operators[op].grabKeyboardFocus();
-        return true;
+        handled = true;
+    } else if ( shiftedDigitOp >= 0 && mods.isCommandDown() && mods.isShiftDown() ) {
+        operators[shiftedDigitOp].toggleOpSwitch();
+        handled = true;
     }
 
-    if ( keycode == 'G' && mods.isCtrlDown() ) {
+    if ( handled )
+        return true;
+
+    if ( keycode == 'G' && mods.isCommandDown() ) {
         global.grabKeyboardFocus();
         return true;
     }
 
-    if ( keycode == 'K' && mods.isCtrlDown() ) {
+    if ( keycode == 'K' && mods.isCommandDown() ) {
         if ( midiKeyboard.isShowing() )
             midiKeyboard.grabKeyboardFocus();
         return true;
     }
 
-    if ( keycode == 'L' && mods.isCtrlDown() ) {
+    if ( keycode == 'L' && mods.isCommandDown() ) {
         cartShow();
         return true;
     }
 
-    if ( keycode == 'P' && mods.isCtrlDown() ) {
+    if ( keycode == 'P' && mods.isCommandDown() ) {
         parmShow();
         return true;
     }

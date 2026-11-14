@@ -367,7 +367,8 @@ OperatorEditor::OperatorEditor ()
     kbdRightCurve->setTooltip("Chooses the shape of level change for keys above the breakpoint.");
 
     // The panel itself does not take keyboard focus. If it did, it would be an empty Tab stop,
-    // and Ctrl+1 to Ctrl+6 would land on the panel instead of its first control.
+    // and Command+1 to Command+6 (Ctrl+1 to Ctrl+6 on Windows) would land on the panel
+    // instead of its first control.
     //[/Constructor]
 }
 
@@ -693,7 +694,7 @@ void OperatorEditor::mouseDown(const MouseEvent &event) {
 }
 
 void OperatorEditor::toggleOpSwitch() {
-    opSwitch->setToggleState(!opSwitch->getToggleState(), dontSendNotification);
+    opSwitch->setToggleState(!opSwitch->getToggleState(), sendNotification);
 }
 
 //[/MiscUserCode]

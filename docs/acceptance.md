@@ -192,3 +192,25 @@ inside the same list.
   announces the list name, then press Home and End in each list and confirm it jumps to the
   first and last slot. Confirmed working by Jim. This was tested before it got written up
   here; the exact test date wasn't recorded at the time.
+
+## CLAP plugin: typed parameter values take effect
+Done when typing a value into a numeric parameter, such as filter resonance or an operator's
+level, rate, or feedback, in a CLAP host's own generic parameter list actually changes that
+parameter, and the text shown for a given value matches what that value really is. Not done
+for switches, "MONO/POLY," "FIXED/RATIO," labeled dropdowns, breakpoint note names, or master
+tune; those still don't take typed text correctly, same as before this fix.
+- Jim tests: with the CLAP build loaded in a host that lets you type parameter values
+  directly, such as Reaper, type a value into resonance's parameter field and confirm the
+  knob and the synth's actual sound both reflect it, not just that the field accepted the
+  text. Not yet tested; code is written and builds clean but Jim doesn't have Reaper yet.
+
+## Keyboard navigation shortcuts use Command instead of Control on Mac
+Done when Command+1 through Command+6 jump to each operator, Command+Shift+1 through 6
+toggle that operator on or off for real (not just a visual flip), and Command+G, Command+K,
+Command+L, and Command+P reach global settings, the on-screen keyboard, the cartridge
+library, and the parameter dialog, all without needing the Control key on Mac. Windows keeps
+Control for all of these, unchanged.
+- Jim tests: with VoiceOver on, in both the standalone app and in Logic as an AU plugin, try
+  all of the above combinations and confirm each one does what it says, including actually
+  hearing or confirming an operator mute/unmute, not just a switch flipping visually.
+  Confirmed working in both standalone and Logic, 2026-11-14.

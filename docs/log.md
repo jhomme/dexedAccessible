@@ -1515,3 +1515,110 @@ options: `macos-latest`, a rolling label that always means GitHub's current reco
 pinning to a specific version like `macos-15`, matching how the Windows and one Linux job are
 already pinned. Jim chose pinning. Changed `runs-on: macos-14` to `runs-on: macos-15` in
 `.github/workflows/project-pipeline.yml`.
+
+## 2026-11-01: fixed a stale CLAUDE.md line, started a v0.3.0 accessibility problem list
+Fixed a line in CLAUDE.md's build section that claimed `DEXED_ID` was unused as of
+that writing. It is used, in `Source/Dexed.h`, to build `DEXED_VERSION`. The line was wrong,
+added in an earlier, uncommitted edit to the file.
+
+Jim wants to switch modes for a while: collect accessibility problems found through
+VoiceOver testing into a list first, and build none of them until he says so, testing spread
+over several days instead of one sitting. Created `docs/0.3.0.md` to hold that list, named
+for the release it targets rather than added to `docs/Plan.md`, since these are found
+problems, not ordered tasks. Picked `v0.3.0` over `v0.2.1` for the next release, reasoning
+from semantic versioning: new accessibility support is new functionality, not a fix, so the
+middle version number should move. Jim agreed after asking for that reasoning first.
+
+Logged the first item: in the sound selection list, VoiceOver's own arrow navigation,
+VO-up, down, left, right, moves the VoiceOver cursor but not keyboard focus. Jim plans to add
+further items himself using that one as a format example.
+
+## 2026-11-10: investigated issue #1, "Parameters not correct," found and fixed one real bug for plain numeric controls
+A contributor, Chessel85, reported on GitHub that the CLAP build on Windows doesn't apply
+parameter changes typed into Reaper's generic parameter list; resonance set to 0.5 stayed at
+1.0. VST3 on Windows worked fine. Reaper also crashed once on closing a track with the CLAP
+plugin loaded, a separate symptom not yet investigated.
+
+Traced the parameter-not-taking symptom to `Source/PluginParam.h`'s `DexedParameterAdapter`,
+the class that bridges this project's own index-based parameter API to JUCE's
+`AudioProcessorParameter`, added during the JUCE 8 upgrade. Confirmed by reading
+`libs/clap-juce-extensions/src/wrapper/clap-juce-wrapper.cpp` that CLAP hosts call
+`getValueForText()` and `getText(value, ...)` directly, independent of whatever the plugin's
+current value is, whenever a value is typed into a parameter's text box. `getValueForText()`
+was a stub that always returned 0 regardless of what text was typed; `getText()` ignored the
+value it was asked to convert and always returned text for the processor's current value
+instead. Both are genuine bugs, not guesses: confirmed by reading exactly where and how the
+CLAP bridge calls them.
+
+Added two virtual methods to the `Ctrl` base class in `Source/PluginParam.h`,
+`getTextForValue(float)` and `getValueForText(const String&)`, with a default that falls back
+to the old behavior (current-value text, unchanged host value), so no existing control gets
+newly broken. Implemented them properly in `CtrlFloat` and the plain `CtrlDX` class, which
+together cover resonance and most of the operator envelope, level, and feedback controls, the
+same family of controls the reported bug hit. Left the default, old-but-not-worse behavior in
+place for controls with non-numeric displays, on/off switches, "MONO/POLY," "FIXED/RATIO,"
+labeled dropdowns, breakpoint note names, and master tune, since fixing those correctly means
+designing a text/value conversion for each one, real design work Jim hasn't reviewed yet.
+Wired the new methods through `DexedAudioProcessor::getParameterTextForValue()` and
+`getParameterValueForText()` in `Source/PluginProcessor.h`/`.cpp`, matching the existing
+`getParameterText()` pattern.
+
+Built the `DexedAccessible_CLAP` target clean, confirmed the resulting binary is arm64, and
+ran `DexedTests`, which passed. Not yet tested in a real CLAP host: Jim doesn't have Reaper
+and is finding someone to help test on Windows. Code changes are made and build-verified but
+not committed, at Jim's request, pending that real-host test. The Reaper-crash-on-close half
+of the report is still unexplained.
+
+## 2026-11-10: fixed a stale Plan section in CLAUDE.md
+CLAUDE.md's Plan section said `EnvDisplay` and `PitchEnvDisplay` still needed real
+accessibility handlers. Checking the actual code first, both already have one, along with
+`LcdDisplay`, confirmed by `git log` showing three earlier commits that did this work,
+including `869a6e2`. Updated the Plan section to mark those three done, and corrected what it
+said about `AlgoDisplay`: it already has a `describeAlgorithm()` function reused by the ALGO
+dial's tooltip, but `AlgoDisplay` itself still has no real accessibility handler, only a
+static tooltip. Also added `VuMeter`/`VuMeterOutput`, in the same no-real-handler state,
+which the Plan section hadn't mentioned at all.
+
+## 2026-11-14: switched issue #3's keyboard shortcuts to Command on Mac, found and fixed two real bugs
+Jim confirmed the five existing shortcuts from issue #3, Command+1-6, Command+Shift+1-6,
+Command+G, Command+K, Command+L, and Command+P, should use Command instead of Control on Mac,
+matching Mac convention and sidestepping the Control+number conflict with Logic Pro that the
+original Dexed hit. Changed every `mods.isCtrlDown()` check in
+`DexedAudioProcessorEditor::keyPressed()`, `Source/PluginEditor.cpp`, to
+`mods.isCommandDown()`, which JUCE maps to Command on Mac and keeps as Control on Windows, so
+Windows behavior is unchanged. Updated two code comments in `Source/GlobalEditor.cpp` and
+`Source/OperatorEditor.cpp` that referenced the old Ctrl shortcuts, for accuracy; no
+user-facing announced text named the modifier key anywhere, so nothing else needed changing.
+
+Jim's own testing turned up two real, pre-existing bugs, neither caused by this change:
+
+1. Command+Shift+1 through 6 made a system beep in the standalone app and did nothing in
+   Logic. Added a temporary debug print at the top of `keyPressed()` to see the actual
+   keycode arriving, with Jim's explicit go-ahead first, since it meant running the app
+   straight from the terminal rather than through Finder. The log showed Command+1 arrives as
+   keycode 49, "1", but Command+Shift+1 arrives as keycode 33, "!" — macOS reports the
+   shifted symbol above the number key, not the digit, once Shift is held, a long-standing
+   quirk in how NSEvent reports characters on Mac. The existing code only matched bare digits,
+   so the Shift combinations never matched anything and fell through to the OS's own unhandled-key
+   beep. Fixed by also recognizing the six shifted symbols, `!@#$%^`, mapping each back to the
+   operator it stands in for. Verified by keeping the debug print through this fix, at Jim's
+   suggestion, and confirming `handled=1` in the log for all six combinations before removing
+   the temporary line.
+2. Even once the key match worked, the operator switch didn't really toggle. Found in
+   `OperatorEditor::toggleOpSwitch()`, `Source/OperatorEditor.cpp`: it called
+   `setToggleState(..., dontSendNotification)`, which flips the button's internal flag but
+   skips notifying its listener, the very thing that applies the real change to the DX7
+   operator state and the host automation parameter. This bug dates to an August 2024 upstream
+   commit, long before this fork's Command-key work. Fixed by changing it to
+   `sendNotification`.
+
+Built and installed the Standalone and AU targets after each change, confirmed arm64 both
+times with `file`. One process note: this build directory has `JUCE_COPY_PLUGIN_AFTER_BUILD`
+set from an earlier session, so building the AU target auto-installs over
+`~/Library/Audio/Plug-Ins/Components/DexedAccessible.component` without a chance to ask
+first; listed every existing Dexed copy on this Mac afterward and confirmed only this fork's
+own prior build, not the real upstream Dexed or either Dexed.vst3 copy, was touched. Jim
+confirmed that's fine for now.
+
+Jim tested all five shortcuts, including both toggle fixes, in the standalone app and as an
+AU instrument in Logic. Confirmed working in both. Not yet committed.
