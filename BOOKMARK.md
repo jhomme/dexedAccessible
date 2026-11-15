@@ -10,15 +10,21 @@ First piece done: `AlgoDisplay` now has a real handler, following the same patte
 diagram itself, Jim's call, so the same text isn't heard twice back to back; the dial now
 just says "Algorithm" plus a short static tooltip. Also added Command+Shift+A
 (Control+Shift+A on Windows) to announce the diagram's description from anywhere without
-moving focus. Build clean, arm64 confirmed on all four targets. Jim confirmed with VoiceOver
-in Logic: the diagram reads correctly, the dial no longer repeats it, and Logic does not
-grab the new shortcut. Not yet committed.
+moving focus. Jim confirmed with VoiceOver in Logic: the diagram reads correctly, the dial no
+longer repeats it, and Logic does not grab the new shortcut. Committed `9626b81`, pushed.
+
+Second piece done: `CartridgeFileDisplay`, the line in the cartridge library showing which
+file the current program is based on, now has the same kind of real handler. `CartManager`
+itself also now states an explicit group role, the same NVDA-on-Windows fix `GlobalEditor`
+and `OperatorEditor` already had. Build clean, arm64 confirmed on all four targets. Jim
+confirmed with VoiceOver that it announces correctly after loading a cartridge. Not yet
+committed.
 
 Remaining from the branch plan, in docs/Plan.md: `VuMeterBase` (deliberately held back,
 needs its own design decision about how often to announce a constantly-changing level),
-`CartManager`/`CartridgeFileDisplay`, `TuningShow`, and `ParamDialog` still have no real
-handler. `ProgramListBox` itself, separate from its `ProgramLabel` rows, still needs a
-check.
+`TuningShow` and `ParamDialog` still have no real handler. `ProgramListBox` itself, separate
+from its `ProgramLabel` rows, still needs a check. Windows/NVDA testing for any of this
+branch's work is still outstanding.
 
 ## Before that
 GitHub issue #3, keyboard navigation shortcuts: switched the five existing shortcuts from

@@ -33,6 +33,7 @@ public:
     void setCartrdigeFile(File &file) {
         this->file = file;
         repaint();
+        notifyAccessibleValueChanged();
     }
 
     void paint(Graphics& g) override {
@@ -54,6 +55,32 @@ public:
             if ( file.exists() )
                 file.revealToUser();
         }
+    }
+
+    // Revealing the file in Finder or Explorer is a sighted, mouse-only convenience with no
+    // non-visual equivalent, so this handler only covers what the control already says, not
+    // the reveal action.
+    void notifyAccessibleValueChanged() {
+        if (auto *handler = getAccessibilityHandler())
+            handler->notifyAccessibilityEvent(AccessibilityEvent::valueChanged);
+    }
+
+    struct CartridgeFileDisplayAH : public juce::AccessibilityHandler {
+        explicit CartridgeFileDisplayAH(CartridgeFileDisplay *s): display(s), juce::AccessibilityHandler(*s, juce::AccessibilityRole::label) {
+        }
+
+        virtual String getTitle() const override {
+            return display->file.exists()
+                 ? "Based on cartridge: " + display->file.getFileName()
+                 : "No reference to original cartridge";
+        }
+
+        CartridgeFileDisplay *display;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(CartridgeFileDisplayAH);
+    };
+
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<CartridgeFileDisplayAH>(this);
     }
 };
 
@@ -113,6 +140,13 @@ public:
     void hideCartridgeManager();
 
     std::unique_ptr< ComponentTraverser> createKeyboardFocusTraverser() override;
+
+    // JUCE's default role, unspecified, is a group on macOS but a custom control on Windows,
+    // which NVDA does not announce when focus moves into the panel. Say group explicitly,
+    // same fix already used by GlobalEditor and OperatorEditor.
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<AccessibilityHandler>(*this, AccessibilityRole::group);
+    }
 };
 
 #endif  // CARTMANAGER_H_INCLUDED

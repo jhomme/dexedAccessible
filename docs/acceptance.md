@@ -258,3 +258,15 @@ the plugin, without moving keyboard focus.
   itself. Confirmed working with VoiceOver in Logic, 2026-11-15: the handler reads correctly,
   and Command+Shift+A reaches the plugin rather than being grabbed by Logic. Standalone and
   Windows/NVDA not yet tested.
+
+## CartridgeFileDisplay announces which cartridge the current program is based on
+Done when the small line of text at the bottom of the cartridge library, previously
+invisible to accessibility, speaks "Based on cartridge: [filename]" or "No reference to
+original cartridge," and updates when a different program or cartridge is loaded. The
+cartridge library panel itself also now states an explicit group role, matching the fix
+already used for the Global Parameters and Operator panels, for NVDA on Windows.
+- Jim tests: with VoiceOver on, open the cartridge library (Command+L), load a cartridge
+  file through the browser tree or the LOAD button, and VoiceOver-navigate to the bottom
+  line (not a Tab stop) to confirm it announces the loaded file. Load a program with no
+  cartridge reference and confirm the other message. Confirmed working with VoiceOver,
+  2026-11-15. Windows/NVDA not yet tested.

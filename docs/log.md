@@ -1797,3 +1797,34 @@ rerun `DexedTests`, since this change doesn't touch parameter registration or an
 suite covers. Jim confirmed with VoiceOver in Logic: the diagram speaks the routing
 description, the dial no longer repeats it, and Command+Shift+A reaches the plugin rather
 than being grabbed by Logic. Not yet committed; waiting on Jim.
+
+## 2026-11-15: CartridgeFileDisplay and CartManager get real accessibility handlers
+
+Second piece of work on `accessibility-refactor`. Surveyed `CartManager.h` before touching
+anything: `CartridgeFileDisplay`, the small line of text showing which cartridge file the
+current program is based on, had no title, no tooltip, and no handler at all — a pure
+picture with a mouse-only click area that calls `file.revealToUser()`. Checked whether
+VoiceOver reaches components like this through literal keyboard Tab order or through its own
+accessibility-tree navigation: confirmed it's the latter, by checking that `EnvDisplay`,
+`LcdDisplay`, and the `AlgoDisplay` work from earlier today are not in any explicit Tab order
+and are not keyboard-focusable, yet are VoiceOver-reachable. So no Tab-order or focus changes
+were needed here either.
+
+Added `CartridgeFileDisplayAH`, following the same nested-handler pattern as `LcdDisplay` and
+today's `AlgoDisplayAH`: role `label`, live `getTitle()` returning "Based on cartridge:
+[filename]" or "No reference to original cartridge" depending on whether the file exists, and
+a `notifyAccessibleValueChanged()` call from `setCartrdigeFile()`. Decided not to build a
+keyboard equivalent for the mouse-only "reveal in Finder" action: that action only highlights
+a file in Finder's own window, which has no real benefit for someone who can't see Finder
+highlight it, so there is no non-visual version of it worth building.
+
+Also found `CartManager` itself was missing the same fix `GlobalEditor` and `OperatorEditor`
+already have: an explicit `group` role. Without it, JUCE's default role differs by platform,
+and NVDA on Windows does not announce the panel on entry. Added the same one-line override.
+
+Built all four targets clean, confirmed arm64 on each. Walked Jim through the keyboard steps
+to actually load a cartridge, since he'd forgotten them: either arrow through the file
+browser tree (which gets initial focus when the library opens) and press Return on a `.syx`
+file, or move to the LOAD button and use the system's own Open File dialog. Jim confirmed
+with VoiceOver that the bottom line now announces correctly after loading. Windows/NVDA not
+tested. Not yet committed; waiting on Jim.

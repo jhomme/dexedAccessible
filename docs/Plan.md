@@ -179,8 +179,15 @@ approach, and see how much it improves things. Test, then decide whether to merg
   announcing every change would be constant noise. Decide what VoiceOver should actually say
   and when. Jim's call, 2026-11-15: not part of the first piece of work on this branch. Not
   started.
-- [ ] Add a real `createAccessibilityHandler()` to `CartManager` and `CartridgeFileDisplay`
-  for browsing and loading cartridges. Not started.
+- [x] Add a real `createAccessibilityHandler()` to `CartManager` and `CartridgeFileDisplay`
+  for browsing and loading cartridges. `CartridgeFileDisplay`, the small line showing which
+  cartridge file the current program is based on, gets a live label handler following the
+  `LcdDisplay` pattern; its mouse-only "reveal in Finder" action was left as is, since that
+  action has no non-visual equivalent worth building. `CartManager` itself now states an
+  explicit `group` role, the same NVDA-on-Windows fix already used by `GlobalEditor` and
+  `OperatorEditor`. `Source/CartManager.h`. Build clean, arm64 confirmed on all four targets.
+  Jim confirmed working with VoiceOver, 2026-11-15. Windows/NVDA not yet tested. Not yet
+  committed.
 - [ ] Add a real `createAccessibilityHandler()` to `TuningShow`, the microtuning UI. Not
   started.
 - [ ] Add a real `createAccessibilityHandler()` to `ParamDialog`, the in-window parameter
