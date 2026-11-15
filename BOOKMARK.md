@@ -1,54 +1,59 @@
 # Bookmark
 
 ## Where we are
-On the `accessibility-refactor` branch, off `accessibility`, 2026-11-15. Goal: apply JUCE's
-`AccessibilityHandler` class systematically across the whole app, instead of the current
-one-component-at-a-time approach, and see how much that improves things.
+Released v0.4.0 from `accessibility`, 2026-11-15: the whole accessibility-refactor batch
+(`AlgoDisplay`'s live handler and Command+Shift+A, `CartridgeFileDisplay`'s live handler,
+the explicit group role on `TuningShow`/`ParamDialog`/`ProgramListBox`, and the Tab/Shift+Tab
+panel-crossing announcement), plus the still-carried-over, still-untested-in-Reaper CLAP
+typed-value fix from v0.3.0. Bumped `CMakeLists.txt` to 0.4.0, rewrote `docs/release-notes.md`
+and the matching README.md paragraph to describe this release's real content, including the
+Windows/NVDA announcement-routing gap that applies to all of this branch's and v0.3.0's
+spoken announcements alike: they speak through Windows' own text-to-speech directly, not
+through NVDA. Also added matching content to `announcement.md` (gitignored, still not sent), and added the
+new Command+Shift+A/Control+Shift+A shortcut plus a general Tab/Shift+Tab panel-announcement
+line to `Documentation/Keybindings.md`, in its existing Mac/Windows-separated format, so the
+copy attached to the release stays current. Local build clean, arm64 confirmed on all four
+targets, `DexedTests` passed. Not yet tagged or pushed; waiting on Jim's go-ahead.
 
-First piece done: `AlgoDisplay` now has a real handler, following the same pattern as
-`LcdDisplay`. The live routing description moved off the ALGO dial's tooltip onto the
-diagram itself, Jim's call, so the same text isn't heard twice back to back; the dial now
-just says "Algorithm" plus a short static tooltip. Also added Command+Shift+A
-(Control+Shift+A on Windows) to announce the diagram's description from anywhere without
-moving focus. Jim confirmed with VoiceOver in Logic: the diagram reads correctly, the dial no
-longer repeats it, and Logic does not grab the new shortcut. Committed `9626b81`, pushed.
-
-Second piece done: `CartridgeFileDisplay`, the line in the cartridge library showing which
-file the current program is based on, now has the same kind of real handler. `CartManager`
-itself also now states an explicit group role, the same NVDA-on-Windows fix `GlobalEditor`
-and `OperatorEditor` already had. Build clean, arm64 confirmed on all four targets. Jim
-confirmed with VoiceOver that it announces correctly after loading a cartridge. Committed
-`dd6d4b9`, pushed.
-
-Third piece done: `TuningShow`, `ParamDialog`, and `ProgramListBox` all now state the same
-explicit group role `GlobalEditor`, `OperatorEditor`, and `CartManager` already have. All
-three were otherwise already in decent shape; this fix only matters on Windows/NVDA, no
-effect on Mac. Build clean, arm64 confirmed on all four targets. Committed `e3284d6`, pushed.
-
-Merged into `accessibility` (fast-forward, `d053d81`), pushed. Kept `accessibility-refactor`
-alive rather than deleting it, since Jim found something else worth a closer look: plain Tab
-and Shift+Tab crossing panel borders didn't announce the panel's name the way the
-Command-key jump shortcuts do.
-
-Fourth piece done: Tab and Shift+Tab now announce the panel's name crossing a border, same
-as the Command-key shortcuts, via a new `GroupAnnouncer` that listens for any real keyboard
-focus change rather than extending the Command-key shortcuts' own hand-made mechanism, which
-Jim said he'd never liked. Found and fixed two real bugs along the way: a timing race between
-two separately-scheduled callbacks that made an early version work in Logic but not in the
-standalone app, and (after fixing that) a one-off standalone failure that turned out to be
-stale state from before the fix, not a real problem, confirmed by temporary diagnostic
-logging. Also: while testing with the event-watch skill, a script that made the standalone
-app frontmost briefly redirected Jim's own real keyboard input into it, without warning him
-first; flagged immediately, turned out harmless, noted in docs/log.md as a gap in how that
-skill's warning language is used. Build clean, arm64 confirmed on all four targets. Jim
-confirmed working with VoiceOver in both Logic and the standalone app, 2026-11-15. Not yet
-committed.
-
-Windows/NVDA testing for any of this branch's work is still outstanding.
+Jim then re-tested the two pieces that had only been confirmed in Logic (AlgoDisplay/
+Command+Shift+A, CartridgeFileDisplay/CartManager) in the standalone app too, so every
+piece in this release except the group-role fix (Windows/NVDA only, no Mac-audible effect)
+is now confirmed in both Logic and standalone. Caught and fixed a real overclaim in
+`docs/release-notes.md` along the way: its first draft said all four pieces were confirmed
+in both hosts, when at the time only the Tab/Shift+Tab fix actually had been.
 
 `VuMeterBase` and a real audit of `TuningShow`'s tuning table (third-party code, unknown
-VoiceOver behavior, benefits only custom SCL/KBM users) are both out of scope for this
-branch and not coming up again on their own; see docs/Plan.md.
+VoiceOver behavior, benefits only custom SCL/KBM users) are both out of scope and not coming
+up again on their own; see docs/Plan.md. Windows/NVDA testing for the whole batch above is
+still outstanding, and can't happen until Jim has a Windows machine with it installed.
+
+## Before that
+The accessibility-refactor branch itself: applied JUCE's `AccessibilityHandler` class
+systematically across the whole app, instead of the one-component-at-a-time approach used
+before, in four pieces. First, `AlgoDisplay` got a real handler following the `LcdDisplay`
+pattern, moved its live routing description off the ALGO dial's tooltip onto the diagram
+itself so the same text wasn't heard twice, and added the Command+Shift+A shortcut.
+Second, `CartridgeFileDisplay` got the same kind of real handler, and `CartManager` got the
+explicit group role already used by `GlobalEditor` and `OperatorEditor`. Third,
+`TuningShow`, `ParamDialog`, and `ProgramListBox` all got that same explicit group role.
+Jim confirmed each piece with VoiceOver as it was built, then did a full pass over the whole
+branch compared against `accessibility` and decided to merge it (fast-forward, `d053d81`).
+
+Kept `accessibility-refactor` alive after that merge, rather than deleting it, because Jim
+found something else worth a closer look while testing: plain Tab and Shift+Tab crossing
+panel borders didn't announce the panel's name the way the Command-key jump shortcuts do.
+Fourth piece, on that same branch: fixed it with a new `GroupAnnouncer`, a
+`juce::FocusChangeListener` that hears any real keyboard focus change, rather than extending
+the Command-key shortcuts' own hand-made mechanism, which Jim said he'd never liked. Found
+and fixed two real bugs along the way: a timing race between two separately-scheduled
+callbacks that made an early version work in Logic but not the standalone app, and, after
+fixing that, a one-off standalone failure that turned out to be stale state from before the
+fix, confirmed harmless with temporary diagnostic logging. Also, while testing with the
+event-watch skill, a script that made the standalone app frontmost briefly redirected Jim's
+own real keyboard input into it without warning him first; flagged immediately, turned out
+harmless. Jim confirmed the fix working with VoiceOver in both Logic and the standalone app,
+then approved merging it into `accessibility` (fast-forward, `d131138`) and deleting
+`accessibility-refactor`, locally and on GitHub, its purpose served.
 
 ## Before that
 GitHub issue #3, keyboard navigation shortcuts: switched the five existing shortcuts from

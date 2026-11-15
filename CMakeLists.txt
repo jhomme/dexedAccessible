@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(DexedAccessible VERSION 0.3.0)
+project(DexedAccessible VERSION 0.4.0)
 
 enable_testing()
 

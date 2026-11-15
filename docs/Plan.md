@@ -150,6 +150,19 @@ acceptance.md instead, and link back here.
   targets, DexedTests passed. Committed `26326bf`, tagged and pushed, 2026-11-15. Confirmed
   published with all three installers, the Keybindings.md download, and the disclosure text
   in the release notes. See deviations.md.
+- [x] Release v0.4.0: the accessibility-refactor branch's work, merged into `accessibility`:
+  `AlgoDisplay`'s live handler and Command+Shift+A, `CartridgeFileDisplay`'s live handler,
+  the explicit group role on `TuningShow`/`ParamDialog`/`ProgramListBox`, and the
+  Tab/Shift+Tab panel-crossing announcement, plus the still-carried-over CLAP typed-value
+  fix from v0.3.0, still untested in a real CLAP host. Bumped `CMakeLists.txt` to 0.4.0,
+  rewrote `docs/release-notes.md` and the relevant README.md paragraph for this release's
+  actual content, including the Windows/NVDA announcement-routing gap that applies to both
+  this release's panel-crossing announcement and the panel-landing ones from v0.3.0. Added
+  the same new content to `announcement.md` (gitignored, not yet sent). Added the new
+  Command+Shift+A/Control+Shift+A shortcut and a general Tab/Shift+Tab panel-announcement
+  line to `Documentation/Keybindings.md`, in its existing Mac/Windows-separated format, so
+  the attached download at the release stays current. Local build clean, arm64 confirmed on
+  all four targets, `DexedTests` passed.
 
 ## accessibility-refactor branch: systematic AccessibilityHandler coverage
 
@@ -172,8 +185,8 @@ approach, and see how much it improves things. Test, then decide whether to merg
   Command+Shift+A (Control+Shift+A on Windows), that announces the diagram's description
   from anywhere without moving focus, `Source/PluginEditor.cpp`, `Source/GlobalEditor.h`.
   Build clean, arm64 confirmed on all four targets. Confirmed working with VoiceOver in
-  Logic, 2026-11-15, including that Logic does not intercept the new shortcut. Not yet
-  committed.
+  Logic, 2026-11-15, including that Logic does not intercept the new shortcut. Also
+  confirmed in the standalone app, 2026-11-15. Not yet committed.
 - [x] Add a real `createAccessibilityHandler()` to `CartManager` and `CartridgeFileDisplay`
   for browsing and loading cartridges. `CartridgeFileDisplay`, the small line showing which
   cartridge file the current program is based on, gets a live label handler following the
@@ -181,8 +194,8 @@ approach, and see how much it improves things. Test, then decide whether to merg
   action has no non-visual equivalent worth building. `CartManager` itself now states an
   explicit `group` role, the same NVDA-on-Windows fix already used by `GlobalEditor` and
   `OperatorEditor`. `Source/CartManager.h`. Build clean, arm64 confirmed on all four targets.
-  Jim confirmed working with VoiceOver, 2026-11-15. Windows/NVDA not yet tested. Not yet
-  committed.
+  Jim confirmed working with VoiceOver in Logic, and later also in the standalone app,
+  2026-11-15. Windows/NVDA not yet tested. Not yet committed.
 - [x] Add the explicit `group` role to `TuningShow`, `ParamDialog`, and `ProgramListBox`,
   the same NVDA-on-Windows fix already used by `GlobalEditor`, `OperatorEditor`, and
   `CartManager`. `ParamDialog`'s own controls already had real titles and tooltips from the
@@ -223,7 +236,9 @@ the merge, so this can be looked at there.
   timing race in an early version, and a one-off standalone failure that turned out to be
   stale earlier-session state, not the code. Build clean, arm64 confirmed on all four targets.
   Jim confirmed working with VoiceOver in both Logic and the standalone app, 2026-11-15.
-  Windows/NVDA not yet tested. Not yet committed.
+  Windows/NVDA not yet tested. Committed `d131138`, merged into `accessibility` (fast-forward
+  to `d131138`), both pushed. `accessibility-refactor` deleted, locally and on GitHub, its
+  purpose served.
 
 ## Not pursuing a VuMeterBase handler for now
 Jim's call, 2026-11-15: out of scope for this branch, and not to be brought up again on its

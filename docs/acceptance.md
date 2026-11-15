@@ -256,8 +256,8 @@ the plugin, without moving keyboard focus.
   description updates. Press Command+Shift+A from anywhere and confirm it announces the same
   description without moving focus, and confirm Logic does not intercept the shortcut for
   itself. Confirmed working with VoiceOver in Logic, 2026-11-15: the handler reads correctly,
-  and Command+Shift+A reaches the plugin rather than being grabbed by Logic. Standalone and
-  Windows/NVDA not yet tested.
+  and Command+Shift+A reaches the plugin rather than being grabbed by Logic. Also confirmed
+  in the standalone app, 2026-11-15. Windows/NVDA not yet tested.
 
 ## CartridgeFileDisplay announces which cartridge the current program is based on
 Done when the small line of text at the bottom of the cartridge library, previously
@@ -268,8 +268,8 @@ already used for the Global Parameters and Operator panels, for NVDA on Windows.
 - Jim tests: with VoiceOver on, open the cartridge library (Command+L), load a cartridge
   file through the browser tree or the LOAD button, and VoiceOver-navigate to the bottom
   line (not a Tab stop) to confirm it announces the loaded file. Load a program with no
-  cartridge reference and confirm the other message. Confirmed working with VoiceOver,
-  2026-11-15. Windows/NVDA not yet tested.
+  cartridge reference and confirm the other message. Confirmed working with VoiceOver in
+  Logic, and later also in the standalone app, 2026-11-15. Windows/NVDA not yet tested.
 
 ## TuningShow, ParamDialog, and ProgramListBox each state an explicit group role
 Done when focus moving into the Function Settings dialog, the microtuning display, or either

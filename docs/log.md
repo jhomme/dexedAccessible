@@ -1918,3 +1918,50 @@ and correct group names on every border crossing, including Operator 6 to Global
 and back, confirming the earlier standalone failure was leftover state from before the race
 fix or from the frontmost incident, not a problem with the fixed code. Removed the
 diagnostic logging. Built all four targets clean, confirmed arm64 on each. Not yet committed.
+
+## 2026-11-15: released v0.4.0
+
+Asked for my opinion on cutting another minor release, given the accessibility-refactor
+work was now merged into `accessibility`. Recommended yes: four real, VoiceOver-confirmed
+pieces since v0.3.0 (AlgoDisplay's live handler and Command+Shift+A, CartridgeFileDisplay's
+live handler, the explicit group role for three panels, and the Tab/Shift+Tab panel-crossing
+announcement), nothing half-finished, and the one open gap, Windows/NVDA testing, isn't new
+or worse than what v0.3.0 already shipped with. Jim agreed.
+
+Bumped `CMakeLists.txt` to 0.4.0, the only place the version number lives outside the
+tag-derived `BUILD_ID`. Reconfigured CMake so the new version reaches generated files like
+Info.plist. Built all four targets (Standalone, VST3, AU, CLAP; CLAP separately from
+`DexedAccessible_All`, as usual) and confirmed arm64 on each. Ran `DexedTests` via `ctest`;
+passed.
+
+Rewrote `docs/release-notes.md`, the file the release-creation GitHub Action pulls in as the
+release body, to actually describe this release's four pieces instead of only carrying over
+last release's CLAP disclosure verbatim. Kept that CLAP disclosure too, since it's still
+true and nobody has set up Reaper yet, but reworded it as carried over rather than new.
+Updated the matching paragraph in README.md the same way, adding the Windows/NVDA
+announcement-routing gap explicitly: these announcements, like the panel-landing ones from
+v0.3.0, speak through Windows' own text-to-speech directly, not through NVDA.
+
+Jim also asked to add this release's content to `announcement.md`, the gitignored local
+file holding the not-yet-sent public announcement post. Added matching bullets there, in
+Jim's own first-person voice to match the rest of that file: the algorithm diagram's live
+speech and new shortcut, the cartridge library status line, the Tab/Shift+Tab announcement,
+and the Windows/NVDA routing gap.
+
+## 2026-11-15: added the new shortcuts to Keybindings.md for v0.4.0
+
+Jim caught that the Keybindings.md download, attached to releases since v0.3.0, hadn't been
+updated for this release's new Command+Shift+A/Control+Shift+A shortcut or for Tab/Shift+Tab
+now announcing a panel's name crossing into it. Added both, in the existing Mac/Windows-
+separated format: the new announce-the-algorithm shortcut alongside the other Command/
+Control shortcuts, and a general Tab/Shift+Tab line above the existing cartridge-manager-
+specific one, since the panel-crossing announcement applies everywhere, not just inside the
+cartridge manager.
+
+## 2026-11-15: standalone retest closes the last host gap for v0.4.0
+
+Jim went back and specifically tested the two pieces that had only been confirmed in Logic,
+AlgoDisplay/Command+Shift+A and CartridgeFileDisplay/CartManager, in the standalone app too.
+Both confirmed working. Updated `docs/Plan.md`, `docs/acceptance.md`, and
+`docs/release-notes.md` to say so. Every piece in this release except the group-role fix,
+which has no audible effect on Mac at all, is now confirmed in both Logic and standalone.

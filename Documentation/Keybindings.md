@@ -8,6 +8,10 @@
 - Focus on the on-screen keyboard to play notes from the computer keyboard: Control+K
 - Open cartridge manager: Control+L
 - Open parameter dialog: Control+P
+- Announce the algorithm routing description from anywhere, without moving focus:
+  Control+SHIFT+A
+- Move keyboard focus to the next or previous control, announcing the panel's name when
+  focus crosses into a different one: TAB or SHIFT+TAB
 - On any slider, step by 1, Up, Down, Left, and Right arrows
 - On any slider, step by 5: SHIFT+RIGHT, Left, Up, and Down  arrows
 - In the cartridge manager's program lists, move to a sound and load it: RIGHT, LEFT, UP, or
@@ -24,6 +28,10 @@
 - Focus on the on-screen keyboard to play notes from the computer keyboard: Command+K
 - Open cartridge manager: Command+L
 - Open parameter dialog: Command+P
+- Announce the algorithm routing description from anywhere, without moving focus:
+  Command+SHIFT+A
+- Move keyboard focus to the next or previous control, announcing the panel's name when
+  focus crosses into a different one: TAB or SHIFT+TAB
 - On any slider, step by 1, Up, Down, Left, and Right arrows
 - On any slider, step by 5: SHIFT+RIGHT, Left, Up, and Down  arrows
 - In the cartridge manager's program lists, move to a sound and load it: RIGHT, LEFT, UP, or
