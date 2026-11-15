@@ -44,9 +44,10 @@
 // arrives, so only the control's name was ever heard, never the group. Deferring the focus
 // move by a fraction of a second, instead of just to the next turn of the event loop, gives
 // VoiceOver time to actually finish speaking the group name first.
-static void announceGroupThenFocus(Component& group, std::function<void()> focusAction) {
+static void announceGroupThenFocus(Component& group, Component *&lastAnnouncedGroup, std::function<void()> focusAction) {
     auto *current = Component::getCurrentlyFocusedComponent();
     if ( current == nullptr || ! group.isParentOf(current) ) {
+        lastAnnouncedGroup = &group;
         AccessibilityHandler::postAnnouncement(group.getTitle(), AccessibilityHandler::AnnouncementPriority::medium);
         Timer::callAfterDelay(1000, focusAction);
     } else {
@@ -74,6 +75,62 @@ static Component* findEnclosingNamedGroup(Component *focused, OperatorEditor *op
 
     return nullptr;
 }
+
+// Tab and Shift+Tab move keyboard focus to the next or previous control through JUCE's own
+// built-in traversal, never through announceGroupThenFocus, so VoiceOver only ever hears the
+// control's own name, never which panel it's in. A FocusChangeListener finds out about every
+// focus change there is, no matter how it happened, so this fixes that without needing to
+// take over the Tab key itself.
+//
+// It speaks after VoiceOver's own announcement of the newly focused control, not before:
+// by the time this is told focus has moved, the move has already happened and VoiceOver has
+// already been told about it, so there's no way to get in front of that the way the
+// Command-key shortcuts do. Low priority queues the panel name behind VoiceOver's own
+// announcement instead of cutting it off.
+//
+// Only announces when tabKeyMovedFocus says a real Tab or Shift+Tab caused this particular
+// focus change. Without that check, this fired for every focus change there is, including
+// VoiceOver exploring by group, which already announces the group's name itself as part of
+// walking its own accessibility tree; that made the name get spoken twice.
+//
+// Shares lastAnnouncedGroup with announceGroupThenFocus so the two don't repeat each other:
+// a Command-key shortcut already announces its panel before moving focus there, so when focus
+// actually lands a second later, this finds the panel already recorded and stays quiet.
+class GroupAnnouncer : public juce::FocusChangeListener {
+public:
+    GroupAnnouncer(OperatorEditor *operatorsIn, GlobalEditor &globalIn, MidiKeyboardComponent &midiKeyboardIn,
+                    Component *&lastAnnouncedGroupIn, bool &tabKeyMovedFocusIn)
+        : operators(operatorsIn), global(globalIn), midiKeyboard(midiKeyboardIn),
+          lastAnnouncedGroup(lastAnnouncedGroupIn), tabKeyMovedFocus(tabKeyMovedFocusIn) {
+        Desktop::getInstance().addFocusChangeListener(this);
+    }
+
+    ~GroupAnnouncer() override {
+        Desktop::getInstance().removeFocusChangeListener(this);
+    }
+
+    void globalFocusChanged(Component *focused) override {
+        if ( ! tabKeyMovedFocus )
+            return;
+        tabKeyMovedFocus = false;
+
+        Component *group = findEnclosingNamedGroup(focused, operators, global, midiKeyboard);
+        if ( group == nullptr || group == lastAnnouncedGroup )
+            return;
+
+        lastAnnouncedGroup = group;
+        AccessibilityHandler::postAnnouncement(group->getTitle(), AccessibilityHandler::AnnouncementPriority::low);
+    }
+
+private:
+    OperatorEditor *operators;
+    GlobalEditor &global;
+    MidiKeyboardComponent &midiKeyboard;
+    Component *&lastAnnouncedGroup;
+    bool &tabKeyMovedFocus;
+
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(GroupAnnouncer)
+};
 
 //==============================================================================
 DexedAudioProcessorEditor::DexedAudioProcessorEditor (DexedAudioProcessor* ownerFilter)
@@ -165,6 +222,8 @@ DexedAudioProcessorEditor::DexedAudioProcessorEditor (DexedAudioProcessor* owner
     addKeyListener(this);
     updateUI();
     startTimer(100);
+
+    groupAnnouncer = std::make_unique<GroupAnnouncer>(operators, global, midiKeyboard, lastAnnouncedGroup, tabKeyMovedFocus);
 }
 
 DexedAudioProcessorEditor::~DexedAudioProcessorEditor() {
@@ -372,7 +431,7 @@ void DexedAudioProcessorEditor::parmShow(Component *returnGroupOverride) {
         if ( preParamDialogGroup != nullptr ) {
             Component *returnGroup = preParamDialogGroup;
             preParamDialogGroup = nullptr;
-            announceGroupThenFocus(*returnGroup, [dialog] { dialog->setVisible(false); });
+            announceGroupThenFocus(*returnGroup, lastAnnouncedGroup, [dialog] { dialog->setVisible(false); });
         } else {
             dialog->setVisible(false);
         }
@@ -728,6 +787,28 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
         TRACE("key pressed: %d\n", keycode);
     #endif
 
+    // JUCE's own Tab handling runs after every registered KeyListener, including this one,
+    // has had a chance to handle the key first (see ComponentPeer::handleKeyPress). Since
+    // nothing below handles a plain Tab, marking it here and falling through to the usual
+    // "not handled" return lets groupAnnouncer tell, once the focus change this causes is
+    // reported, that it came from a real Tab press.
+    //
+    // There used to also be a deferred reset here, clearing the flag a moment later as a
+    // safety net for the one case where pressing Tab doesn't actually move focus, at the very
+    // end of the tab order. That reset and the focus-changed notification groupAnnouncer
+    // waits for are both delivered a moment late, each on its own separate clock, not
+    // immediately: Desktop posts the notification via its own AsyncUpdater, while the reset
+    // ran on JUCE's Timer. Watching real accessibility notifications in Logic versus the
+    // standalone app showed those two races land in the opposite order depending on the
+    // host: the flag survived long enough in Logic, but the standalone app's own reset beat
+    // the notification and cleared it first, so Tab stayed silent there. Leaving the flag set
+    // until groupAnnouncer itself consumes it avoids that race. The one thing the removed
+    // reset was guarding against, Tab at the very end of the tab order, is harmless now: the
+    // flag just waits for the next real focus change of any kind, which could rarely cause one
+    // extra, low-priority announcement, not a wrong one.
+    if ( keycode == KeyPress::tabKey )
+        tabKeyMovedFocus = true;
+
     // While the cartridge library is open, the rest of the main window is hidden from
     // accessibility on purpose (see setMainUIAccessible), to keep VoiceOver from wandering
     // out of the dialog. Command+1-6, Command+G, and Command+K would otherwise still move
@@ -765,7 +846,7 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
         if ( mods.isShiftDown() ) {
             operators[op].toggleOpSwitch();
         } else {
-            announceGroupThenFocus(operators[op], [this, op] { operators[op].grabKeyboardFocus(); });
+            announceGroupThenFocus(operators[op], lastAnnouncedGroup, [this, op] { operators[op].grabKeyboardFocus(); });
         }
 
         handled = true;
@@ -778,13 +859,13 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
         return true;
 
     if ( keycode == 'G' && mods.isCommandDown() ) {
-        announceGroupThenFocus(global, [this] { global.grabKeyboardFocus(); });
+        announceGroupThenFocus(global, lastAnnouncedGroup, [this] { global.grabKeyboardFocus(); });
         return true;
     }
 
     if ( keycode == 'K' && mods.isCommandDown() ) {
         if ( midiKeyboard.isShowing() )
-            announceGroupThenFocus(midiKeyboard, [this] { midiKeyboard.grabKeyboardFocus(); });
+            announceGroupThenFocus(midiKeyboard, lastAnnouncedGroup, [this] { midiKeyboard.grabKeyboardFocus(); });
         return true;
     }
 
@@ -795,7 +876,7 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
     }
 
     if ( keycode == 'L' && mods.isCommandDown() ) {
-        announceGroupThenFocus(cartManager, [this] { cartShow(); });
+        announceGroupThenFocus(cartManager, lastAnnouncedGroup, [this] { cartShow(); });
         return true;
     }
 
@@ -848,7 +929,7 @@ void DexedAudioProcessorEditor::closeCartridgeLibrary() {
     if ( cartManagerCover.isVisible() && preCartridgeLibraryGroup != nullptr ) {
         Component *returnGroup = preCartridgeLibraryGroup;
         preCartridgeLibraryGroup = nullptr;
-        announceGroupThenFocus(*returnGroup, [this] { cartManager.hideCartridgeManager(); });
+        announceGroupThenFocus(*returnGroup, lastAnnouncedGroup, [this] { cartManager.hideCartridgeManager(); });
     } else {
         cartManager.hideCartridgeManager();
     }

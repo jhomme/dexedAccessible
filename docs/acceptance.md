@@ -278,3 +278,16 @@ should for Global Parameters, each Operator panel, and the cartridge library. Th
 effect on Mac, since VoiceOver already treated the unspecified default as a group.
 - Jim tests: Windows/NVDA only; not yet tested. Mac VoiceOver behavior for these three is
   unchanged by this fix, so no Mac test applies.
+
+## Tab and Shift+Tab announce the panel's name on entry
+Done when moving with plain Tab or Shift+Tab into a different panel (an Operator, Global
+Parameters, or the on-screen keyboard) announces that panel's name once, right after the
+newly focused control's own name, the same way the Command-key jump shortcuts already do.
+Tabbing between two controls inside the same panel should not repeat the panel's name.
+- Jim tests: with VoiceOver on, tab and shift+tab across panels and within a single panel,
+  and confirm a Command-key jump right before or after doesn't say the panel's name twice.
+  Confirmed working in Logic (VST3/AU) and in the standalone app, 2026-11-15, including
+  crossing several panel borders in a row and mixing in a Command-key jump without a
+  repeated announcement.
+- Windows/NVDA: unverified, and currently can't be tested, since DexedAccessible isn't
+  installed on a Windows machine Jim has access to.

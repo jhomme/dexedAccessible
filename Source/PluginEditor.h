@@ -57,6 +57,24 @@ class DexedAudioProcessorEditor  : public AudioProcessorEditor, public ComboBox:
     Component *preCartridgeLibraryGroup = nullptr;
     Component *preParamDialogGroup = nullptr;
 
+    // The panel whose name was most recently spoken, whether by a Command-key jump shortcut
+    // or by plain Tab/Shift+Tab moving into it. Shared between the two so neither one repeats
+    // what the other just said.
+    Component *lastAnnouncedGroup = nullptr;
+
+    // Set by keyPressed for a real Tab or Shift+Tab, right before JUCE's own key handling
+    // moves focus in response to it, and cleared again once groupAnnouncer checks it. Lets
+    // groupAnnouncer tell a real Tab press apart from every other way focus can change,
+    // including VoiceOver exploring by group, which already announces the group's name
+    // itself; without this, that got announced a second time. See the comment on
+    // keyPressed's handling of KeyPress::tabKey, and on groupAnnouncer's definition, in
+    // PluginEditor.cpp.
+    bool tabKeyMovedFocus = false;
+
+    // Speaks a panel's name when Tab or Shift+Tab moves focus into it, since JUCE's own Tab
+    // handling never does. See the comment on its definition in PluginEditor.cpp.
+    std::unique_ptr<juce::FocusChangeListener> groupAnnouncer;
+
     Component frameComponent;
 public:
     DexedAudioProcessor *processor;

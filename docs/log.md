@@ -1859,3 +1859,62 @@ raised again on its own. Added the explicit `group` role to `Source/ParamDialog.
 Built all four targets clean, confirmed arm64 on each. This fix has no effect on Mac, since
 VoiceOver already treated the unspecified default role as a group there; it only matters on
 Windows/NVDA, which is not yet tested. Not yet committed; waiting on Jim.
+
+## 2026-11-15: Tab and Shift+Tab announce the panel name crossing borders
+
+Jim found this while testing the merged accessibility-refactor branch: plain Tab and
+Shift+Tab, unlike the Command-key jump shortcuts, never announce which panel focus just
+entered, only the control's own name. Jim's reaction to the options: "I have never liked
+our hand made thing," meaning the existing `announceGroupThenFocus()`/`Timer::callAfterDelay`
+approach used by the Command-key shortcuts. Agreed to try a different approach for Tab and
+Shift+Tab specifically, rather than extend the same hand-made mechanism.
+
+`juce::FocusChangeListener`, registered on `Desktop`, hears about every real keyboard focus
+change there is, no matter the cause. Added a new `GroupAnnouncer` implementing it: when the
+newly focused control sits in a different named panel than the last one spoken, it posts the
+panel's name at low announcement priority, so it queues behind VoiceOver's own announcement
+of the control instead of cutting it off, the way a higher-priority announcement would.
+
+First version fired on every focus change, not just Tab. Jim found this caused double
+speaking when exploring by group with VoiceOver: VoiceOver already announces a group's name
+itself when walking onto it in its own accessibility tree, and the generic listener spoke it
+again when that exploration also happened to move real keyboard focus. Fixed by gating the
+announcement behind a new `tabKeyMovedFocus` flag, set in `keyPressed` only for a real
+`KeyPress::tabKey`, and consumed by the listener. `lastAnnouncedGroup`, already used to stop
+the Command-key shortcuts repeating themselves, is shared with the new listener too, so a
+Command-key jump and the resulting Tab-style announcement don't repeat each other either.
+
+That gated version introduced a real bug, caught by Jim testing both Logic and the
+standalone app: group names announced correctly in Logic but not in the standalone app.
+First version of the gate also added a safety-net reset, clearing `tabKeyMovedFocus` a
+fraction of a second after setting it, for the case where Tab is pressed at the very end of
+the tab order and nothing actually moves. That reset and the real focus-changed notification
+`GroupAnnouncer` waits for are both delivered a moment late on their own separate clocks:
+Desktop posts the notification via its own `AsyncUpdater`, the reset ran on a JUCE `Timer`.
+Those two races land in a different order depending on how often the host pumps JUCE's
+message loop: the flag survived long enough in Logic, but the standalone app's own reset
+beat the real notification and cleared it first. Removed the safety-net reset; the one thing
+it guarded against, Tab at the end of the tab order, is harmless without it; at worst, the
+flag waits for the next real focus change of any kind, which could rarely cause one extra,
+low-priority announcement, not a wrong one.
+
+While investigating, used the event-watch skill's `ax-watch` tool to watch real accessibility
+notifications on the standalone app and an `osascript` call to send it a synthetic
+Command+1. That script made the window frontmost first, which, without warning Jim first,
+briefly redirected his own real keyboard input into the test window. Flagged this to Jim
+right away; turned out to be Jim's own concurrent testing landing in the newly frontmost
+window, not an actual disruption, but worth remembering: making a window frontmost to
+drive it from a script is not purely observational the way the rest of that skill's tools
+are, and needs the same warning given for anything that can seize keyboard input.
+
+After the race fix, Jim found standalone still silent on Tab, Logic still correct. Added
+temporary diagnostic logging (`fprintf` to `/tmp/dexed_tab_diag.log`, matching the existing
+diagnostic pattern already used for Command+P) to both `keyPressed`'s Tab handling and
+`GroupAnnouncer::globalFocusChanged`, to see the actual flag state and focus target at each
+step rather than keep guessing. Asked Jim to quit and relaunch the standalone app fresh and
+retest, this time without any synthetic keystrokes from this end. It worked. The log showed
+every real Tab press setting the flag once, every resulting focus change consuming it once,
+and correct group names on every border crossing, including Operator 6 to Global Parameters
+and back, confirming the earlier standalone failure was leftover state from before the race
+fix or from the frontmost incident, not a problem with the fixed code. Removed the
+diagnostic logging. Built all four targets clean, confirmed arm64 on each. Not yet committed.

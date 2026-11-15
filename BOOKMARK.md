@@ -23,7 +23,26 @@ confirmed with VoiceOver that it announces correctly after loading a cartridge. 
 Third piece done: `TuningShow`, `ParamDialog`, and `ProgramListBox` all now state the same
 explicit group role `GlobalEditor`, `OperatorEditor`, and `CartManager` already have. All
 three were otherwise already in decent shape; this fix only matters on Windows/NVDA, no
-effect on Mac. Build clean, arm64 confirmed on all four targets. Not yet committed.
+effect on Mac. Build clean, arm64 confirmed on all four targets. Committed `e3284d6`, pushed.
+
+Merged into `accessibility` (fast-forward, `d053d81`), pushed. Kept `accessibility-refactor`
+alive rather than deleting it, since Jim found something else worth a closer look: plain Tab
+and Shift+Tab crossing panel borders didn't announce the panel's name the way the
+Command-key jump shortcuts do.
+
+Fourth piece done: Tab and Shift+Tab now announce the panel's name crossing a border, same
+as the Command-key shortcuts, via a new `GroupAnnouncer` that listens for any real keyboard
+focus change rather than extending the Command-key shortcuts' own hand-made mechanism, which
+Jim said he'd never liked. Found and fixed two real bugs along the way: a timing race between
+two separately-scheduled callbacks that made an early version work in Logic but not in the
+standalone app, and (after fixing that) a one-off standalone failure that turned out to be
+stale state from before the fix, not a real problem, confirmed by temporary diagnostic
+logging. Also: while testing with the event-watch skill, a script that made the standalone
+app frontmost briefly redirected Jim's own real keyboard input into it, without warning him
+first; flagged immediately, turned out harmless, noted in docs/log.md as a gap in how that
+skill's warning language is used. Build clean, arm64 confirmed on all four targets. Jim
+confirmed working with VoiceOver in both Logic and the standalone app, 2026-11-15. Not yet
+committed.
 
 Windows/NVDA testing for any of this branch's work is still outstanding.
 

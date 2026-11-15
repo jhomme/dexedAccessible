@@ -208,8 +208,22 @@ shortcuts, which do, via `announceGroupThenFocus()` in `Source/PluginEditor.cpp`
 investigated yet. Keeping `accessibility-refactor` checked out rather than deleting it after
 the merge, so this can be looked at there.
 
-- [ ] Investigate why plain Tab/Shift+Tab does not announce a panel's name on entry, the way
-  the Command-key jump shortcuts already do. Not started.
+- [x] Investigate why plain Tab/Shift+Tab does not announce a panel's name on entry, the way
+  the Command-key jump shortcuts already do, and fix it. A new `GroupAnnouncer`, registered
+  as a `juce::FocusChangeListener` on `Desktop`, hears about every real keyboard focus change
+  there is, not just ones caused by a Command-key shortcut, and speaks the new panel's name
+  when it differs from the last one spoken, at low announcement priority so it queues behind
+  VoiceOver's own announcement of the newly focused control instead of cutting it off. Gated
+  to only fire for a real Tab or Shift+Tab (a new `tabKeyMovedFocus` flag, set in `keyPressed`
+  and consumed by the listener) so it stays quiet for every other way focus can change,
+  including VoiceOver exploring by group, which already announces the group's name itself;
+  without that gate the name got spoken twice. Shares `lastAnnouncedGroup` with the existing
+  `announceGroupThenFocus()` so the two don't repeat each other. `Source/PluginEditor.h`,
+  `Source/PluginEditor.cpp`. See log.md for two real bugs found and fixed during testing: a
+  timing race in an early version, and a one-off standalone failure that turned out to be
+  stale earlier-session state, not the code. Build clean, arm64 confirmed on all four targets.
+  Jim confirmed working with VoiceOver in both Logic and the standalone app, 2026-11-15.
+  Windows/NVDA not yet tested. Not yet committed.
 
 ## Not pursuing a VuMeterBase handler for now
 Jim's call, 2026-11-15: out of scope for this branch, and not to be brought up again on its
