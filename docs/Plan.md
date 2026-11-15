@@ -150,3 +150,38 @@ acceptance.md instead, and link back here.
   targets, DexedTests passed. Committed `26326bf`, tagged and pushed, 2026-11-15. Confirmed
   published with all three installers, the Keybindings.md download, and the disclosure text
   in the release notes. See deviations.md.
+
+## accessibility-refactor branch: systematic AccessibilityHandler coverage
+
+Jim's call, 2026-11-15: branch off `accessibility` to apply JUCE's `AccessibilityHandler`
+class across the whole app in one pass, instead of the current one-component-at-a-time
+approach, and see how much it improves things. Test, then decide whether to merge back into
+`accessibility`.
+
+- [ ] Survey every custom `Component` for real accessibility handler coverage. Done as part
+  of planning, 2026-11-15: `AlgoDisplay`, `VuMeterBase` (backs `VuMeter` and `VuMeterOutput`),
+  `CartManager`/`CartridgeFileDisplay`, `TuningShow`, and `ParamDialog` have no real handler,
+  only a static tooltip or nothing. `EnvDisplay`, `PitchEnvDisplay`, `LcdDisplay`, `DXSlider`,
+  `ProgramLabel`, `OperatorEditor`, and `GlobalEditor` already do, each with its own nested
+  `AccessibilityHandler` subclass. Not started as code yet.
+- [ ] Add a real `createAccessibilityHandler()` to `AlgoDisplay`, reusing
+  `describeAlgorithm()`, with a live announcement when the algorithm or an operator's
+  on/off state changes. Not started.
+- [ ] Add a real `createAccessibilityHandler()` to `VuMeterBase` reporting the current level.
+  Needs a design decision first: a VU meter's level changes many times a second, so
+  announcing every change would be constant noise. Decide what VoiceOver should actually say
+  and when. Not started.
+- [ ] Add a real `createAccessibilityHandler()` to `CartManager` and `CartridgeFileDisplay`
+  for browsing and loading cartridges. Not started.
+- [ ] Add a real `createAccessibilityHandler()` to `TuningShow`, the microtuning UI. Not
+  started.
+- [ ] Add a real `createAccessibilityHandler()` to `ParamDialog`, the in-window parameter
+  dialogs. Not started.
+- [ ] Check whether `ProgramListBox` itself, separate from the `ProgramLabel` rows it
+  contains, needs its own handler. Not started.
+- [ ] VoiceOver test each handler as it's built, in Logic, VST3 and AU. Not started.
+- [ ] Jim's full VoiceOver pass over the whole plugin on this branch, compared against the
+  current `accessibility` branch, to judge how much the systematic approach actually
+  improves things. Not started.
+- [ ] Decide whether to merge `accessibility-refactor` into `accessibility`, based on that
+  comparison. Not started.

@@ -1,6 +1,15 @@
 # Bookmark
 
 ## Where we are
+Created the `accessibility-refactor` branch off `accessibility`, 2026-11-15. Goal: apply
+JUCE's `AccessibilityHandler` class systematically across the whole app, instead of the
+current one-component-at-a-time approach, and see how much that improves things. Surveyed
+the code first: `AlgoDisplay`, `VuMeterBase` (backs `VuMeter`/`VuMeterOutput`),
+`CartManager`/`CartridgeFileDisplay`, `TuningShow`, and `ParamDialog` still have no real
+handler, just a static tooltip or nothing. Wrote the task list into docs/Plan.md. No code
+changed yet; not committed.
+
+## Before that
 GitHub issue #3, keyboard navigation shortcuts: switched the five existing shortcuts from
 Control to Command on Mac (Windows keeps Control, unchanged), and fixed two real,
 pre-existing bugs found while testing the switch. Committed as `2dfe5e1`.

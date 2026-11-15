@@ -1732,3 +1732,29 @@ and Windows, a source tarball, md5/sha256 checksum files, and Documentation/Keyb
 all present as separate downloadable assets, and the release notes body correctly show the
 Reaper-disclosure text from docs/release-notes.md ahead of the usual auto-generated commit
 list.
+
+## 2026-11-15: created accessibility-refactor branch, drafted the AccessibilityHandler plan
+
+Jim's call: branch off `accessibility` to apply JUCE's `AccessibilityHandler` class
+systematically across the whole app, rather than continuing the current one-component-at-a-
+time work, and see how much that improves things over VoiceOver's current behavior. Created
+`accessibility-refactor` off `accessibility`, clean working tree at the time.
+
+Surveyed the code before writing the plan, rather than guessing: grepped every `Component`
+subclass for `createAccessibilityHandler()`. Already real handlers exist on `EnvDisplay`,
+`PitchEnvDisplay`, `LcdDisplay`, `DXSlider` (in `Source/DXComponents.h`), `ProgramLabel` (in
+`Source/ProgramListBox.h`), `OperatorEditor`, and `GlobalEditor`, each following the same
+pattern: a nested `AccessibilityHandler` subclass with a live title, and for `DXSlider` a
+value interface too. Five classes still have no real handler: `AlgoDisplay` and
+`VuMeterBase` (used by `VuMeter` and `VuMeterOutput`) only have `SettableTooltipClient` for a
+static tooltip; `CartManager`, `CartridgeFileDisplay`, `TuningShow`, and `ParamDialog` have
+neither a tooltip nor a handler. `ComboBoxImage` and `ProgramSelector` are plain `ComboBox`
+subclasses with no custom handler, but that is likely fine since JUCE 8.0.15 already gives
+`ComboBox` real accessibility by default; left them out of the plan unless testing shows
+otherwise.
+
+Wrote the task list into docs/Plan.md as a new section, one task per component plus a VU
+meter design question (how often a constantly-changing level should actually be announced),
+VoiceOver testing per component, and a final side-by-side comparison against the current
+`accessibility` branch before deciding whether to merge. Updated bookmark.md. No code
+changed. Not yet committed; waiting on Jim before committing the branch and plan.
