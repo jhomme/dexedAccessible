@@ -60,6 +60,13 @@ public:
     void setCartridge(Cartridge &cart);
     bool keyPressed (const KeyPress& key, Component* originatingComponent) override;
 
+    // JUCE's default role, unspecified, is a group on macOS but a custom control on Windows,
+    // which NVDA does not announce when focus moves into this list. Say group explicitly,
+    // same fix already used by GlobalEditor, OperatorEditor, and CartManager.
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<AccessibilityHandler>(*this, AccessibilityRole::group);
+    }
+
     ProgramLabel *getProgramComponent(int idx) {
         return labels[idx].get();
     }

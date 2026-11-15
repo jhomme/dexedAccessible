@@ -1828,3 +1828,34 @@ browser tree (which gets initial focus when the library opens) and press Return 
 file, or move to the LOAD button and use the system's own Open File dialog. Jim confirmed
 with VoiceOver that the bottom line now announces correctly after loading. Windows/NVDA not
 tested. Not yet committed; waiting on Jim.
+
+## 2026-11-15: trivial group-role fix for TuningShow, ParamDialog, and ProgramListBox; tabled the TuningShow table audit
+
+Jim asked for the consequences of the three remaining items on the branch plan before
+picking anything. Looked at each:
+
+`ParamDialog` turned out to already be in good shape: over 70 existing `setTitle`/
+`setTooltip` calls from the earlier tooltip pass, all standard JUCE sliders, combo boxes,
+and buttons with their own real default accessibility, and already VoiceOver-tested, since
+Command+P already announces "Function Settings" on entry. The only gap was the explicit
+`group` role `GlobalEditor`, `OperatorEditor`, and `CartManager` already have.
+
+`ProgramListBox` (the container holding 32 `ProgramLabel` cells, not the cells themselves,
+which already have a real handler) already calls `setTitle()` with a real name and is
+already keyboard-focusable. Same single gap: no explicit `group` role.
+
+`TuningShow` has the same one-line gap, but its real content, a 128-row table of MIDI notes
+against tuning values, is driven by a third-party component, Surge Synth Team's
+`TuningTableListBoxModel`, not this project's own code. Whether VoiceOver already reads that
+table row by row is unknown without testing, and fixing it if not would be open-ended work
+benefiting only users who load a custom SCL or KBM tuning file, a small slice of this
+plugin's use. Flagged this as a real unknown, not a quick addition.
+
+Jim's call: do the trivial group-role fix for all three now, and put the deeper TuningShow
+table question in the same category as the VU meter decision from earlier today, not to be
+raised again on its own. Added the explicit `group` role to `Source/ParamDialog.h`,
+`Source/TuningShow.h`, and `Source/ProgramListBox.h`, each a one-line
+`createAccessibilityHandler()` override identical to the existing `GlobalEditor` pattern.
+Built all four targets clean, confirmed arm64 on each. This fix has no effect on Mac, since
+VoiceOver already treated the unspecified default role as a group there; it only matters on
+Windows/NVDA, which is not yet tested. Not yet committed; waiting on Jim.

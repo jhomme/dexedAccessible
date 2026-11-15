@@ -17,14 +17,19 @@ Second piece done: `CartridgeFileDisplay`, the line in the cartridge library sho
 file the current program is based on, now has the same kind of real handler. `CartManager`
 itself also now states an explicit group role, the same NVDA-on-Windows fix `GlobalEditor`
 and `OperatorEditor` already had. Build clean, arm64 confirmed on all four targets. Jim
-confirmed with VoiceOver that it announces correctly after loading a cartridge. Not yet
-committed.
+confirmed with VoiceOver that it announces correctly after loading a cartridge. Committed
+`dd6d4b9`, pushed.
 
-Remaining from the branch plan, in docs/Plan.md: `VuMeterBase` (deliberately held back,
-needs its own design decision about how often to announce a constantly-changing level),
-`TuningShow` and `ParamDialog` still have no real handler. `ProgramListBox` itself, separate
-from its `ProgramLabel` rows, still needs a check. Windows/NVDA testing for any of this
-branch's work is still outstanding.
+Third piece done: `TuningShow`, `ParamDialog`, and `ProgramListBox` all now state the same
+explicit group role `GlobalEditor`, `OperatorEditor`, and `CartManager` already have. All
+three were otherwise already in decent shape; this fix only matters on Windows/NVDA, no
+effect on Mac. Build clean, arm64 confirmed on all four targets. Not yet committed.
+
+Windows/NVDA testing for any of this branch's work is still outstanding.
+
+`VuMeterBase` and a real audit of `TuningShow`'s tuning table (third-party code, unknown
+VoiceOver behavior, benefits only custom SCL/KBM users) are both out of scope for this
+branch and not coming up again on their own; see docs/Plan.md.
 
 ## Before that
 GitHub issue #3, keyboard navigation shortcuts: switched the five existing shortcuts from

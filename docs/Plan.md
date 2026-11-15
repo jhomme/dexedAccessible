@@ -174,11 +174,6 @@ approach, and see how much it improves things. Test, then decide whether to merg
   Build clean, arm64 confirmed on all four targets. Confirmed working with VoiceOver in
   Logic, 2026-11-15, including that Logic does not intercept the new shortcut. Not yet
   committed.
-- [ ] Add a real `createAccessibilityHandler()` to `VuMeterBase` reporting the current level.
-  Needs a design decision first: a VU meter's level changes many times a second, so
-  announcing every change would be constant noise. Decide what VoiceOver should actually say
-  and when. Jim's call, 2026-11-15: not part of the first piece of work on this branch. Not
-  started.
 - [x] Add a real `createAccessibilityHandler()` to `CartManager` and `CartridgeFileDisplay`
   for browsing and loading cartridges. `CartridgeFileDisplay`, the small line showing which
   cartridge file the current program is based on, gets a live label handler following the
@@ -188,15 +183,32 @@ approach, and see how much it improves things. Test, then decide whether to merg
   `OperatorEditor`. `Source/CartManager.h`. Build clean, arm64 confirmed on all four targets.
   Jim confirmed working with VoiceOver, 2026-11-15. Windows/NVDA not yet tested. Not yet
   committed.
-- [ ] Add a real `createAccessibilityHandler()` to `TuningShow`, the microtuning UI. Not
-  started.
-- [ ] Add a real `createAccessibilityHandler()` to `ParamDialog`, the in-window parameter
-  dialogs. Not started.
-- [ ] Check whether `ProgramListBox` itself, separate from the `ProgramLabel` rows it
-  contains, needs its own handler. Not started.
+- [x] Add the explicit `group` role to `TuningShow`, `ParamDialog`, and `ProgramListBox`,
+  the same NVDA-on-Windows fix already used by `GlobalEditor`, `OperatorEditor`, and
+  `CartManager`. `ParamDialog`'s own controls already had real titles and tooltips from the
+  earlier pass and are already VoiceOver-tested via Command+P; `ProgramListBox` already had
+  a real title and keyboard focus. Neither had the explicit role. `TuningShow`'s tuning
+  table itself is a separate, bigger question; see the note below. `Source/ParamDialog.h`,
+  `Source/TuningShow.h`, `Source/ProgramListBox.h`. Build clean, arm64 confirmed on all four
+  targets. Windows/NVDA not yet tested, so neither is Jim's own VoiceOver pass on these
+  three specifically, since the change has no Mac-visible effect. Not yet committed.
 - [ ] VoiceOver test each handler as it's built, in Logic, VST3 and AU. Not started.
 - [ ] Jim's full VoiceOver pass over the whole plugin on this branch, compared against the
   current `accessibility` branch, to judge how much the systematic approach actually
   improves things. Not started.
 - [ ] Decide whether to merge `accessibility-refactor` into `accessibility`, based on that
   comparison. Not started.
+
+## Not pursuing a VuMeterBase handler for now
+Jim's call, 2026-11-15: out of scope for this branch, and not to be brought up again on its
+own. A VU meter's level changes many times a second, so a real handler needs a design
+decision first about what VoiceOver should actually say and when, rather than announcing
+every change. Revisit only if someone actually asks for it.
+
+## Not pursuing a real TuningShow table audit for now
+Jim's call, 2026-11-15: same category as the VU meter above, and not to be brought up again
+on its own. The tuning table's 128 rows are drawn by a third-party component, Surge Synth
+Team's `TuningTableListBoxModel`, not this project's own code. Whether VoiceOver already
+reads it row by row is unknown without testing, and if it does not, fixing it is open-ended
+work affecting only users who load a custom SCL or KBM tuning file. Revisit only if someone
+actually asks for it.

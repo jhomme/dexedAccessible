@@ -44,6 +44,14 @@ public:
     //==============================================================================
     //[UserMethods]     -- You can add your own custom methods in this section.
     void setTuning( const Tunings::Tuning &t );
+
+    // JUCE's default role, unspecified, is a group on macOS but a custom control on Windows,
+    // which NVDA does not announce when focus moves into the dialog. Say group explicitly,
+    // same fix already used by GlobalEditor, OperatorEditor, and CartManager. The tuning
+    // table itself, inside this dialog, still needs its own look; see docs/Plan.md.
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<AccessibilityHandler>(*this, AccessibilityRole::group);
+    }
     //[/UserMethods]
 
     void paint (Graphics& g) override;

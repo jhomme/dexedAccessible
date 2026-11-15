@@ -64,6 +64,13 @@ public:
 
     void setIsStandardTuning(bool s);
     void timerCallback() override;
+
+    // JUCE's default role, unspecified, is a group on macOS but a custom control on Windows,
+    // which NVDA does not announce when focus moves into the dialog. Say group explicitly,
+    // same fix already used by GlobalEditor, OperatorEditor, and CartManager.
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<AccessibilityHandler>(*this, AccessibilityRole::group);
+    }
     //[/UserMethods]
 
     void paint (juce::Graphics& g) override;

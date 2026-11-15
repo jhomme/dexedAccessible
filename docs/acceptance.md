@@ -270,3 +270,11 @@ already used for the Global Parameters and Operator panels, for NVDA on Windows.
   line (not a Tab stop) to confirm it announces the loaded file. Load a program with no
   cartridge reference and confirm the other message. Confirmed working with VoiceOver,
   2026-11-15. Windows/NVDA not yet tested.
+
+## TuningShow, ParamDialog, and ProgramListBox each state an explicit group role
+Done when focus moving into the Function Settings dialog, the microtuning display, or either
+program list causes NVDA, on Windows, to announce the panel's name, the same way it already
+should for Global Parameters, each Operator panel, and the cartridge library. This has no
+effect on Mac, since VoiceOver already treated the unspecified default as a group.
+- Jim tests: Windows/NVDA only; not yet tested. Mac VoiceOver behavior for these three is
+  unchanged by this fix, so no Mac test applies.
