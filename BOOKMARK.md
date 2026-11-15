@@ -32,13 +32,15 @@ Jim decided on 2026-11-15 to release it without waiting for the Reaper test, sin
 set up Reaper yet; see deviations.md. The separate Reaper-crash-on-close part of the report
 is still unlooked-at. Full account in docs/log.md, entries dated 2026-11-10 and 2026-11-15.
 
-Today, 2026-11-15, preparing to build and release the current state of `accessibility`:
-logged that deviation, added a line to README.md disclosing the untested Reaper fix and
-linking Documentation/Keybindings.md, added a short release-notes blurb
-(docs/release-notes.md) that the release workflow now injects into the GitHub release's own
-notes, and changed `.github/workflows/project-pipeline.yml` to attach Keybindings.md to the
-release as its own download. None of this is committed yet. Still open: what version number
-to use for this release.
+Today, 2026-11-15, released v0.3.0 from `accessibility`: the Command-key shortcut switch,
+panel-context announcements, and the CLAP typed-value fix, which went out without a Reaper
+test since Reaper isn't set up yet, disclosed plainly in README.md and the release notes.
+Also attached Documentation/Keybindings.md to the release as its own download, via a new
+package-docs job in `.github/workflows/project-pipeline.yml`. Local build confirmed clean,
+arm64, `DexedTests` passing before committing. Committed `26326bf`, tagged and pushed
+`v0.3.0`. Confirmed published: all three platform installers, the source tarball,
+checksums, and Documentation/Keybindings.md are all on the release page, and the release
+notes show the Reaper disclosure correctly. Not yet tested by Jim in a DAW.
 
 Before that: closed out PR #2, a contributor's keyboard-focus fix, after chasing down an
 unrelated Linux CI failure that looked at first like the PR had broken something. It hadn't;

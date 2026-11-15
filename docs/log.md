@@ -1724,3 +1724,11 @@ Changes made:
 
 Not yet committed. Still open: what version number to use for this release; Jim hasn't
 answered that yet.
+
+## 2026-11-15: confirmed the v0.3.0 release published correctly
+Checked the GitHub API for the v0.3.0 release, since this was the first release using the
+new package-docs job and release_blurb_file input. Confirmed: installers for Linux, macOS,
+and Windows, a source tarball, md5/sha256 checksum files, and Documentation/Keybindings.md
+all present as separate downloadable assets, and the release notes body correctly show the
+Reaper-disclosure text from docs/release-notes.md ahead of the usual auto-generated commit
+list.

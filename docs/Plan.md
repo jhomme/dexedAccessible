@@ -143,8 +143,10 @@ acceptance.md instead, and link back here.
   an operator with Command+Shift+1-6 announces on/off without moving focus. Closing the
   cartridge library or the function dialog, by Escape or by its own Close button, announces
   the panel focus is returning to. See log.md and deviations.md, 2026-11-14.
-- [ ] Release v0.3.0: the Command-key shortcuts and panel announcements above, plus the
-  CLAP/Reaper typed-value fix released without a Reaper test. Bump CMakeLists.txt to 0.3.0,
-  disclose the untested Reaper fix in README.md and the release notes, attach
+- [x] Release v0.3.0: the Command-key shortcuts and panel announcements above, plus the
+  CLAP/Reaper typed-value fix released without a Reaper test. Bumped CMakeLists.txt to
+  0.3.0, disclosed the untested Reaper fix in README.md and the release notes, attached
   Documentation/Keybindings.md to the release. Local build clean, arm64 confirmed on all four
-  targets, DexedTests passed, 2026-11-15. Not yet committed or tagged. See deviations.md.
+  targets, DexedTests passed. Committed `26326bf`, tagged and pushed, 2026-11-15. Confirmed
+  published with all three installers, the Keybindings.md download, and the disclosure text
+  in the release notes. See deviations.md.
