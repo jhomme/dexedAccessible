@@ -234,3 +234,10 @@ are intentionally hidden from accessibility while that dialog is up.
   without a focus change. Open the cartridge library, try a jump shortcut, and confirm the
   "press Escape" message instead of a silent failure. Confirmed working in both standalone
   and Logic, 2026-11-14. Windows/NVDA not yet tested; see deviations.md.
+
+## v0.3.0 release published with the Keybindings doc and an honest Reaper disclosure
+Done when the GitHub release page for v0.3.0 shows installers for Mac, Windows, and Linux, a
+separate Documentation/Keybindings.md download, and release notes that plainly say the
+CLAP/Reaper typed-value fix hasn't been tested in a real CLAP host yet.
+- Jim tests: open the v0.3.0 release page once CI finishes and confirm all of the above are
+  present and readable.

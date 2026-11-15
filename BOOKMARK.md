@@ -23,14 +23,22 @@ committed.
 Still open from issue #3: comma/period group-stepping, and the preset save/picker
 tab-order fix, neither started.
 
-Separately, still open, untouched since 2026-11-10: GitHub issue #1, "Parameters not
-correct," the CLAP build on Windows not applying typed parameter values in Reaper. Found and
-fixed the real cause for plain numeric controls; switches, note names, labeled dropdowns, and
-master tune still need their own design pass. Built clean, confirmed arm64, `DexedTests`
-passed. Not committed yet: holding until Jim can test the real CLAP plugin in Reaper, which
-he doesn't have and is arranging to test through the Reapers Without Peepers list. The
-separate Reaper-crash-on-close part of the report is still unlooked-at. Full account in
-docs/log.md, entry dated 2026-11-10.
+Separately, GitHub issue #1, "Parameters not correct," the CLAP build on Windows not
+applying typed parameter values in Reaper. Found and fixed the real cause for plain numeric
+controls; switches, note names, labeled dropdowns, and master tune still need their own
+design pass. Built clean, confirmed arm64, `DexedTests` passed. This was committed on
+2026-11-14 as `62cd6dc`, correcting this file's earlier note that it was being held back.
+Jim decided on 2026-11-15 to release it without waiting for the Reaper test, since he hasn't
+set up Reaper yet; see deviations.md. The separate Reaper-crash-on-close part of the report
+is still unlooked-at. Full account in docs/log.md, entries dated 2026-11-10 and 2026-11-15.
+
+Today, 2026-11-15, preparing to build and release the current state of `accessibility`:
+logged that deviation, added a line to README.md disclosing the untested Reaper fix and
+linking Documentation/Keybindings.md, added a short release-notes blurb
+(docs/release-notes.md) that the release workflow now injects into the GitHub release's own
+notes, and changed `.github/workflows/project-pipeline.yml` to attach Keybindings.md to the
+release as its own download. None of this is committed yet. Still open: what version number
+to use for this release.
 
 Before that: closed out PR #2, a contributor's keyboard-focus fix, after chasing down an
 unrelated Linux CI failure that looked at first like the PR had broken something. It hadn't;
@@ -71,6 +79,8 @@ JUCE's own built-in slider text box is reportedly hard to make accessible.
    `docs/dx7-manual-hardware-sections.md`, with a glossary for newcomers to synthesis.
 7. Jim said he'll get a real Apple Developer Certificate "soon," which would let future Mac
    releases be signed, removing the Gatekeeper warning. Not scheduled yet.
+8. Better documentation overall, beyond Keybindings.md, is a planned future item. Not
+   scheduled yet.
 
 ## Not pursuing an upstream PR for now
 asb2m10 closed our earlier crash-fix PR after upstream's own incompatible refactor. Jim's

@@ -1693,3 +1693,34 @@ covering plain language. Saved a global feedback memory and added a line to
 `~/.claude/CLAUDE.md`'s "Lessons turned into rules" section: check every reply against the
 `no-ai-slop` skill's "words to cut" and "patterns to cut" lists, not just drafts handed over
 for editing, across all projects.
+
+## 2026-11-15: release prep — logged the Reaper deviation, added Keybindings doc to the release
+Confirmed the CLAP typed-value fix for issue #1, which bookmark.md still said was "not
+committed yet," was actually already committed on 2026-11-14 as `62cd6dc` and pushed to
+`accessibility`. Bookmark.md was stale on that point.
+
+Jim decided to go ahead and release that fix now, without the Reaper test bookmark.md said
+would gate it, since he hasn't set up Reaper yet and doesn't want that to hold up a release.
+Logged as a deviation in docs/deviations.md.
+
+Jim also asked for two things to go with that: be open about the untested-in-Reaper fix in
+the release's own information, not just buried in a commit; and get Documentation/Keybindings.md
+into the release and linked from the project's own explanation of itself.
+
+Changes made:
+- docs/deviations.md: new entry recording the decision to release the CLAP fix untested.
+- README.md: added a line disclosing the untested CLAP/Reaper fix, next to the project's other
+  release disclosures, and a link to Documentation/Keybindings.md, noting that attaching
+  it to the release and that better documentation generally is a planned future item.
+- docs/release-notes.md: new file, short blurb text for the GitHub release's own notes, same
+  disclosure plus the Keybindings.md mention.
+- .github/workflows/project-pipeline.yml: added a package-docs job that uploads
+  Documentation/Keybindings.md as a build artifact, added it to publish-release's needs so it's
+  present when the release step collects artifacts, and pointed the existing upload-to-release
+  action's release_blurb_file input at docs/release-notes.md. Read that action's own source
+  (surge-synthesizer/sst-githubactions) to confirm release_blurb_file is a real supported input
+  and that artifacts with no declared name get uploaded automatically as release assets; neither
+  had been used in this project's workflow before.
+
+Not yet committed. Still open: what version number to use for this release; Jim hasn't
+answered that yet.

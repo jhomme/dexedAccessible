@@ -170,3 +170,16 @@ VoiceOver support on a Windows-specific fix. A proper NVDA-routed announcement i
 work, not done here.
 
 Who decided: Jim, 2026-11-14. Not yet tested on Windows or with NVDA.
+
+## 2026-11-15: released the CLAP typed-value fix before testing it in Reaper
+What changed: bookmark.md said the fix for issue #1, CLAP hosts not applying a typed numeric
+parameter value, would be held until Jim could test the real CLAP plugin in Reaper. The fix
+was committed on 2026-11-14 as `62cd6dc`, and it is going out in the next release without
+that Reaper test, since Jim hasn't set up Reaper yet.
+
+Why: Jim wants to keep moving on a release rather than wait on a Reaper setup with no
+timeline. The fix was already confirmed built clean with `DexedTests` passing and a correct
+arm64 binary; only the real-host behavior in Reaper is unverified.
+
+Who decided: Jim, 2026-11-15. The release's own notes and README.md both say plainly that
+this fix hasn't been tested in Reaper yet, so anyone relying on it knows.

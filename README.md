@@ -19,6 +19,13 @@ Note that because I do not yet have an Apple Developer Certificate, you will hav
 
 As of this release, Windows and Linux versions have not been tested.
 
+This release includes a fix for CLAP hosts, such as Reaper, not applying a value typed
+directly into a parameter's field. That fix has not yet been tested in a real CLAP host.
+
+Keyboard shortcuts are listed in [Documentation/Keybindings.md](Documentation/Keybindings.md),
+also attached to this release as a separate download. Better documentation overall is a
+planned future item.
+
 DexedAccessible  is licensed on the GPL v3. The msfa component (acronym for music synthesizer for android, see msfa
 in the source folder) stays on the Apache 2.0 license to be able to collaborate between projects.
 
