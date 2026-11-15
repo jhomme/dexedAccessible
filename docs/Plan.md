@@ -191,13 +191,25 @@ approach, and see how much it improves things. Test, then decide whether to merg
   table itself is a separate, bigger question; see the note below. `Source/ParamDialog.h`,
   `Source/TuningShow.h`, `Source/ProgramListBox.h`. Build clean, arm64 confirmed on all four
   targets. Windows/NVDA not yet tested, so neither is Jim's own VoiceOver pass on these
-  three specifically, since the change has no Mac-visible effect. Not yet committed.
-- [ ] VoiceOver test each handler as it's built, in Logic, VST3 and AU. Not started.
-- [ ] Jim's full VoiceOver pass over the whole plugin on this branch, compared against the
+  three specifically, since the change has no Mac-visible effect. Committed `e3284d6`,
+  pushed.
+- [x] VoiceOver test each handler as it's built, in Logic, VST3 and AU. Jim confirmed
+  working, 2026-11-15.
+- [x] Jim's full VoiceOver pass over the whole plugin on this branch, compared against the
   current `accessibility` branch, to judge how much the systematic approach actually
-  improves things. Not started.
-- [ ] Decide whether to merge `accessibility-refactor` into `accessibility`, based on that
-  comparison. Not started.
+  improves things. Jim confirmed it worked, 2026-11-15.
+- [x] Decide whether to merge `accessibility-refactor` into `accessibility`, based on that
+  comparison. Jim's call, 2026-11-15: merge it.
+
+## Keeping accessibility-refactor alive after the merge
+Jim found something while testing this branch worth a closer look: plain Tab and Shift+Tab
+between panels do not announce the panel's name, unlike the Command+1-6/G/K/L/P jump
+shortcuts, which do, via `announceGroupThenFocus()` in `Source/PluginEditor.cpp`. Not
+investigated yet. Keeping `accessibility-refactor` checked out rather than deleting it after
+the merge, so this can be looked at there.
+
+- [ ] Investigate why plain Tab/Shift+Tab does not announce a panel's name on entry, the way
+  the Command-key jump shortcuts already do. Not started.
 
 ## Not pursuing a VuMeterBase handler for now
 Jim's call, 2026-11-15: out of scope for this branch, and not to be brought up again on its
