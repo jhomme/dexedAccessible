@@ -23,7 +23,7 @@
 
 #include "../JuceLibraryCode/JuceHeader.h"
 
-class AlgoDisplay : public Component, public juce::SettableTooltipClient {
+class AlgoDisplay : public Component {
     void displayOp(Graphics &g, char id, int x, int y, char link, char fb);
 public:
     const char *opStatus;
@@ -37,6 +37,27 @@ public:
     // routing table in Source/msfa/fm_core.h, so the words can't drift out of sync with the
     // actual sound.
     static String describeAlgorithm (int algo, const char *opStatus);
+
+    void notifyAccessibleValueChanged() {
+        if (auto *handler = getAccessibilityHandler())
+            handler->notifyAccessibilityEvent(AccessibilityEvent::valueChanged);
+    }
+
+    struct AlgoDisplayAH : public juce::AccessibilityHandler {
+        explicit AlgoDisplayAH(AlgoDisplay *s): display(s), juce::AccessibilityHandler(*s, juce::AccessibilityRole::label) {
+        }
+
+        virtual String getTitle() const override {
+            return AlgoDisplay::describeAlgorithm(*display->algo, display->opStatus);
+        }
+
+        AlgoDisplay *display;
+        JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AlgoDisplayAH);
+    };
+
+    std::unique_ptr<AccessibilityHandler> createAccessibilityHandler() override {
+        return std::make_unique<AlgoDisplayAH>(this);
+    }
 };
 
 #endif  // ALGODISPLAY_H_INCLUDED

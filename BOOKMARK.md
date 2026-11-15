@@ -1,13 +1,24 @@
 # Bookmark
 
 ## Where we are
-Created the `accessibility-refactor` branch off `accessibility`, 2026-11-15. Goal: apply
-JUCE's `AccessibilityHandler` class systematically across the whole app, instead of the
-current one-component-at-a-time approach, and see how much that improves things. Surveyed
-the code first: `AlgoDisplay`, `VuMeterBase` (backs `VuMeter`/`VuMeterOutput`),
+On the `accessibility-refactor` branch, off `accessibility`, 2026-11-15. Goal: apply JUCE's
+`AccessibilityHandler` class systematically across the whole app, instead of the current
+one-component-at-a-time approach, and see how much that improves things.
+
+First piece done: `AlgoDisplay` now has a real handler, following the same pattern as
+`LcdDisplay`. The live routing description moved off the ALGO dial's tooltip onto the
+diagram itself, Jim's call, so the same text isn't heard twice back to back; the dial now
+just says "Algorithm" plus a short static tooltip. Also added Command+Shift+A
+(Control+Shift+A on Windows) to announce the diagram's description from anywhere without
+moving focus. Build clean, arm64 confirmed on all four targets. Jim confirmed with VoiceOver
+in Logic: the diagram reads correctly, the dial no longer repeats it, and Logic does not
+grab the new shortcut. Not yet committed.
+
+Remaining from the branch plan, in docs/Plan.md: `VuMeterBase` (deliberately held back,
+needs its own design decision about how often to announce a constantly-changing level),
 `CartManager`/`CartridgeFileDisplay`, `TuningShow`, and `ParamDialog` still have no real
-handler, just a static tooltip or nothing. Wrote the task list into docs/Plan.md. No code
-changed yet; not committed.
+handler. `ProgramListBox` itself, separate from its `ProgramLabel` rows, still needs a
+check.
 
 ## Before that
 GitHub issue #3, keyboard navigation shortcuts: switched the five existing shortcuts from

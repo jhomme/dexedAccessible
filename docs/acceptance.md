@@ -241,3 +241,20 @@ separate Documentation/Keybindings.md download, and release notes that plainly s
 CLAP/Reaper typed-value fix hasn't been tested in a real CLAP host yet.
 - Jim tests: open the v0.3.0 release page once CI finishes and confirm all of the above are
   present and readable.
+
+## AlgoDisplay has a real accessibility handler, and Command+Shift+A announces it from anywhere
+Done when tabbing to the algorithm diagram speaks the full routing description (algorithm
+number, which operators are muted, which modulate which, which are carriers, which have
+feedback), updating live when the algorithm or an operator's on/off state changes, instead of
+being hidden from accessibility with nothing to say. The ALGO dial itself goes back to just
+"Algorithm" plus a short static tooltip, since the live description moved to the diagram.
+Command+Shift+A (Control+Shift+A on Windows) announces that same description from anywhere in
+the plugin, without moving keyboard focus.
+- Jim tests: with VoiceOver on, tab to the ALGO dial and confirm it only says "Algorithm" and
+  the short tooltip. Tab to the algorithm diagram and confirm it speaks the full routing
+  description. Change the algorithm or toggle an operator and confirm the diagram's
+  description updates. Press Command+Shift+A from anywhere and confirm it announces the same
+  description without moving focus, and confirm Logic does not intercept the shortcut for
+  itself. Confirmed working with VoiceOver in Logic, 2026-11-15: the handler reads correctly,
+  and Command+Shift+A reaches the plugin rather than being grabbed by Logic. Standalone and
+  Windows/NVDA not yet tested.

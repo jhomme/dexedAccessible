@@ -164,13 +164,21 @@ approach, and see how much it improves things. Test, then decide whether to merg
   only a static tooltip or nothing. `EnvDisplay`, `PitchEnvDisplay`, `LcdDisplay`, `DXSlider`,
   `ProgramLabel`, `OperatorEditor`, and `GlobalEditor` already do, each with its own nested
   `AccessibilityHandler` subclass. Not started as code yet.
-- [ ] Add a real `createAccessibilityHandler()` to `AlgoDisplay`, reusing
+- [x] Add a real `createAccessibilityHandler()` to `AlgoDisplay`, reusing
   `describeAlgorithm()`, with a live announcement when the algorithm or an operator's
-  on/off state changes. Not started.
+  on/off state changes. Moved the live description off the ALGO dial's tooltip onto the
+  diagram itself, per Jim's call, so the same text isn't heard twice in a row; the dial
+  now just says "Algorithm" plus a short static tooltip. Added a new shortcut,
+  Command+Shift+A (Control+Shift+A on Windows), that announces the diagram's description
+  from anywhere without moving focus, `Source/PluginEditor.cpp`, `Source/GlobalEditor.h`.
+  Build clean, arm64 confirmed on all four targets. Confirmed working with VoiceOver in
+  Logic, 2026-11-15, including that Logic does not intercept the new shortcut. Not yet
+  committed.
 - [ ] Add a real `createAccessibilityHandler()` to `VuMeterBase` reporting the current level.
   Needs a design decision first: a VU meter's level changes many times a second, so
   announcing every change would be constant noise. Decide what VoiceOver should actually say
-  and when. Not started.
+  and when. Jim's call, 2026-11-15: not part of the first piece of work on this branch. Not
+  started.
 - [ ] Add a real `createAccessibilityHandler()` to `CartManager` and `CartridgeFileDisplay`
   for browsing and loading cartridges. Not started.
 - [ ] Add a real `createAccessibilityHandler()` to `TuningShow`, the microtuning UI. Not

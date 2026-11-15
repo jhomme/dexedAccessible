@@ -1758,3 +1758,42 @@ meter design question (how often a constantly-changing level should actually be 
 VoiceOver testing per component, and a final side-by-side comparison against the current
 `accessibility` branch before deciding whether to merge. Updated bookmark.md. No code
 changed. Not yet committed; waiting on Jim before committing the branch and plan.
+
+## 2026-11-15: AlgoDisplay gets a real accessibility handler, plus a new announce-from-anywhere shortcut
+
+First piece of code on `accessibility-refactor`, following the plan from earlier today.
+Surveyed how the current, pre-refactor design worked around `AlgoDisplay` having no real
+handler: `GlobalEditor.cpp` hid the diagram from accessibility entirely
+(`algoDisplay->setAccessible(false)`), because the live routing text, built by
+`AlgoDisplay::describeAlgorithm()`, was piggybacked onto the ALGO dial's tooltip instead.
+
+Flagged one choice to Jim before writing code, since it changes what gets heard where:
+give the diagram its own real handler and also keep the live text on the dial's tooltip (two
+stops saying nearly the same thing back to back), or move the live text onto the diagram and
+trim the dial back to a short static tooltip (one stop, one description). Jim chose the
+second. Implemented it: added `AlgoDisplayAH`, a nested `AccessibilityHandler` struct on
+`AlgoDisplay` in `Source/AlgoDisplay.h`, following the exact pattern already used by
+`LcdDisplay` in `Source/DXComponents.h` — role `label`, `getTitle()` calling
+`describeAlgorithm()` live, plus a `notifyAccessibleValueChanged()` helper. Removed
+`AlgoDisplay`'s now-unused `SettableTooltipClient` base and the `setAccessible(false)` call
+in `Source/GlobalEditor.cpp`. The ALGO dial keeps its own approved static tooltip from
+`docs/tooltip-descriptions.md` ("Chooses how the 6 operators connect to each other as
+carriers and modulators"), set once rather than overwritten on every change. Wired the
+existing algorithm-change and operator-switch-refresh call sites to call
+`algoDisplay->notifyAccessibleValueChanged()` instead of touching the dial's tooltip.
+
+Jim then asked for a second piece on top, in the same session: a shortcut to hear the
+algorithm description from anywhere, without tabbing to the diagram, specifically to test
+whether Logic would intercept it before the plugin saw it. Added
+`GlobalEditor::getAlgorithmDescription()` as a small public accessor, and a new
+Command+Shift+A handler in `Source/PluginEditor.cpp`'s `keyPressed()`, right alongside the
+existing Command+G/K/L/P shortcuts, using `AccessibilityHandler::postAnnouncement()` the same
+way the operator mute toggles already do. Reused the existing `mods.isCommandDown()` check
+already used by every other shortcut here, which JUCE maps to Command on Mac and Control on
+Windows automatically, so Control+Shift+A on Windows needs no separate code path.
+
+Built all four targets (Standalone, VST3, AU, CLAP) clean, confirmed arm64 on each. Did not
+rerun `DexedTests`, since this change doesn't touch parameter registration or anything the
+suite covers. Jim confirmed with VoiceOver in Logic: the diagram speaks the routing
+description, the dial no longer repeats it, and Command+Shift+A reaches the plugin rather
+than being grabbed by Logic. Not yet committed; waiting on Jim.

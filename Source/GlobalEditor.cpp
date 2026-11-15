@@ -480,6 +480,7 @@ GlobalEditor::GlobalEditor ()
     aboutButton->setTitle("About DexedAccessible");
     aboutButton->setTooltip("Opens information about the plugin's version and credits.");
     algo->setTitle("Algorithm");
+    algo->setTooltip("Chooses how the 6 operators connect to each other as carriers and modulators.");
     monoMode->setTitle("Mono Mode");
     monoMode->setTooltip("Switches between playing multiple notes at once and playing only one note at a time.");
 
@@ -541,11 +542,6 @@ GlobalEditor::GlobalEditor ()
     storeButton->setTooltip("Saves the current edited preset into memory.");
     programSelector->setTitle("Preset Selector");
     programSelector->setTooltip("Lists the available presets for selection.");
-
-    // Purely a picture, with nothing else to tell VoiceOver, since the algo slider already
-    // carries a live spoken description of the current algorithm. Hidden instead of leaving
-    // it as an empty, confusing stop.
-    algoDisplay->setAccessible(false);
 
     // No live reading reaches VoiceOver from this meter yet, so landing on it just produces
     // an empty stop. Hidden until it has something real to say.
@@ -723,7 +719,7 @@ void GlobalEditor::sliderValueChanged (juce::Slider* sliderThatWasMoved)
     {
         //[UserSliderCode_algo] -- add your slider handling code here..
         algoDisplay->repaint();
-        algo->setTooltip (AlgoDisplay::describeAlgorithm (*algoDisplay->algo, algoDisplay->opStatus));
+        algoDisplay->notifyAccessibleValueChanged();
         //[/UserSliderCode_algo]
     }
     else if (sliderThatWasMoved == output.get())
@@ -858,7 +854,7 @@ void GlobalEditor::setParamMessage(String msg) {
 }
 
 void GlobalEditor::updateDisplay() {
-    algo->setTooltip (AlgoDisplay::describeAlgorithm (*algoDisplay->algo, algoDisplay->opStatus));
+    algoDisplay->notifyAccessibleValueChanged();
     repaint();
 }
 

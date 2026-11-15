@@ -60,6 +60,13 @@ public:
     void updateDisplay();
     void repaintMsg();
 
+    // The current algorithm's routing, in words, for the Command+Shift+A (Control+Shift+A on
+    // Windows) shortcut that announces it from anywhere, without moving keyboard focus to the
+    // algorithm diagram itself.
+    String getAlgorithmDescription() const {
+        return AlgoDisplay::describeAlgorithm(*algoDisplay->algo, algoDisplay->opStatus);
+    }
+
     void setMonoState(bool state);
     ProgramSelector *programs;
 

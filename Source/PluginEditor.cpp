@@ -788,6 +788,12 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
         return true;
     }
 
+    if ( keycode == 'A' && mods.isCommandDown() && mods.isShiftDown() ) {
+        AccessibilityHandler::postAnnouncement(global.getAlgorithmDescription(),
+                                                AccessibilityHandler::AnnouncementPriority::medium);
+        return true;
+    }
+
     if ( keycode == 'L' && mods.isCommandDown() ) {
         announceGroupThenFocus(cartManager, [this] { cartShow(); });
         return true;
