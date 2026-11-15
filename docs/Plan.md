@@ -162,7 +162,13 @@ acceptance.md instead, and link back here.
   Command+Shift+A/Control+Shift+A shortcut and a general Tab/Shift+Tab panel-announcement
   line to `Documentation/Keybindings.md`, in its existing Mac/Windows-separated format, so
   the attached download at the release stays current. Local build clean, arm64 confirmed on
-  all four targets, `DexedTests` passed.
+  all four targets, `DexedTests` passed. Jim re-tested in standalone the two pieces only
+  confirmed in Logic before, both passed; corrected a real overclaim in
+  `docs/release-notes.md`'s first draft, which had said all four pieces were confirmed in
+  both hosts before that was actually true. Committed `b964b56`, tagged and pushed,
+  2026-11-15. CI built macOS, Windows, and Linux successfully and published the release:
+  all three installers, checksums, the source tarball, and Keybindings.md are attached, and
+  the release notes show the corrected disclosures.
 
 ## accessibility-refactor branch: systematic AccessibilityHandler coverage
 

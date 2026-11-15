@@ -22,6 +22,12 @@ is now confirmed in both Logic and standalone. Caught and fixed a real overclaim
 `docs/release-notes.md` along the way: its first draft said all four pieces were confirmed
 in both hosts, when at the time only the Tab/Shift+Tab fix actually had been.
 
+Committed `b964b56`, tagged and pushed `v0.4.0`. CI built macOS, Windows, and Linux
+successfully and published the release: all three platform installers, checksums, the
+source tarball, and Keybindings.md are all attached, and the release notes on GitHub show
+the corrected, host-accurate disclosures. Not yet tested by Jim in a DAW beyond the Logic/
+standalone testing already done for each piece during development.
+
 `VuMeterBase` and a real audit of `TuningShow`'s tuning table (third-party code, unknown
 VoiceOver behavior, benefits only custom SCL/KBM users) are both out of scope and not coming
 up again on their own; see docs/Plan.md. Windows/NVDA testing for the whole batch above is

@@ -1965,3 +1965,16 @@ AlgoDisplay/Command+Shift+A and CartridgeFileDisplay/CartManager, in the standal
 Both confirmed working. Updated `docs/Plan.md`, `docs/acceptance.md`, and
 `docs/release-notes.md` to say so. Every piece in this release except the group-role fix,
 which has no audible effect on Mac at all, is now confirmed in both Logic and standalone.
+
+## 2026-11-15: v0.4.0 tagged, pushed, and published
+
+Committed the version bump and all the release-doc updates as `b964b56`, tagged and pushed
+`v0.4.0`. Checked the CI run with `gh run watch` (the Homebrew path, `/opt/homebrew/bin/gh`,
+same as `cmake` and `ctest` earlier this session, since none of them are on the default
+PATH): `gh run list` without `--repo` returned runs from `upstream`, asb2m10/dexed, not this
+fork, since gh's default repo and this directory's `origin` remote aren't the same thing;
+re-ran with `--repo jhomme/dexedAccessible` and found the right runs. macOS, Windows, and
+Linux all built successfully, and the release got published automatically. Confirmed with
+`gh release view v0.4.0`: all three installers, both checksum files, the source tarball,
+and Keybindings.md are attached, and the release notes shown on GitHub match the corrected,
+host-accurate disclosures written earlier.
