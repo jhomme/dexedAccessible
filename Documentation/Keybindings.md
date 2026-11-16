@@ -12,6 +12,9 @@
   Control+SHIFT+A
 - Move keyboard focus to the next or previous control, announcing the panel's name when
   focus crosses into a different one: TAB or SHIFT+TAB
+- Jump to the previous panel (an Operator, Global Parameters, or the on-screen keyboard),
+  landing on its first control, wrapping around at either end: COMMA
+- Jump to the next panel the same way: PERIOD
 - On any slider, step by 1, Up, Down, Left, and Right arrows
 - On any slider, step by 5: SHIFT+RIGHT, Left, Up, and Down  arrows
 - In the cartridge manager's program lists, move to a sound and load it: RIGHT, LEFT, UP, or
@@ -32,6 +35,9 @@
   Command+SHIFT+A
 - Move keyboard focus to the next or previous control, announcing the panel's name when
   focus crosses into a different one: TAB or SHIFT+TAB
+- Jump to the previous panel (an Operator, Global Parameters, or the on-screen keyboard),
+  landing on its first control, wrapping around at either end: COMMA
+- Jump to the next panel the same way: PERIOD
 - On any slider, step by 1, Up, Down, Left, and Right arrows
 - On any slider, step by 5: SHIFT+RIGHT, Left, Up, and Down  arrows
 - In the cartridge manager's program lists, move to a sound and load it: RIGHT, LEFT, UP, or

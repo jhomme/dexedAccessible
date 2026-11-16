@@ -1978,3 +1978,61 @@ Linux all built successfully, and the release got published automatically. Confi
 `gh release view v0.4.0`: all three installers, both checksum files, the source tarball,
 and Keybindings.md are attached, and the release notes shown on GitHub match the corrected,
 host-accurate disclosures written earlier.
+
+## 2026-11-16: comma/period group-stepping, from issue #3
+
+Jim's spec: Comma goes to the previous group and lands on the first control, Period to the
+next group, same way. Picked the fixed cycling order to match the existing Command+1-6/G/K
+shortcuts' own order: Operator 1 through 6, Global Parameters, then the on-screen keyboard
+(skipped when `midiKeyboard.isShowing()` is false, same guard Command+K already uses),
+wrapping around at either end. Reused `announceGroupThenFocus()` and each panel's existing
+`grabKeyboardFocus()` call for "lands on the first control," the same mechanism the
+Command-key shortcuts already use, rather than building a second way to do the same thing.
+
+Checked whether either key would collide with typing a literal comma or period anywhere in
+the three panels this cycles through: none of Operator, Global, or the on-screen keyboard
+contain a `TextEditor`, confirmed by grepping `GlobalEditor.h`, `OperatorEditor.h`, and
+`DXComponents.h`. Sliders in this plugin don't accept typed numeric input at all yet (a
+separate, already-known gap), so there's no text-entry anywhere these two keys could land
+on by accident. No modifier required as a result.
+
+Added Comma and Period to the existing cartridge-library block list alongside
+Command+1-6/G/K, since those three panels are hidden from accessibility while the library's
+open; pressing either now gets the same "Press Escape to exit the cartridge library"
+message instead of silently doing nothing.
+
+Added `#include <utility>` and `#include <vector>` to `PluginEditor.cpp`, since the new
+code builds a `std::vector` of panel/focus-action pairs fresh on each keypress rather than
+a second, duplicate chain of if-statements for each panel. Built all four targets clean,
+confirmed arm64 on each. Added both keys to `Documentation/Keybindings.md`. Not yet tested
+by Jim, not yet committed.
+
+## 2026-11-16: comma/period testing found and fixed a real bug in findEnclosingNamedGroup
+
+Jim tested the new comma/period group-stepping. Forward cycling with Period worked cleanly
+across every panel. The cartridge-library block was confirmed separately too: pressing
+Command+L, then Comma or Period right away, correctly got the "Press Escape..." message
+instead of a jump, not the earlier worry about VoiceOver landing on a hidden control.
+
+Backward cycling with Comma found a real bug: stepping onto the keyboard, then pressing
+Comma again, stuck there instead of continuing on to Global Parameters. Traced it to
+`findEnclosingNamedGroup()`: it asks each panel "are you an ancestor of the focused
+control," using `Component::isParentOf`, confirmed by reading JUCE's own implementation to
+walk up the parent chain without ever checking equality with the component itself, so a
+component is never its own parent. That's fine for Operators and Global Parameters, where
+landing on the panel always means landing on some slider or button inside it. The keyboard
+is different: it takes real keyboard focus directly, itself, so computer-keyboard key
+presses can play notes, confirmed by the existing comment above `setFocusContainerType`
+earlier in this same file. So once focus is on the keyboard directly, "is this an ancestor"
+is false, the function finds no current panel, and the stepping logic's fallback for "no
+current panel" kicks in every time, which happened to be the same spot.
+
+Fixed by checking "is this the panel itself" alongside "is this inside the panel" for all
+three panel types, not just the keyboard, for consistency. This function is also what the
+Command-key shortcuts use to remember which panel to return focus to after the cartridge
+library or Function Settings dialog closes, so this fix reaches further than just comma and
+period; whether it silently fixed a latent bug in those paths too is plausible but
+unconfirmed, since nothing before now had reason to land real focus on the keyboard itself
+right before one of those closes. Built all four targets clean, confirmed arm64 on each.
+Jim confirmed fixed: the full backward cycle through every panel, including the keyboard,
+now works. Not yet committed.

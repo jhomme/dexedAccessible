@@ -28,6 +28,8 @@
 #include "math.h"
 #include <fstream>
 #include <memory>
+#include <utility>
+#include <vector>
 
 #include "msfa/fm_op_kernel.h"
 
@@ -55,22 +57,31 @@ static void announceGroupThenFocus(Component& group, Component *&lastAnnouncedGr
     }
 }
 
-// Which of the named panels, if any, a given component sits inside. Used to remember where
-// focus was before the cartridge library opened, so leaving it again can announce that same
-// panel, the same way jumping to it would.
+// Which of the named panels, if any, a given component sits inside, or is itself. Used to
+// remember where focus was before the cartridge library opened, so leaving it again can
+// announce that same panel, the same way jumping to it would, and to step between panels
+// with Comma and Period.
+//
+// The on-screen keyboard is the one panel real focus can land on directly, rather than on
+// some control inside it, since it has to take keyboard focus itself to let the computer
+// keyboard play notes. Component::isParentOf only answers "is this component an ancestor of
+// that one," which is false when they're the same component, so checking only isParentOf
+// missed the keyboard whenever focus was on it directly instead of a child. Comma/Period
+// surfaced this: stepping backward onto the keyboard, then pressing Comma again, found no
+// current group, fell back to the same default every time, and never moved past it.
 static Component* findEnclosingNamedGroup(Component *focused, OperatorEditor *operators,
                                             GlobalEditor &global, MidiKeyboardComponent &midiKeyboard) {
     if ( focused == nullptr )
         return nullptr;
 
     for ( int i = 0; i < 6; i++ )
-        if ( operators[i].isParentOf(focused) )
+        if ( focused == &operators[i] || operators[i].isParentOf(focused) )
             return &operators[i];
 
-    if ( global.isParentOf(focused) )
+    if ( focused == &global || global.isParentOf(focused) )
         return &global;
 
-    if ( midiKeyboard.isParentOf(focused) )
+    if ( focused == &midiKeyboard || midiKeyboard.isParentOf(focused) )
         return &midiKeyboard;
 
     return nullptr;
@@ -817,7 +828,8 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
     if ( cartManagerCover.isVisible() ) {
         bool isBlockedJump = ( ( (keycode >= '1' && keycode <= '6') && mods.isCommandDown() && ! mods.isShiftDown() )
                                || ( keycode == 'G' && mods.isCommandDown() )
-                               || ( keycode == 'K' && mods.isCommandDown() ) );
+                               || ( keycode == 'K' && mods.isCommandDown() )
+                               || ( ( keycode == ',' || keycode == '.' ) && ! mods.isAnyModifierKeyDown() ) );
         if ( isBlockedJump ) {
             AccessibilityHandler::postAnnouncement("Press Escape to exit the cartridge library",
                                                     AccessibilityHandler::AnnouncementPriority::medium);
@@ -877,6 +889,40 @@ bool DexedAudioProcessorEditor::keyPressed(const KeyPress& key, Component* origi
 
     if ( keycode == 'L' && mods.isCommandDown() ) {
         announceGroupThenFocus(cartManager, lastAnnouncedGroup, [this] { cartShow(); });
+        return true;
+    }
+
+    // Comma steps to the previous named panel, period to the next one, cycling through
+    // Operator 1 through 6, Global Parameters, and the on-screen keyboard (when it's
+    // showing), wrapping around at either end. Lands on the panel's first control, the
+    // same as jumping to it with Command+1-6/G/K, via the same announceGroupThenFocus.
+    // No modifier required, since neither key types a literal character anywhere in these
+    // three panels; nothing here has a text field.
+    if ( ( keycode == ',' || keycode == '.' ) && ! mods.isAnyModifierKeyDown() ) {
+        std::vector<std::pair<Component *, std::function<void()>>> namedGroups;
+        for ( int i = 0; i < 6; i++ )
+            namedGroups.push_back({ &operators[i], [this, i] { operators[i].grabKeyboardFocus(); } });
+        namedGroups.push_back({ &global, [this] { global.grabKeyboardFocus(); } });
+        if ( midiKeyboard.isShowing() )
+            namedGroups.push_back({ &midiKeyboard, [this] { midiKeyboard.grabKeyboardFocus(); } });
+
+        Component *currentGroup = findEnclosingNamedGroup(Component::getCurrentlyFocusedComponent(),
+                                                             operators, global, midiKeyboard);
+
+        int currentIndex = -1;
+        for ( size_t i = 0; i < namedGroups.size(); i++ )
+            if ( namedGroups[i].first == currentGroup ) {
+                currentIndex = (int) i;
+                break;
+            }
+
+        int step = ( keycode == '.' ) ? 1 : -1;
+        int groupCount = (int) namedGroups.size();
+        int nextIndex = currentIndex < 0
+            ? ( step > 0 ? 0 : groupCount - 1 )
+            : ( ( currentIndex + step + groupCount ) % groupCount );
+
+        announceGroupThenFocus(*namedGroups[nextIndex].first, lastAnnouncedGroup, namedGroups[nextIndex].second);
         return true;
     }
 

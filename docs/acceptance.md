@@ -291,3 +291,27 @@ Tabbing between two controls inside the same panel should not repeat the panel's
   repeated announcement.
 - Windows/NVDA: unverified, and currently can't be tested, since DexedAccessible isn't
   installed on a Windows machine Jim has access to.
+
+## Comma and Period step between named panels
+Done when Comma moves keyboard focus to the previous named panel (an Operator, Global
+Parameters, or the on-screen keyboard when it's showing) and Period to the next, cycling in
+that fixed order and wrapping around at either end, landing on the panel's first control
+and announcing its name first, the same way Command+1-6/G/K already do. Pressing either key
+while the cartridge library is open does nothing but announce "Press Escape to exit the
+cartridge library," the same as the existing blocked jump shortcuts.
+- Jim tests: with VoiceOver on, press Period repeatedly from Operator 1 and confirm it
+  announces and lands on Operator 2, 3, 4, 5, 6, Global Parameters, the on-screen keyboard,
+  then back to Operator 1. Press Comma repeatedly and confirm the reverse order. Open the
+  cartridge library and confirm Comma and Period do nothing but the "press Escape" message.
+  The cartridge-library block confirmed working, 2026-11-16: pressed Command+L, then Comma
+  and Period right away, and got the "Press Escape to exit the cartridge library" message
+  both times, not a jump. Forward cycling with Period confirmed working across all panels.
+  Backward cycling with Comma found a real bug: stepping onto the keyboard, then pressing
+  Comma again, stuck there instead of continuing to Global Parameters. Root cause:
+  `findEnclosingNamedGroup()` only checked whether a panel was an ancestor of the focused
+  control, not whether the panel was itself the focused control, which is exactly what
+  happens on the keyboard, since it takes focus directly rather than handing it to a child.
+  Fixed by also checking "is this control the panel itself" for all three panel types; this
+  shared function is also what the Command-key shortcuts use to remember a return panel, so
+  the fix helps those too. Confirmed fixed, 2026-11-16: full backward cycle through all
+  panels, including the keyboard, now works.

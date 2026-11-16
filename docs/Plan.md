@@ -169,6 +169,19 @@ acceptance.md instead, and link back here.
   2026-11-15. CI built macOS, Windows, and Linux successfully and published the release:
   all three installers, checksums, the source tarball, and Keybindings.md are attached, and
   the release notes show the corrected disclosures.
+- [x] Comma/period group-stepping, from issue #3: Comma jumps to the previous named panel
+  (an Operator, Global Parameters, or the on-screen keyboard when showing), Period to the
+  next, cycling in that order and wrapping at either end, landing on the panel's first
+  control, via the same `announceGroupThenFocus()` the Command+1-6/G/K/L shortcuts already
+  use. Neither key needs a modifier, since nothing in those three panels has a text field
+  for either character to type into. Blocked while the cartridge library is open, the same
+  way Command+1-6/G/K already are, since those panels are hidden from accessibility then.
+  `Source/PluginEditor.cpp`. Added both keys to `Documentation/Keybindings.md`. Build clean,
+  arm64 confirmed on all four targets. Jim's testing found a real bug: stepping backward
+  with Comma onto the keyboard, then pressing Comma again, stuck there instead of
+  continuing to Global Parameters. Root cause and fix in `findEnclosingNamedGroup()`; see
+  log.md. Confirmed fixed, 2026-11-16: both the forward and backward full cycle through all
+  panels now work, and the cartridge-library block was separately confirmed working too.
 
 ## accessibility-refactor branch: systematic AccessibilityHandler coverage
 
@@ -177,7 +190,7 @@ class across the whole app in one pass, instead of the current one-component-at-
 approach, and see how much it improves things. Test, then decide whether to merge back into
 `accessibility`.
 
-- [ ] Survey every custom `Component` for real accessibility handler coverage. Done as part
+- [x] Survey every custom `Component` for real accessibility handler coverage. Done as part
   of planning, 2026-11-15: `AlgoDisplay`, `VuMeterBase` (backs `VuMeter` and `VuMeterOutput`),
   `CartManager`/`CartridgeFileDisplay`, `TuningShow`, and `ParamDialog` have no real handler,
   only a static tooltip or nothing. `EnvDisplay`, `PitchEnvDisplay`, `LcdDisplay`, `DXSlider`,

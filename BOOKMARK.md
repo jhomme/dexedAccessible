@@ -1,36 +1,50 @@
 # Bookmark
 
 ## Where we are
+On `accessibility`, 2026-11-16, building comma/period group-stepping from issue #3. Jim's
+spec: Comma jumps to the previous named panel, Period to the next, landing on the panel's
+first control. Cycles through Operator 1 through 6, Global Parameters, and the on-screen
+keyboard (when showing), wrapping at either end, in the same order the Command+1-6/G/K
+shortcuts already use, and reuses `announceGroupThenFocus()` and each panel's own
+`grabKeyboardFocus()` for the announcement and the landing, rather than a second mechanism.
+No modifier needed, since neither panel group has a text field for either character to
+type into. Blocked while the cartridge library is open, same as Command+1-6/G/K, with the
+same "Press Escape to exit the cartridge library" message. `Source/PluginEditor.cpp`.
+Added both keys to `Documentation/Keybindings.md`.
+
+Jim's testing found a real bug: stepping backward with Comma onto the keyboard, then
+pressing Comma again, stuck there instead of continuing to Global Parameters. Root cause:
+`findEnclosingNamedGroup()` only checked whether a panel was an ancestor of the focused
+control, never whether the panel was itself the focused control, which is exactly the
+keyboard's case, since it takes focus directly so computer-keyboard key presses can play
+notes. Fixed by also checking "is this the panel itself" for all three panel types. That
+function is shared with the Command-key shortcuts' own return-to-panel logic, so the fix
+reaches further than just this feature. Confirmed fixed, 2026-11-16: full forward and
+backward cycling through every panel works, and the cartridge-library block was separately
+confirmed too. Local build clean, arm64 confirmed on all four targets. Not yet committed.
+
+Still open from issue #3 after this: the preset save/picker tab-order fix, not started.
+
+## Before that
 Released v0.4.0 from `accessibility`, 2026-11-15: the whole accessibility-refactor batch
 (`AlgoDisplay`'s live handler and Command+Shift+A, `CartridgeFileDisplay`'s live handler,
 the explicit group role on `TuningShow`/`ParamDialog`/`ProgramListBox`, and the Tab/Shift+Tab
 panel-crossing announcement), plus the still-carried-over, still-untested-in-Reaper CLAP
-typed-value fix from v0.3.0. Bumped `CMakeLists.txt` to 0.4.0, rewrote `docs/release-notes.md`
-and the matching README.md paragraph to describe this release's real content, including the
-Windows/NVDA announcement-routing gap that applies to all of this branch's and v0.3.0's
-spoken announcements alike: they speak through Windows' own text-to-speech directly, not
-through NVDA. Also added matching content to `announcement.md` (gitignored, still not sent), and added the
-new Command+Shift+A/Control+Shift+A shortcut plus a general Tab/Shift+Tab panel-announcement
-line to `Documentation/Keybindings.md`, in its existing Mac/Windows-separated format, so the
-copy attached to the release stays current. Local build clean, arm64 confirmed on all four
-targets, `DexedTests` passed. Not yet tagged or pushed; waiting on Jim's go-ahead.
-
-Jim then re-tested the two pieces that had only been confirmed in Logic (AlgoDisplay/
-Command+Shift+A, CartridgeFileDisplay/CartManager) in the standalone app too, so every
-piece in this release except the group-role fix (Windows/NVDA only, no Mac-audible effect)
-is now confirmed in both Logic and standalone. Caught and fixed a real overclaim in
-`docs/release-notes.md` along the way: its first draft said all four pieces were confirmed
-in both hosts, when at the time only the Tab/Shift+Tab fix actually had been.
-
-Committed `b964b56`, tagged and pushed `v0.4.0`. CI built macOS, Windows, and Linux
-successfully and published the release: all three platform installers, checksums, the
-source tarball, and Keybindings.md are all attached, and the release notes on GitHub show
-the corrected, host-accurate disclosures. Not yet tested by Jim in a DAW beyond the Logic/
-standalone testing already done for each piece during development.
+typed-value fix from v0.3.0. Rewrote `docs/release-notes.md` and the matching README.md
+paragraph, including the Windows/NVDA announcement-routing gap: these announcements speak
+through Windows' own text-to-speech directly, not through NVDA. Jim re-tested in standalone
+the two pieces only confirmed in Logic before; both passed, closing the host gap for every
+piece except the group-role fix (no Mac-audible effect). Caught and fixed a real overclaim
+in `docs/release-notes.md`'s first draft along the way, which had said all four pieces were
+confirmed in both hosts before that was actually true. Committed `b964b56`, tagged and
+pushed `v0.4.0`. CI built macOS, Windows, and Linux successfully and published the release:
+all three platform installers, checksums, the source tarball, and Keybindings.md are all
+attached, and the release notes on GitHub show the corrected, host-accurate disclosures.
+Not yet tested by Jim in a DAW beyond the Logic/standalone testing already done per piece.
 
 `VuMeterBase` and a real audit of `TuningShow`'s tuning table (third-party code, unknown
 VoiceOver behavior, benefits only custom SCL/KBM users) are both out of scope and not coming
-up again on their own; see docs/Plan.md. Windows/NVDA testing for the whole batch above is
+up again on their own; see docs/Plan.md. Windows/NVDA testing for the whole v0.4.0 batch is
 still outstanding, and can't happen until Jim has a Windows machine with it installed.
 
 ## Before that
