@@ -19,15 +19,15 @@ Note that because I do not yet have an Apple Developer Certificate, you will hav
 
 As of this release, Windows and Linux versions have not been tested.
 
-This release adds live speech for the algorithm routing diagram, a cartridge library status
-announcement, an explicit group role for three panels that only matters on Windows with
-NVDA, and Tab/Shift+Tab announcing a panel's name crossing into it. On Windows, these
-announcements, like the ones before them, speak through Windows' own text-to-speech
-directly rather than through NVDA; NVDA itself does not yet announce any of this.
+This release adds Comma and Period as quick ways to jump between the main sections of the
+plugin (an Operator, Global Parameters, or the on-screen keyboard), landing on that
+section's first control, the same as the existing Command+1-6/G/K shortcuts, from issue #3.
+Testing that feature also found and fixed a real bug those existing shortcuts shared, in
+the code that remembers which section to return focus to.
 
 This release still includes a fix for CLAP hosts, such as Reaper, not applying a value typed
-directly into a parameter's field, carried over from the last release. That fix has not yet
-been tested in a real CLAP host.
+directly into a parameter's field, carried over from earlier releases. That fix has not yet
+been confirmed tested in a real CLAP host.
 
 Keyboard shortcuts are listed in [Documentation/Keybindings.md](Documentation/Keybindings.md),
 also attached to this release as a separate download. Better documentation overall is a

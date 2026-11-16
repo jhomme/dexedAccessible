@@ -23,6 +23,11 @@ reaches further than just this feature. Confirmed fixed, 2026-11-16: full forwar
 backward cycling through every panel works, and the cartridge-library block was separately
 confirmed too. Local build clean, arm64 confirmed on all four targets. Not yet committed.
 
+Committed `e063816`, pushed. Preparing v0.5.0 to carry this: bumped `CMakeLists.txt` to
+0.5.0, rewrote `docs/release-notes.md`, the matching README.md paragraph, and
+`announcement.md`. Local build clean, arm64 confirmed on all four targets, `DexedTests`
+passed. Not yet tagged or pushed.
+
 Still open from issue #3 after this: the preset save/picker tab-order fix, not started.
 
 ## Before that

@@ -182,6 +182,11 @@ acceptance.md instead, and link back here.
   continuing to Global Parameters. Root cause and fix in `findEnclosingNamedGroup()`; see
   log.md. Confirmed fixed, 2026-11-16: both the forward and backward full cycle through all
   panels now work, and the cartridge-library block was separately confirmed working too.
+  Committed `e063816`, pushed.
+- [x] Release v0.5.0: comma/period group-stepping and the `findEnclosingNamedGroup` fix
+  above. Bumped `CMakeLists.txt` to 0.5.0, rewrote `docs/release-notes.md`, the matching
+  README.md paragraph, and `announcement.md` for this release's actual content. Local
+  build clean, arm64 confirmed on all four targets, `DexedTests` passed.
 
 ## accessibility-refactor branch: systematic AccessibilityHandler coverage
 
